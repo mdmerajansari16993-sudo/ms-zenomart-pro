@@ -425,34 +425,18 @@
 
     <form onsubmit="handleAdminLoginSubmit(event)" class="space-y-4 text-xs">
       <div>
-        <label class="block text-slate-300 font-semibold mb-1">Authorized Owner Gmail</label>
+        <label class="block text-slate-300 font-semibold mb-1">Owner Gmail Address</label>
         <div class="relative">
           <input 
             type="email" 
             id="adminEmailInput" 
             required 
-            placeholder="mdmerajansari16993@gmail.com"
-            value="mdmerajansari16993@gmail.com"
+            placeholder="Enter owner Gmail..."
+            value=""
             class="w-full bg-navy-950 border border-navy-700 rounded-xl py-2.5 pl-9 pr-3 text-white placeholder-slate-500 focus:outline-none focus:border-gold-500"
           />
           <i class="fa-regular fa-envelope absolute left-3 top-1/2 -translate-y-1/2 text-slate-500"></i>
         </div>
-      </div>
-
-      <div>
-        <label class="block text-slate-300 font-semibold mb-1">Security PIN / Password</label>
-        <div class="relative">
-          <input 
-            type="password" 
-            id="adminPasswordInput" 
-            required 
-            placeholder="Enter owner security passcode" 
-            value="admin123"
-            class="w-full bg-navy-950 border border-navy-700 rounded-xl py-2.5 pl-9 pr-3 text-white placeholder-slate-500 focus:outline-none focus:border-gold-500"
-          />
-          <i class="fa-solid fa-key absolute left-3 top-1/2 -translate-y-1/2 text-slate-500"></i>
-        </div>
-        <p class="text-[10px] text-slate-400 mt-1">Default security code for owner: <code class="text-gold-400 font-bold">admin123</code></p>
       </div>
 
       <div id="loginErrorMessage" class="hidden bg-red-500/15 border border-red-500/30 text-red-400 p-2.5 rounded-xl text-[11px]">
@@ -464,7 +448,7 @@
         class="w-full py-3 rounded-xl bg-gradient-to-r from-gold-500 to-accent-orange text-navy-950 font-black text-xs hover:from-gold-400 hover:to-accent-glow shadow-glow-orange transition-all flex items-center justify-center gap-2"
       >
         <i class="fa-solid fa-lock-open"></i>
-        <span>Authenticate as Store Owner</span>
+        <span>Login as Store Owner</span>
       </button>
     </form>
   </div>
@@ -1147,12 +1131,15 @@
       const modal = document.getElementById("adminLoginModal");
       const backdrop = document.getElementById("adminLoginModalBackdrop");
       const err = document.getElementById("loginErrorMessage");
-      err.classList.add("hidden");
+      const emailInput = document.getElementById("adminEmailInput");
+      if (emailInput) emailInput.value = "";
+      if (err) err.classList.add("hidden");
 
       backdrop.classList.remove("opacity-0", "pointer-events-none");
       backdrop.classList.add("opacity-100", "pointer-events-auto");
       modal.classList.remove("opacity-0", "pointer-events-none");
       modal.classList.add("opacity-100", "pointer-events-auto");
+      if (emailInput) setTimeout(() => emailInput.focus(), 150);
     }
 
     function closeAdminLoginModal() {
@@ -1167,26 +1154,22 @@
     function handleAdminLoginSubmit(e) {
       e.preventDefault();
       const email = document.getElementById("adminEmailInput").value.trim().toLowerCase();
-      const password = document.getElementById("adminPasswordInput").value.trim();
       const err = document.getElementById("loginErrorMessage");
 
       // Strict Authorized Email Check: ONLY mdmerajansari16993@gmail.com
       if (email !== AUTHORIZED_OWNER_GMAIL.toLowerCase()) {
-        err.innerHTML = `
-          <strong><i class="fa-solid fa-ban mr-1"></i> Access Denied:</strong>
-          Only the authorized store owner (<code>${AUTHORIZED_OWNER_GMAIL}</code>) can manage MS ZenoMart.
-        `;
-        err.classList.remove("hidden");
+        if (err) {
+          err.innerHTML = `
+            <strong><i class="fa-solid fa-ban mr-1"></i> Access Denied:</strong>
+            Only the authorized store owner (<code>${AUTHORIZED_OWNER_GMAIL}</code>) can manage MS ZenoMart.
+          `;
+          err.classList.remove("hidden");
+        }
+        alert("Access Denied: You are not authorized to access the MS ZenoMart Admin Panel.");
         return;
       }
 
-      if (password !== "admin123") {
-        err.innerHTML = `<strong><i class="fa-solid fa-circle-exclamation mr-1"></i> Invalid Password:</strong> Please check your security passcode.`;
-        err.classList.remove("hidden");
-        return;
-      }
-
-      // Successful Authentication
+      // Successful Authentication - Grant full admin access instantly
       sessionStorage.setItem("zenomart_admin_session", "true");
       closeAdminLoginModal();
       checkAdminSession();
