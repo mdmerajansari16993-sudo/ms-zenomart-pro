@@ -144,6 +144,30 @@
               <i class="fa-solid fa-xmark text-xs"></i>
             </button>
           </div>
+          <!-- Desktop Trending Pills -->
+          <div class="hidden sm:flex items-center gap-1.5 overflow-x-auto scrollbar-none pt-1.5 text-[11px] text-slate-400">
+            <span class="text-gold-400 font-bold shrink-0 flex items-center gap-1">
+              <i class="fa-solid fa-fire text-accent-orange text-[10px]"></i> Trending:
+            </span>
+            <button onclick="quickSearch('Jeans')" class="px-2 py-0.5 rounded-full bg-navy-900 hover:bg-navy-800 text-slate-200 border border-navy-700/80 whitespace-nowrap transition-colors">
+              👖 Jeans
+            </button>
+            <button onclick="quickSearch('Headphones')" class="px-2 py-0.5 rounded-full bg-navy-900 hover:bg-navy-800 text-slate-200 border border-navy-700/80 whitespace-nowrap transition-colors">
+              🎧 Headphones
+            </button>
+            <button onclick="quickSearch('Ghee')" class="px-2 py-0.5 rounded-full bg-navy-900 hover:bg-navy-800 text-slate-200 border border-navy-700/80 whitespace-nowrap transition-colors">
+              🧈 Desi Ghee
+            </button>
+            <button onclick="quickSearch('T-Shirt')" class="px-2 py-0.5 rounded-full bg-navy-900 hover:bg-navy-800 text-slate-200 border border-navy-700/80 whitespace-nowrap transition-colors">
+              👕 T-Shirt
+            </button>
+            <button onclick="quickSearch('Sneakers')" class="px-2 py-0.5 rounded-full bg-navy-900 hover:bg-navy-800 text-slate-200 border border-navy-700/80 whitespace-nowrap transition-colors">
+              👟 Sneakers
+            </button>
+            <button onclick="quickSearch('Sweets')" class="px-2 py-0.5 rounded-full bg-navy-900 hover:bg-navy-800 text-slate-200 border border-navy-700/80 whitespace-nowrap transition-colors">
+              🍬 Sweets
+            </button>
+          </div>
         </div>
 
         <!-- Action Buttons -->
@@ -151,7 +175,7 @@
           
           <!-- My Orders / 90-Min Tracker -->
           <button 
-            onclick="openOrdersModal()" 
+            onclick="switchMainView('orders')" 
             class="relative px-3 py-2 rounded-xl bg-navy-900 hover:bg-navy-850 text-slate-300 hover:text-white border border-navy-700/80 text-xs font-semibold flex items-center gap-2 transition-all"
             title="Track recent orders and 90-minute cancellation"
           >
@@ -185,20 +209,45 @@
         </div>
       </div>
 
-      <!-- Mobile Search Bar -->
-      <div class="pb-3 md:hidden">
-        <div class="relative">
+      <!-- Mobile Search Bar & Trending Pills -->
+      <div class="pb-2 md:hidden">
+        <div class="relative mb-2">
           <input 
             type="text" 
             id="mobileSearchInput" 
             oninput="handleSearch(this.value)"
-            placeholder="Search products or local partner shops..." 
+            placeholder="Search jeans, electronics, groceries..." 
             class="w-full bg-navy-900 border border-navy-700 rounded-full py-2 pl-10 pr-9 text-xs text-slate-100 placeholder-slate-400 focus:outline-none focus:border-gold-500"
           />
           <i class="fa-solid fa-magnifying-glass absolute left-3.5 top-1/2 -translate-y-1/2 text-slate-400 text-xs"></i>
           <button onclick="clearSearch()" class="absolute right-3 top-1/2 -translate-y-1/2 text-slate-400">
             <i class="fa-solid fa-xmark text-xs"></i>
           </button>
+        </div>
+        <div class="flex items-center gap-1 overflow-x-auto scrollbar-none text-[10px] text-slate-400">
+          <span class="text-gold-400 font-bold shrink-0">Popular:</span>
+          <button onclick="quickSearch('Jeans')" class="px-2 py-0.5 rounded-full bg-navy-900 text-slate-200 border border-navy-800 whitespace-nowrap">👖 Jeans</button>
+          <button onclick="quickSearch('Headphones')" class="px-2 py-0.5 rounded-full bg-navy-900 text-slate-200 border border-navy-800 whitespace-nowrap">🎧 Audio</button>
+          <button onclick="quickSearch('Ghee')" class="px-2 py-0.5 rounded-full bg-navy-900 text-slate-200 border border-navy-800 whitespace-nowrap">🧈 Ghee</button>
+          <button onclick="quickSearch('T-Shirt')" class="px-2 py-0.5 rounded-full bg-navy-900 text-slate-200 border border-navy-800 whitespace-nowrap">👕 T-Shirts</button>
+          <button onclick="quickSearch('Sneakers')" class="px-2 py-0.5 rounded-full bg-navy-900 text-slate-200 border border-navy-800 whitespace-nowrap">👟 Shoes</button>
+        </div>
+      </div>
+    </div>
+
+    <!-- Sub-Header / Delivery Location & Express Bar -->
+    <div class="bg-navy-900/90 border-t border-navy-800/80 py-1.5 px-4 text-xs">
+      <div class="max-w-7xl mx-auto flex items-center justify-between gap-3 text-[11px]">
+        <div class="flex items-center gap-1.5 text-slate-300 truncate">
+          <i class="fa-solid fa-location-dot text-accent-orange"></i>
+          <span class="text-slate-400">Deliver to:</span>
+          <span id="headerLocationText" class="font-bold text-white truncate">Local Hub / Hyperlocal Zone</span>
+          <button onclick="openCheckoutModal()" class="text-gold-400 hover:underline text-[10px] ml-1 shrink-0 font-semibold">Change</button>
+        </div>
+        <div class="flex items-center gap-3 text-slate-400 shrink-0">
+          <span class="inline-flex items-center gap-1 text-emerald-400 font-semibold text-[10px] sm:text-[11px]">
+            <i class="fa-solid fa-bolt text-accent-orange"></i> 60-90 Mins Delivery Guarantee
+          </span>
         </div>
       </div>
     </div>
@@ -227,108 +276,253 @@
   <!-- ======================================================== -->
   <!-- MAIN CONTENT CONTAINER                                   -->
   <!-- ======================================================== -->
-  <main class="flex-1 max-w-7xl w-full mx-auto px-4 sm:px-6 lg:px-8 py-6">
+  <main class="flex-1 max-w-7xl w-full mx-auto px-4 sm:px-6 lg:px-8 py-5 pb-24 md:pb-8">
     
-    <!-- Hero / Dropshipping Intro Card -->
-    <div class="relative overflow-hidden rounded-3xl bg-gradient-to-br from-navy-900 via-navy-850 to-navy-950 border border-gold-500/30 p-6 sm:p-8 mb-8 shadow-2xl">
-      <!-- Glow ambient orb -->
-      <div class="absolute -right-16 -top-16 w-64 h-64 bg-accent-orange/15 rounded-full blur-3xl pointer-events-none"></div>
-      <div class="absolute -left-16 -bottom-16 w-64 h-64 bg-gold-500/10 rounded-full blur-3xl pointer-events-none"></div>
-
-      <div class="relative z-10 max-w-3xl">
-        <div class="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-gold-500/15 border border-gold-500/30 text-gold-400 text-xs font-bold mb-4">
-          <i class="fa-solid fa-truck-fast"></i>
-          <span>Hyperlocal Neighborhood Dropshipping Model</span>
-        </div>
-        <h1 class="text-2xl sm:text-4xl font-extrabold text-white tracking-tight leading-tight mb-3">
-          Order from Top Local Shops at <span class="bg-gradient-to-r from-gold-400 to-accent-orange bg-clip-text text-transparent">Custom Discounted Prices</span>.
-        </h1>
-        <p class="text-xs sm:text-sm text-slate-300 leading-relaxed mb-6">
-          We source directly from partner retail stores, wholesale hubs, and bakeries in your city. Seamlessly place orders with auto-memorized address and instant WhatsApp dispatch with a <strong>90-minute risk-free cancellation guarantee</strong>.
-        </p>
-
-        <!-- Feature Pills -->
-        <div class="grid grid-cols-2 sm:grid-cols-4 gap-3 text-xs">
-          <div class="bg-navy-950/60 border border-navy-700/80 rounded-xl p-2.5 flex items-center gap-2.5">
-            <div class="w-8 h-8 rounded-lg bg-gold-500/20 text-gold-400 flex items-center justify-center shrink-0">
-              <i class="fa-solid fa-shop"></i>
-            </div>
-            <div>
-              <p class="text-[10px] text-slate-400">Sourced From</p>
-              <p class="font-bold text-white text-[11px]">Local Partners</p>
-            </div>
-          </div>
-          <div class="bg-navy-950/60 border border-navy-700/80 rounded-xl p-2.5 flex items-center gap-2.5">
-            <div class="w-8 h-8 rounded-lg bg-accent-green/20 text-accent-green flex items-center justify-center shrink-0">
-              <i class="fa-brands fa-whatsapp text-sm"></i>
-            </div>
-            <div>
-              <p class="text-[10px] text-slate-400">Order System</p>
-              <p class="font-bold text-white text-[11px]">WhatsApp 1-Tap</p>
-            </div>
-          </div>
-          <div class="bg-navy-950/60 border border-navy-700/80 rounded-xl p-2.5 flex items-center gap-2.5">
-            <div class="w-8 h-8 rounded-lg bg-accent-orange/20 text-accent-orange flex items-center justify-center shrink-0">
-              <i class="fa-solid fa-address-book"></i>
-            </div>
-            <div>
-              <p class="text-[10px] text-slate-400">Address Memory</p>
-              <p class="font-bold text-white text-[11px]">Auto Saved</p>
-            </div>
-          </div>
-          <div class="bg-navy-950/60 border border-navy-700/80 rounded-xl p-2.5 flex items-center gap-2.5">
-            <div class="w-8 h-8 rounded-lg bg-blue-500/20 text-blue-400 flex items-center justify-center shrink-0">
-              <i class="fa-solid fa-hourglass-half"></i>
-            </div>
-            <div>
-              <p class="text-[10px] text-slate-400">Cancellation</p>
-              <p class="font-bold text-white text-[11px]">90-Min Window</p>
-            </div>
-          </div>
-        </div>
-      </div>
-    </div>
-
-    <!-- Category Filters & Store Controls -->
-    <div class="flex flex-wrap items-center justify-between gap-4 mb-6">
-      
-      <!-- Category Pills -->
-      <div class="flex items-center gap-2 overflow-x-auto pb-2 scrollbar-none max-w-full" id="categoryFilterContainer">
-        <!-- Rendered dynamically -->
-      </div>
-
-      <!-- Item Count & Sort -->
-      <div class="flex items-center gap-3 ml-auto text-xs text-slate-400">
-        <span id="productCountLabel">Showing all products</span>
-        <select 
-          id="sortSelect" 
-          onchange="handleSortChange(this.value)" 
-          class="bg-navy-900 border border-navy-700 rounded-xl px-3 py-1.5 text-xs text-slate-200 focus:outline-none focus:border-gold-500"
+    <!-- Top View Switcher (Storefront vs My Orders) -->
+    <div class="flex items-center justify-between flex-wrap gap-3 mb-5">
+      <div class="flex items-center gap-1.5 bg-navy-900/90 p-1.5 rounded-2xl border border-navy-800 shadow-lg">
+        <button 
+          id="tabStoreBtn" 
+          onclick="switchMainView('store')" 
+          class="px-4 py-2 rounded-xl text-xs font-black flex items-center gap-2 transition-all bg-gradient-to-r from-gold-500 to-accent-orange text-navy-950 shadow-md"
         >
-          <option value="featured">Featured First</option>
-          <option value="price-asc">Price: Low to High</option>
-          <option value="price-desc">Price: High to Low</option>
-          <option value="rating">Top Rated</option>
-        </select>
+          <i class="fa-solid fa-store"></i>
+          <span>Explore Storefront</span>
+        </button>
+        <button 
+          id="tabOrdersBtn" 
+          onclick="switchMainView('orders')" 
+          class="px-4 py-2 rounded-xl text-xs font-bold flex items-center gap-2 transition-all text-slate-400 hover:text-white"
+        >
+          <i class="fa-solid fa-truck-fast text-accent-orange"></i>
+          <span>My Orders & Tracking</span>
+          <span id="tabOrdersBadge" class="bg-accent-orange text-white text-[10px] font-black px-1.5 py-0.2 rounded-full">0</span>
+        </button>
+      </div>
+
+      <!-- Quick Status Badges -->
+      <div class="hidden sm:flex items-center gap-2 text-xs text-slate-400 bg-navy-900/70 px-3 py-1.5 rounded-xl border border-navy-800">
+        <span class="w-2 h-2 rounded-full bg-emerald-400 animate-pulse"></span>
+        <span class="text-[11px] text-slate-300">Hyperlocal Network: <strong>8 Partner Shops Live</strong></span>
+      </div>
+    </div>
+
+    <!-- ======================================================== -->
+    <!-- SECTION A: STOREFRONT CATALOG                            -->
+    <!-- ======================================================== -->
+    <div id="storeMainSection">
+      
+      <!-- Visual Category Carousel (Amazon/Flipkart/Meesho Style) -->
+      <div class="bg-navy-900/50 border border-navy-800/80 rounded-2xl p-3 mb-6">
+        <div class="flex items-center justify-between gap-4 overflow-x-auto pb-1 scrollbar-none text-center">
+          
+          <button onclick="setCategory('All')" class="flex flex-col items-center gap-1.5 shrink-0 group focus:outline-none min-w-[62px]">
+            <div class="w-12 h-12 rounded-2xl bg-gradient-to-br from-gold-500/20 to-accent-orange/20 border border-gold-500/40 flex items-center justify-center text-gold-400 group-hover:scale-105 transition-transform shadow-sm">
+              <i class="fa-solid fa-layer-group text-lg"></i>
+            </div>
+            <span class="text-[10px] font-bold text-slate-200 group-hover:text-gold-400 transition-colors">All Store</span>
+          </button>
+
+          <button onclick="setCategory('Fashion & Jeans')" class="flex flex-col items-center gap-1.5 shrink-0 group focus:outline-none min-w-[62px]">
+            <div class="w-12 h-12 rounded-2xl bg-gradient-to-br from-blue-500/20 to-indigo-500/20 border border-blue-500/40 flex items-center justify-center text-blue-400 group-hover:scale-105 transition-transform shadow-sm">
+              <i class="fa-solid fa-shirt text-lg"></i>
+            </div>
+            <span class="text-[10px] font-bold text-slate-200 group-hover:text-gold-400 transition-colors">Jeans & Wear</span>
+          </button>
+
+          <button onclick="setCategory('Electronics & Gadgets')" class="flex flex-col items-center gap-1.5 shrink-0 group focus:outline-none min-w-[62px]">
+            <div class="w-12 h-12 rounded-2xl bg-gradient-to-br from-purple-500/20 to-pink-500/20 border border-purple-500/40 flex items-center justify-center text-purple-400 group-hover:scale-105 transition-transform shadow-sm">
+              <i class="fa-solid fa-headphones text-lg"></i>
+            </div>
+            <span class="text-[10px] font-bold text-slate-200 group-hover:text-gold-400 transition-colors">Electronics</span>
+          </button>
+
+          <button onclick="setCategory('Groceries & Essentials')" class="flex flex-col items-center gap-1.5 shrink-0 group focus:outline-none min-w-[62px]">
+            <div class="w-12 h-12 rounded-2xl bg-gradient-to-br from-emerald-500/20 to-teal-500/20 border border-emerald-500/40 flex items-center justify-center text-emerald-400 group-hover:scale-105 transition-transform shadow-sm">
+              <i class="fa-solid fa-wheat-awn text-lg"></i>
+            </div>
+            <span class="text-[10px] font-bold text-slate-200 group-hover:text-gold-400 transition-colors">Groceries</span>
+          </button>
+
+          <button onclick="setCategory('Sweets & Bakery')" class="flex flex-col items-center gap-1.5 shrink-0 group focus:outline-none min-w-[62px]">
+            <div class="w-12 h-12 rounded-2xl bg-gradient-to-br from-amber-500/20 to-orange-500/20 border border-amber-500/40 flex items-center justify-center text-amber-400 group-hover:scale-105 transition-transform shadow-sm">
+              <i class="fa-solid fa-cake-candles text-lg"></i>
+            </div>
+            <span class="text-[10px] font-bold text-slate-200 group-hover:text-gold-400 transition-colors">Bakery</span>
+          </button>
+
+          <button onclick="setCategory('Footwear & Shoes')" class="flex flex-col items-center gap-1.5 shrink-0 group focus:outline-none min-w-[62px]">
+            <div class="w-12 h-12 rounded-2xl bg-gradient-to-br from-rose-500/20 to-red-500/20 border border-rose-500/40 flex items-center justify-center text-rose-400 group-hover:scale-105 transition-transform shadow-sm">
+              <i class="fa-solid fa-shoe-prints text-lg"></i>
+            </div>
+            <span class="text-[10px] font-bold text-slate-200 group-hover:text-gold-400 transition-colors">Footwear</span>
+          </button>
+
+          <button onclick="setCategory('Daily Home Goods')" class="flex flex-col items-center gap-1.5 shrink-0 group focus:outline-none min-w-[62px]">
+            <div class="w-12 h-12 rounded-2xl bg-gradient-to-br from-cyan-500/20 to-blue-500/20 border border-cyan-500/40 flex items-center justify-center text-cyan-400 group-hover:scale-105 transition-transform shadow-sm">
+              <i class="fa-solid fa-house text-lg"></i>
+            </div>
+            <span class="text-[10px] font-bold text-slate-200 group-hover:text-gold-400 transition-colors">Home Living</span>
+          </button>
+
+        </div>
+      </div>
+
+      <!-- Hero / Dropshipping Intro Card -->
+      <div class="relative overflow-hidden rounded-3xl bg-gradient-to-br from-navy-900 via-navy-850 to-navy-950 border border-gold-500/30 p-6 sm:p-8 mb-8 shadow-2xl">
+        <div class="absolute -right-16 -top-16 w-64 h-64 bg-accent-orange/15 rounded-full blur-3xl pointer-events-none"></div>
+        <div class="absolute -left-16 -bottom-16 w-64 h-64 bg-gold-500/10 rounded-full blur-3xl pointer-events-none"></div>
+
+        <div class="relative z-10 max-w-3xl">
+          <div class="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-gold-500/15 border border-gold-500/30 text-gold-400 text-xs font-bold mb-4">
+            <i class="fa-solid fa-truck-fast"></i>
+            <span>Hyperlocal Neighborhood Dropshipping Model</span>
+          </div>
+          <h1 class="text-2xl sm:text-4xl font-extrabold text-white tracking-tight leading-tight mb-3">
+            Order from Top Local Shops at <span class="bg-gradient-to-r from-gold-400 to-accent-orange bg-clip-text text-transparent">Custom Discounted Prices</span>.
+          </h1>
+          <p class="text-xs sm:text-sm text-slate-300 leading-relaxed mb-6">
+            We source directly from partner retail stores, wholesale hubs, and bakeries in your city. Seamlessly place orders with auto-memorized address and instant WhatsApp dispatch with a <strong>90-minute risk-free cancellation guarantee</strong>.
+          </p>
+
+          <!-- Feature Pills -->
+          <div class="grid grid-cols-2 sm:grid-cols-4 gap-3 text-xs">
+            <div class="bg-navy-950/60 border border-navy-700/80 rounded-xl p-2.5 flex items-center gap-2.5">
+              <div class="w-8 h-8 rounded-lg bg-gold-500/20 text-gold-400 flex items-center justify-center shrink-0">
+                <i class="fa-solid fa-shop"></i>
+              </div>
+              <div>
+                <p class="text-[10px] text-slate-400">Sourced From</p>
+                <p class="font-bold text-white text-[11px]">Local Partners</p>
+              </div>
+            </div>
+            <div class="bg-navy-950/60 border border-navy-700/80 rounded-xl p-2.5 flex items-center gap-2.5">
+              <div class="w-8 h-8 rounded-lg bg-accent-green/20 text-accent-green flex items-center justify-center shrink-0">
+                <i class="fa-brands fa-whatsapp text-sm"></i>
+              </div>
+              <div>
+                <p class="text-[10px] text-slate-400">Order System</p>
+                <p class="font-bold text-white text-[11px]">WhatsApp 1-Tap</p>
+              </div>
+            </div>
+            <div class="bg-navy-950/60 border border-navy-700/80 rounded-xl p-2.5 flex items-center gap-2.5">
+              <div class="w-8 h-8 rounded-lg bg-accent-orange/20 text-accent-orange flex items-center justify-center shrink-0">
+                <i class="fa-solid fa-address-book"></i>
+              </div>
+              <div>
+                <p class="text-[10px] text-slate-400">Address Memory</p>
+                <p class="font-bold text-white text-[11px]">Auto Saved</p>
+              </div>
+            </div>
+            <div class="bg-navy-950/60 border border-navy-700/80 rounded-xl p-2.5 flex items-center gap-2.5">
+              <div class="w-8 h-8 rounded-lg bg-blue-500/20 text-blue-400 flex items-center justify-center shrink-0">
+                <i class="fa-solid fa-hourglass-half"></i>
+              </div>
+              <div>
+                <p class="text-[10px] text-slate-400">Cancellation</p>
+                <p class="font-bold text-white text-[11px]">90-Min Window</p>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Category Filters & Store Controls -->
+      <div class="flex flex-wrap items-center justify-between gap-4 mb-6">
+        
+        <!-- Category Pills -->
+        <div class="flex items-center gap-2 overflow-x-auto pb-2 scrollbar-none max-w-full" id="categoryFilterContainer">
+          <!-- Rendered dynamically -->
+        </div>
+
+        <!-- Item Count & Sort -->
+        <div class="flex items-center gap-3 ml-auto text-xs text-slate-400">
+          <span id="productCountLabel">Showing all products</span>
+          <select 
+            id="sortSelect" 
+            onchange="handleSortChange(this.value)" 
+            class="bg-navy-900 border border-navy-700 rounded-xl px-3 py-1.5 text-xs text-slate-200 focus:outline-none focus:border-gold-500"
+          >
+            <option value="featured">Featured First</option>
+            <option value="price-asc">Price: Low to High</option>
+            <option value="price-desc">Price: High to Low</option>
+            <option value="rating">Top Rated</option>
+          </select>
+        </div>
+
+      </div>
+
+      <!-- Product Grid -->
+      <div id="productGrid" class="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-5">
+        <!-- Injected via JavaScript -->
+      </div>
+
+      <!-- Empty State -->
+      <div id="emptyState" class="hidden text-center py-16 px-4 bg-navy-900/40 rounded-3xl border border-navy-800">
+        <div class="w-16 h-16 mx-auto mb-4 rounded-2xl bg-navy-900 border border-navy-800 flex items-center justify-center text-slate-500 text-2xl">
+          <i class="fa-solid fa-box-open text-gold-400"></i>
+        </div>
+        <h3 class="text-base font-bold text-white mb-1">No products match your search</h3>
+        <p class="text-xs text-slate-400 mb-4 max-w-sm mx-auto">Try searching for popular terms like <strong>Jeans</strong>, <strong>Headphones</strong>, or <strong>Cow Ghee</strong>.</p>
+        <div class="flex items-center justify-center gap-2 flex-wrap">
+          <button onclick="quickSearch('Jeans')" class="px-3 py-1.5 rounded-xl bg-navy-850 hover:bg-navy-800 text-slate-200 text-xs font-bold border border-navy-700 transition-colors">
+            👖 Search "Jeans"
+          </button>
+          <button onclick="resetFilters()" class="px-4 py-1.5 rounded-xl bg-gradient-to-r from-gold-500 to-accent-orange text-navy-950 font-bold text-xs hover:from-gold-400 transition-all">
+            Reset All Filters
+          </button>
+        </div>
       </div>
 
     </div>
 
-    <!-- Product Grid -->
-    <div id="productGrid" class="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-5">
-      <!-- Injected via JavaScript -->
-    </div>
+    <!-- ======================================================== -->
+    <!-- SECTION B: MY ORDERS & DELIVERY TRACKER (Amazon/Flipkart)-->
+    <!-- ======================================================== -->
+    <div id="ordersMainSection" class="hidden">
+      
+      <!-- Section Header -->
+      <div class="bg-gradient-to-r from-navy-900 via-navy-850 to-navy-900 border border-gold-500/30 rounded-3xl p-5 sm:p-6 mb-6 shadow-xl flex flex-wrap items-center justify-between gap-4">
+        <div class="flex items-center gap-3">
+          <div class="w-12 h-12 rounded-2xl bg-gold-500/20 text-gold-400 flex items-center justify-center text-xl shrink-0">
+            <i class="fa-solid fa-box-archive"></i>
+          </div>
+          <div>
+            <h2 class="text-lg sm:text-xl font-black text-white flex items-center gap-2">
+              <span>My Hyperlocal Orders</span>
+              <span id="mainOrdersHeaderCount" class="text-xs font-bold bg-accent-orange text-white px-2 py-0.5 rounded-full">0 Orders</span>
+            </h2>
+            <p class="text-xs text-slate-400 mt-0.5">Live Delivery Progress Tracker & 90-Minute Cancellation Window</p>
+          </div>
+        </div>
 
-    <!-- Empty State -->
-    <div id="emptyState" class="hidden text-center py-16 px-4">
-      <div class="w-16 h-16 mx-auto mb-4 rounded-2xl bg-navy-900 border border-navy-800 flex items-center justify-center text-slate-500 text-2xl">
-        <i class="fa-solid fa-box-open"></i>
+        <button 
+          onclick="switchMainView('store')" 
+          class="px-4 py-2 rounded-xl bg-navy-800 hover:bg-navy-750 text-slate-200 text-xs font-bold border border-navy-700 flex items-center gap-2 transition-colors ml-auto sm:ml-0"
+        >
+          <i class="fa-solid fa-arrow-left text-gold-400"></i>
+          <span>Continue Shopping</span>
+        </button>
       </div>
-      <h3 class="text-base font-bold text-white mb-1">No products match your criteria</h3>
-      <p class="text-xs text-slate-400 mb-4">Try clearing your search terms or picking another category.</p>
-      <button onclick="resetFilters()" class="px-4 py-2 rounded-xl bg-gold-500 text-navy-950 font-bold text-xs hover:bg-gold-400 transition-colors">
-        Reset All Filters
-      </button>
+
+      <!-- 90-Minute Notice Banner -->
+      <div class="bg-navy-900/80 border border-gold-500/30 rounded-2xl p-4 mb-6 text-xs text-slate-300 flex items-start gap-3">
+        <div class="w-8 h-8 rounded-xl bg-gold-500/20 text-gold-400 flex items-center justify-center shrink-0 mt-0.5">
+          <i class="fa-solid fa-clock-rotate-left text-sm animate-pulse"></i>
+        </div>
+        <div>
+          <p class="font-bold text-white text-xs">How Hyperlocal Tracking Works</p>
+          <p class="text-slate-400 text-[11px] mt-0.5 leading-relaxed">
+            Every order is sourced straight from our neighborhood partner stores. You have <strong>90 minutes</strong> from placement to request cancellation or modification. Once the timer finishes, delivery executives pick up and dispatch your items!
+          </p>
+        </div>
+      </div>
+
+      <!-- Orders List Container on Main Page -->
+      <div id="mainOrdersListContainer" class="space-y-4 text-xs">
+        <!-- Injected via JavaScript -->
+      </div>
+
     </div>
 
   </main>
@@ -867,7 +1061,7 @@
   <!-- ======================================================== -->
   <!-- TOAST NOTIFICATION CONTAINER                             -->
   <!-- ======================================================== -->
-  <div id="toast" class="fixed bottom-5 right-5 z-50 transform translate-y-20 opacity-0 transition-all duration-300 pointer-events-none">
+  <div id="toast" class="fixed bottom-20 md:bottom-5 right-5 z-50 transform translate-y-20 opacity-0 transition-all duration-300 pointer-events-none">
     <div class="bg-navy-900 border border-gold-500/50 shadow-2xl rounded-2xl p-4 flex items-center gap-3 text-xs text-white max-w-sm">
       <div id="toastIcon" class="w-8 h-8 rounded-xl bg-gold-500/20 text-gold-400 flex items-center justify-center shrink-0">
         <i class="fa-solid fa-check"></i>
@@ -878,6 +1072,51 @@
       </div>
     </div>
   </div>
+
+  <!-- ======================================================== -->
+  <!-- MOBILE BOTTOM STICKY NAVIGATION BAR (Amazon/Flipkart App)-->
+  <!-- ======================================================== -->
+  <nav class="md:hidden fixed bottom-0 left-0 right-0 z-40 bg-navy-950/95 backdrop-blur-md border-t border-navy-800/90 px-3 py-2 flex items-center justify-around shadow-2xl">
+    <button 
+      id="bottomNavStore"
+      onclick="switchMainView('store'); window.scrollTo({top: 0, behavior: 'smooth'});" 
+      class="flex flex-col items-center gap-0.5 text-gold-400 text-[10px] font-bold transition-colors"
+    >
+      <i class="fa-solid fa-store text-base"></i>
+      <span>Store</span>
+    </button>
+    <button 
+      onclick="focusSearch()" 
+      class="flex flex-col items-center gap-0.5 text-slate-400 hover:text-white text-[10px] font-bold transition-colors"
+    >
+      <i class="fa-solid fa-magnifying-glass text-base"></i>
+      <span>Search</span>
+    </button>
+    <button 
+      id="bottomNavOrders"
+      onclick="switchMainView('orders')" 
+      class="relative flex flex-col items-center gap-0.5 text-slate-400 hover:text-white text-[10px] font-bold transition-colors"
+    >
+      <i class="fa-solid fa-box text-base"></i>
+      <span>Orders</span>
+      <span id="bottomNavOrdersBadge" class="absolute -top-1 right-1 bg-accent-orange text-white text-[9px] font-black w-4 h-4 rounded-full flex items-center justify-center">0</span>
+    </button>
+    <button 
+      onclick="openCartDrawer()" 
+      class="relative flex flex-col items-center gap-0.5 text-slate-400 hover:text-white text-[10px] font-bold transition-colors"
+    >
+      <i class="fa-solid fa-cart-shopping text-base"></i>
+      <span>Cart</span>
+      <span id="bottomNavCartBadge" class="bg-accent-orange text-white text-[9px] font-black w-4 h-4 rounded-full flex items-center justify-center absolute -top-1 right-0">0</span>
+    </button>
+    <button 
+      onclick="handleAdminNavClick()" 
+      class="flex flex-col items-center gap-0.5 text-slate-400 hover:text-white text-[10px] font-bold transition-colors"
+    >
+      <i class="fa-regular fa-user text-base" id="bottomNavUserIcon"></i>
+      <span id="bottomNavUserLabel">Account</span>
+    </button>
+  </nav>
 
   <!-- ======================================================== -->
   <!-- JAVASCRIPT APPLICATION LOGIC                             -->
@@ -1003,6 +1242,62 @@
         image: "https://images.unsplash.com/photo-1610701596007-11502861dcfa?w=500&q=80",
         description: "Ayurvedic health benefit 99.8% pure copper hand-crafted water pot with tap.",
         inStock: true
+      },
+      {
+        id: 9,
+        title: "Men's Premium Slim-Fit Stretch Denim Jeans",
+        sourceShop: "Apex Denim & Casuals, MG Road",
+        category: "Fashion & Jeans",
+        price: 999,
+        mrp: 1999,
+        rating: 4.8,
+        reviews: 142,
+        badge: "Bestseller",
+        image: "https://images.unsplash.com/photo-1542272604-787c3835535d?w=500&q=80",
+        description: "Classic 5-pocket stretch denim jeans with breathable cotton fabric and modern washed finish.",
+        inStock: true
+      },
+      {
+        id: 10,
+        title: "Women's High-Rise Straight Ankle Denim Jeans",
+        sourceShop: "City Trends Boutique, Plaza-2",
+        category: "Fashion & Jeans",
+        price: 1099,
+        mrp: 2199,
+        rating: 4.9,
+        reviews: 98,
+        badge: "Trending",
+        image: "https://images.unsplash.com/photo-1582552938357-32b906df40cb?w=500&q=80",
+        description: "Ultra-flattering high-waist straight fit jeans with clean ankle cut and flexible waistband.",
+        inStock: true
+      },
+      {
+        id: 11,
+        title: "Oversized Heavyweight 240 GSM Pure Cotton T-Shirt",
+        sourceShop: "StreetVibe Fashion Hub, Sector-3",
+        category: "Fashion & Jeans",
+        price: 499,
+        mrp: 999,
+        rating: 4.7,
+        reviews: 75,
+        badge: "Hot Deal",
+        image: "https://images.unsplash.com/photo-1521572267360-ee0c2909d518?w=500&q=80",
+        description: "Pre-shrunk bio-washed combed cotton oversized unisex t-shirt for daily comfort.",
+        inStock: true
+      },
+      {
+        id: 12,
+        title: "Ultra-Lightweight Air Cushion Running Sneakers",
+        sourceShop: "StepRight Footwear, Commercial Market",
+        category: "Footwear & Shoes",
+        price: 1299,
+        mrp: 2499,
+        rating: 4.8,
+        reviews: 114,
+        badge: "Top Rated",
+        image: "https://images.unsplash.com/photo-1542291026-7eec264c27ff?w=500&q=80",
+        description: "Ergonomic running shoes with shock-absorbing foam midsole and breathable mesh upper.",
+        inStock: true
       }
     ];
 
@@ -1014,6 +1309,7 @@
     let searchQuery = "";
     let sortOption = "featured";
     let directCheckoutProduct = null; // Used for "Buy Now" flow
+    let activeMainView = "store"; // "store" or "orders"
 
     // --------------------------------------------------------
     // Initialization & LocalStorage Management
@@ -1024,9 +1320,11 @@
       loadOrdersFromStorage();
       renderCategoryFilters();
       renderProducts();
+      renderMainOrdersSection();
       updateCartUI();
       updateOrdersCountBadge();
       checkAdminSession();
+      loadSavedDeliveryLocation();
 
       // Live countdown interval for 90-minute order cancellation window
       setInterval(updateOrderTimers, 1000);
@@ -1037,6 +1335,13 @@
       if (stored) {
         try {
           products = JSON.parse(stored);
+          // Automatically merge any missing catalog items (e.g. Jeans) so search always finds them
+          INITIAL_PRODUCTS.forEach(initP => {
+            if (!products.some(p => p.id === initP.id || p.title === initP.title)) {
+              products.push(initP);
+            }
+          });
+          saveProductsToStorage();
         } catch (e) {
           products = [...INITIAL_PRODUCTS];
           saveProductsToStorage();
@@ -1895,16 +2200,148 @@ _Sent automatically from MS ZenoMart Web Application_`;
       modal.classList.remove("opacity-100", "pointer-events-auto");
     }
 
-    function renderOrdersList() {
-      const container = document.getElementById("ordersListContainer");
+    // --------------------------------------------------------
+    // Order Cancellation Window System & View Management
+    // --------------------------------------------------------
+    function switchMainView(view) {
+      activeMainView = view;
+      const storeSection = document.getElementById("storeMainSection");
+      const ordersSection = document.getElementById("ordersMainSection");
+      const tabStoreBtn = document.getElementById("tabStoreBtn");
+      const tabOrdersBtn = document.getElementById("tabOrdersBtn");
+      const bottomNavStore = document.getElementById("bottomNavStore");
+      const bottomNavOrders = document.getElementById("bottomNavOrders");
+
+      if (view === "store") {
+        if (storeSection) storeSection.classList.remove("hidden");
+        if (ordersSection) ordersSection.classList.add("hidden");
+        if (tabStoreBtn) {
+          tabStoreBtn.className = "px-4 py-2 rounded-xl text-xs font-black flex items-center gap-2 transition-all bg-gradient-to-r from-gold-500 to-accent-orange text-navy-950 shadow-md";
+        }
+        if (tabOrdersBtn) {
+          tabOrdersBtn.className = "px-4 py-2 rounded-xl text-xs font-bold flex items-center gap-2 transition-all text-slate-400 hover:text-white";
+        }
+        if (bottomNavStore) {
+          bottomNavStore.classList.add("text-gold-400");
+          bottomNavStore.classList.remove("text-slate-400");
+        }
+        if (bottomNavOrders) {
+          bottomNavOrders.classList.remove("text-gold-400");
+          bottomNavOrders.classList.add("text-slate-400");
+        }
+      } else {
+        if (storeSection) storeSection.classList.add("hidden");
+        if (ordersSection) ordersSection.classList.remove("hidden");
+        if (tabStoreBtn) {
+          tabStoreBtn.className = "px-4 py-2 rounded-xl text-xs font-bold flex items-center gap-2 transition-all text-slate-400 hover:text-white";
+        }
+        if (tabOrdersBtn) {
+          tabOrdersBtn.className = "px-4 py-2 rounded-xl text-xs font-black flex items-center gap-2 transition-all bg-gradient-to-r from-gold-500 to-accent-orange text-navy-950 shadow-md";
+        }
+        if (bottomNavStore) {
+          bottomNavStore.classList.remove("text-gold-400");
+          bottomNavStore.classList.add("text-slate-400");
+        }
+        if (bottomNavOrders) {
+          bottomNavOrders.classList.add("text-gold-400");
+          bottomNavOrders.classList.remove("text-slate-400");
+        }
+        renderMainOrdersSection();
+        window.scrollTo({ top: 0, behavior: "smooth" });
+      }
+    }
+
+    function quickSearch(term) {
+      activeCategory = "All";
+      renderCategoryFilters();
+      const searchInput = document.getElementById("searchInput");
+      const mobileInput = document.getElementById("mobileSearchInput");
+      if (searchInput) searchInput.value = term;
+      if (mobileInput) mobileInput.value = term;
+      switchMainView('store');
+      handleSearch(term);
+      window.scrollTo({ top: 0, behavior: "smooth" });
+    }
+
+    function focusSearch() {
+      switchMainView('store');
+      const mobileInput = document.getElementById("mobileSearchInput");
+      const desktopInput = document.getElementById("searchInput");
+      if (window.innerWidth < 768 && mobileInput) {
+        mobileInput.focus();
+      } else if (desktopInput) {
+        desktopInput.focus();
+      }
+    }
+
+    function loadSavedDeliveryLocation() {
+      const saved = localStorage.getItem("zenomart_saved_address");
+      const headerLocationText = document.getElementById("headerLocationText");
+      if (saved && headerLocationText) {
+        try {
+          const addr = JSON.parse(saved);
+          if (addr.name && addr.pincode) {
+            headerLocationText.innerText = `${addr.name} - ${addr.pincode}`;
+          }
+        } catch (e) {}
+      }
+    }
+
+    function updateOrdersCountBadge() {
+      const count = orders.length;
+      const modalBadge = document.getElementById("ordersCountBadge");
+      const tabBadge = document.getElementById("tabOrdersBadge");
+      const bottomBadge = document.getElementById("bottomNavOrdersBadge");
+      const mainHeaderCount = document.getElementById("mainOrdersHeaderCount");
+
+      if (modalBadge) modalBadge.innerText = count;
+      if (tabBadge) tabBadge.innerText = count;
+      if (bottomBadge) bottomBadge.innerText = count;
+      if (mainHeaderCount) mainHeaderCount.innerText = `${count} Orders`;
+    }
+
+    function openOrdersModal() {
+      switchMainView('orders');
+    }
+
+    function closeOrdersModal() {
+      const modal = document.getElementById("ordersModal");
+      const backdrop = document.getElementById("ordersModalBackdrop");
+      if (backdrop) {
+        backdrop.classList.add("opacity-0", "pointer-events-none");
+        backdrop.classList.remove("opacity-100", "pointer-events-auto");
+      }
+      if (modal) {
+        modal.classList.add("opacity-0", "pointer-events-none");
+        modal.classList.remove("opacity-100", "pointer-events-auto");
+      }
+    }
+
+    function getDeliveryStage(order) {
+      if (order.status === "CANCELLED") return 0;
+      const elapsed = Date.now() - order.orderTime;
+      const totalWindow = 90 * 60 * 1000; // 90 mins
+      if (elapsed < 15 * 60 * 1000) return 1; // Order Placed
+      if (elapsed < 45 * 60 * 1000) return 2; // Sourced from Local Partner Shop
+      if (elapsed < totalWindow) return 3;    // Out for Hyperlocal Delivery
+      return 4;                               // Delivered / At Doorstep
+    }
+
+    function renderMainOrdersSection() {
+      const container = document.getElementById("mainOrdersListContainer");
       if (!container) return;
 
       if (orders.length === 0) {
         container.innerHTML = `
-          <div class="text-center py-10 text-slate-400">
-            <i class="fa-solid fa-box-open text-3xl mb-2 text-navy-800"></i>
-            <p class="font-bold text-white text-sm">No Orders Placed Yet</p>
-            <p class="text-xs text-slate-400 mt-0.5">Order items to experience the 90-minute cancellation guarantee.</p>
+          <div class="bg-navy-900/50 border border-navy-800 rounded-3xl p-10 text-center text-slate-400">
+            <div class="w-16 h-16 rounded-2xl bg-navy-850 mx-auto flex items-center justify-center text-slate-600 text-2xl mb-3">
+              <i class="fa-solid fa-box-open text-gold-400"></i>
+            </div>
+            <h3 class="text-base font-bold text-white mb-1">No Orders Placed Yet</h3>
+            <p class="text-xs text-slate-400 max-w-md mx-auto mb-5">Browse the catalog to place orders with our risk-free 90-minute cancellation guarantee and live WhatsApp dispatch.</p>
+            <button onclick="switchMainView('store')" class="px-5 py-2.5 rounded-xl bg-gradient-to-r from-gold-500 to-accent-orange text-navy-950 font-bold text-xs hover:from-gold-400 transition-all shadow-md">
+              Start Shopping Now
+            </button>
           </div>
         `;
         return;
@@ -1916,92 +2353,182 @@ _Sent automatically from MS ZenoMart Web Application_`;
         const isCancelled = order.status === "CANCELLED";
         const timeLeftMs = order.cancelExpiry - now;
         const canCancel = !isCancelled && timeLeftMs > 0;
+        const stage = getDeliveryStage(order);
 
         let timerDisplay = "";
         if (isCancelled) {
-          timerDisplay = `<span class="text-red-400 font-bold"><i class="fa-solid fa-ban mr-1"></i> Order Cancelled</span>`;
+          timerDisplay = `<span class="text-red-400 font-bold text-xs"><i class="fa-solid fa-ban mr-1"></i> Cancelled</span>`;
         } else if (canCancel) {
           const totalSec = Math.floor(timeLeftMs / 1000);
           const mins = Math.floor(totalSec / 60);
           const secs = totalSec % 60;
           timerDisplay = `
-            <span class="text-gold-400 font-bold font-mono">
-              <i class="fa-solid fa-hourglass-start animate-pulse mr-1"></i>
-              ${String(mins).padStart(2, '0')}:${String(secs).padStart(2, '0')} left to cancel
-            </span>
+            <div class="inline-flex items-center gap-1.5 px-3 py-1 rounded-xl bg-gold-500/10 border border-gold-500/30 text-gold-400 font-mono font-bold text-xs">
+              <i class="fa-solid fa-hourglass-start animate-pulse"></i>
+              <span>${String(mins).padStart(2, '0')}:${String(secs).padStart(2, '0')} Left to Cancel</span>
+            </div>
           `;
         } else {
           timerDisplay = `
-            <span class="text-slate-500 font-semibold">
-              <i class="fa-solid fa-lock mr-1"></i> 90-Min Cancellation Window Expired
-            </span>
+            <div class="inline-flex items-center gap-1.5 px-3 py-1 rounded-xl bg-navy-900 border border-navy-800 text-slate-400 font-semibold text-[11px]">
+              <i class="fa-solid fa-lock text-slate-500"></i>
+              <span>90-Min Cancellation Window Expired</span>
+            </div>
           `;
         }
 
         return `
-          <div class="bg-navy-950 border border-navy-800 rounded-2xl p-4 transition-all">
-            <div class="flex flex-wrap items-center justify-between gap-2 border-b border-navy-800 pb-2.5 mb-2.5">
-              <div class="flex items-center gap-2">
-                <span class="font-mono font-black text-white text-xs">#${order.orderId}</span>
-                <span class="text-[10px] px-2 py-0.5 rounded-full font-bold ${
-                  isCancelled ? 'bg-red-500/15 text-red-400 border border-red-500/30' : 'bg-emerald-500/15 text-emerald-400 border border-emerald-500/30'
+          <div class="bg-navy-900 border border-navy-800 hover:border-gold-500/30 rounded-3xl p-5 sm:p-6 transition-all shadow-xl">
+            
+            <!-- Top Order Meta Row -->
+            <div class="flex flex-wrap items-center justify-between gap-3 border-b border-navy-800/80 pb-3 mb-4">
+              <div class="flex items-center gap-2 sm:gap-3">
+                <span class="font-mono font-black text-white text-sm">#${order.orderId}</span>
+                <span class="text-[11px] px-2.5 py-0.5 rounded-full font-bold ${
+                  isCancelled 
+                    ? 'bg-red-500/15 text-red-400 border border-red-500/30' 
+                    : 'bg-emerald-500/15 text-emerald-400 border border-emerald-500/30'
                 }">
-                  ${order.status}
+                  ${isCancelled ? 'CANCELLED' : 'ACTIVE ORDER'}
                 </span>
+                <span class="text-slate-400 text-[11px] hidden sm:inline">• Placed at ${new Date(order.orderTime).toLocaleTimeString([], {hour: '2-digit', minute:'2-digit'})}</span>
               </div>
-              <div class="text-[11px] text-right">
+              <div class="text-right">
                 ${timerDisplay}
               </div>
             </div>
 
-            <!-- Items & Info -->
-            <div class="text-slate-300 text-xs mb-3 space-y-1">
-              ${order.items.map(item => `
-                <div class="flex justify-between text-[11px]">
-                  <span class="truncate pr-2">${item.title} (x${item.quantity})</span>
-                  <span class="font-mono text-gold-400 shrink-0">₹${item.price * item.quantity}</span>
+            <!-- Amazon / Flipkart 4-Step Interactive Visual Delivery Timeline -->
+            ${!isCancelled ? `
+              <div class="mb-6 bg-navy-950/70 border border-navy-800/70 rounded-2xl p-4 sm:p-5">
+                <div class="flex items-center justify-between mb-3">
+                  <span class="text-xs font-bold text-slate-300 flex items-center gap-1.5">
+                    <i class="fa-solid fa-truck-ramp-box text-gold-400"></i> Live Delivery Progress
+                  </span>
+                  <span class="text-[11px] text-emerald-400 font-semibold">⚡ Hyperlocal 60-90 Mins Delivery</span>
                 </div>
-              `).join('')}
+
+                <div class="relative grid grid-cols-4 gap-2 text-center">
+                  <!-- Step 1: Placed -->
+                  <div class="flex flex-col items-center">
+                    <div class="w-8 h-8 sm:w-10 sm:h-10 rounded-full flex items-center justify-center text-xs sm:text-sm font-black mb-1.5 ${
+                      stage >= 1 ? 'bg-accent-green text-navy-950 ring-4 ring-accent-green/20' : 'bg-navy-850 text-slate-500'
+                    }">
+                      <i class="fa-solid fa-clipboard-check"></i>
+                    </div>
+                    <span class="text-[10px] sm:text-xs font-bold ${stage >= 1 ? 'text-white' : 'text-slate-500'}">Order Placed</span>
+                    <span class="text-[9px] text-slate-400 hidden sm:inline">Confirmed</span>
+                  </div>
+
+                  <!-- Step 2: Sourced -->
+                  <div class="flex flex-col items-center">
+                    <div class="w-8 h-8 sm:w-10 sm:h-10 rounded-full flex items-center justify-center text-xs sm:text-sm font-black mb-1.5 ${
+                      stage >= 2 ? 'bg-accent-green text-navy-950 ring-4 ring-accent-green/20' : 'bg-navy-850 text-slate-500'
+                    }">
+                      <i class="fa-solid fa-shop"></i>
+                    </div>
+                    <span class="text-[10px] sm:text-xs font-bold ${stage >= 2 ? 'text-white' : 'text-slate-500'}">Partner Shop</span>
+                    <span class="text-[9px] text-slate-400 hidden sm:inline">Sourced</span>
+                  </div>
+
+                  <!-- Step 3: Out for Delivery -->
+                  <div class="flex flex-col items-center">
+                    <div class="w-8 h-8 sm:w-10 sm:h-10 rounded-full flex items-center justify-center text-xs sm:text-sm font-black mb-1.5 ${
+                      stage >= 3 ? 'bg-accent-green text-navy-950 ring-4 ring-accent-green/20 animate-pulse' : 'bg-navy-850 text-slate-500'
+                    }">
+                      <i class="fa-solid fa-motorcycle"></i>
+                    </div>
+                    <span class="text-[10px] sm:text-xs font-bold ${stage >= 3 ? 'text-white' : 'text-slate-500'}">Out for Delivery</span>
+                    <span class="text-[9px] text-slate-400 hidden sm:inline">Rider Assigned</span>
+                  </div>
+
+                  <!-- Step 4: Delivered -->
+                  <div class="flex flex-col items-center">
+                    <div class="w-8 h-8 sm:w-10 sm:h-10 rounded-full flex items-center justify-center text-xs sm:text-sm font-black mb-1.5 ${
+                      stage >= 4 ? 'bg-emerald-500 text-navy-950 ring-4 ring-emerald-500/20' : 'bg-navy-850 text-slate-500'
+                    }">
+                      <i class="fa-solid fa-house-chimney"></i>
+                    </div>
+                    <span class="text-[10px] sm:text-xs font-bold ${stage >= 4 ? 'text-white' : 'text-slate-500'}">Delivered</span>
+                    <span class="text-[9px] text-slate-400 hidden sm:inline">Doorstep</span>
+                  </div>
+                </div>
+              </div>
+            ` : `
+              <div class="mb-4 bg-red-500/10 border border-red-500/30 rounded-2xl p-3 text-red-300 text-xs flex items-center gap-2">
+                <i class="fa-solid fa-circle-exclamation text-red-400 text-sm"></i>
+                <span>This order was cancelled by request within the 90-minute guaranteed window. Local partner shop was halted.</span>
+              </div>
+            `}
+
+            <!-- Items Ordered List -->
+            <div class="space-y-2 mb-4">
+              <h4 class="text-xs font-bold text-slate-400 uppercase tracking-wider">Ordered Items</h4>
+              <div class="divide-y divide-navy-800 bg-navy-950/50 rounded-2xl p-3 border border-navy-800/80">
+                ${order.items.map(item => `
+                  <div class="py-2 first:pt-0 last:pb-0 flex items-center justify-between gap-3 text-xs">
+                    <div class="flex items-center gap-2.5 truncate">
+                      <div class="w-8 h-8 rounded-lg bg-navy-900 border border-navy-700/80 overflow-hidden shrink-0">
+                        <img src="${item.image || 'https://images.unsplash.com/photo-1542838132-92c53300491e?w=500&q=80'}" class="w-full h-full object-cover" />
+                      </div>
+                      <div class="truncate">
+                        <p class="font-bold text-white truncate">${item.title}</p>
+                        <p class="text-[10px] text-slate-400">Qty: ${item.quantity} • <span class="text-gold-400">${item.sourceShop || 'Local Partner'}</span></p>
+                      </div>
+                    </div>
+                    <span class="font-mono font-bold text-gold-400 text-xs shrink-0">₹${item.price * item.quantity}</span>
+                  </div>
+                `).join('')}
+              </div>
             </div>
 
-            <div class="text-[10px] text-slate-400 bg-navy-900 border border-navy-800/80 rounded-xl p-2.5 mb-3">
-              <p>📍 <strong>Deliver to:</strong> ${order.customer.name}, ${order.customer.address}, ${order.customer.pincode}</p>
-              <p>📞 <strong>Phone:</strong> ${order.customer.phone}</p>
+            <!-- Delivery Address Card -->
+            <div class="text-[11px] text-slate-300 bg-navy-950 border border-navy-800/80 rounded-2xl p-3 mb-4">
+              <div class="flex items-start gap-2">
+                <i class="fa-solid fa-location-dot text-accent-orange mt-0.5"></i>
+                <div>
+                  <p class="font-bold text-white">${order.customer.name} <span class="font-normal text-slate-400">(${order.customer.phone})</span></p>
+                  <p class="text-slate-300">${order.customer.address}${order.customer.landmark ? ', ' + order.customer.landmark : ''} - ${order.customer.pincode}</p>
+                </div>
+              </div>
             </div>
 
-            <!-- Cancellation & WhatsApp Actions -->
-            <div class="flex items-center justify-between pt-2 border-t border-navy-800">
-              <span class="text-xs font-bold text-white font-mono">Total: ₹${order.total}</span>
-              
+            <!-- Order Total & Actions -->
+            <div class="flex flex-wrap items-center justify-between gap-3 pt-3 border-t border-navy-800">
+              <div>
+                <span class="text-xs text-slate-400">Grand Total: </span>
+                <span class="text-sm sm:text-base font-mono font-black text-gold-400">₹${order.total}</span>
+                <span class="text-[10px] text-emerald-400 font-semibold ml-2">(Free Hyperlocal Delivery)</span>
+              </div>
+
               <div class="flex items-center gap-2">
                 ${canCancel ? `
                   <button 
                     onclick="requestOrderCancellation('${order.orderId}')" 
-                    class="px-3 py-1.5 rounded-xl bg-red-500/15 hover:bg-red-500/25 border border-red-500/40 text-red-300 font-bold text-xs transition-colors flex items-center gap-1.5"
+                    class="px-3.5 py-2 rounded-xl bg-red-500/15 hover:bg-red-500/25 border border-red-500/40 text-red-300 font-bold text-xs transition-colors flex items-center gap-1.5"
                   >
                     <i class="fa-solid fa-xmark"></i>
-                    <span>Cancel Order</span>
+                    <span>Cancel Order (90m)</span>
                   </button>
                 ` : `
                   <button 
                     disabled 
-                    class="px-3 py-1.5 rounded-xl bg-navy-900 border border-navy-800 text-slate-600 font-semibold text-xs cursor-not-allowed flex items-center gap-1.5"
-                    title="Cancellation is permanently locked after 90 minutes of order placement"
+                    class="px-3 py-2 rounded-xl bg-navy-950 border border-navy-800 text-slate-600 font-semibold text-xs cursor-not-allowed flex items-center gap-1.5"
+                    title="Cancellation is locked after 90 minutes of order placement"
                   >
-                    <i class="fa-solid fa-lock"></i>
-                    <span>Cancellation Locked</span>
+                    <i class="fa-solid fa-lock text-[10px]"></i>
+                    <span>Cancel Locked</span>
                   </button>
                 `}
 
                 <button 
                   onclick="trackOrderWhatsApp('${order.orderId}')" 
-                  class="px-3 py-1.5 rounded-xl bg-accent-green/20 hover:bg-accent-green/30 border border-accent-green/40 text-accent-green font-bold text-xs transition-colors flex items-center gap-1"
+                  class="px-4 py-2 rounded-xl bg-gradient-to-r from-emerald-600 to-teal-600 hover:from-emerald-500 hover:to-teal-500 text-white font-bold text-xs transition-all shadow-md flex items-center gap-1.5"
                 >
-                  <i class="fa-brands fa-whatsapp"></i>
+                  <i class="fa-brands fa-whatsapp text-sm"></i>
                   <span>Track on WhatsApp</span>
                 </button>
               </div>
-
             </div>
 
           </div>
@@ -2009,10 +2536,13 @@ _Sent automatically from MS ZenoMart Web Application_`;
       }).join('');
     }
 
+    function renderOrdersList() {
+      renderMainOrdersSection();
+    }
+
     function updateOrderTimers() {
-      const modal = document.getElementById("ordersModal");
-      if (modal && !modal.classList.contains("opacity-0")) {
-        renderOrdersList();
+      if (activeMainView === "orders") {
+        renderMainOrdersSection();
       }
     }
 
@@ -2023,14 +2553,14 @@ _Sent automatically from MS ZenoMart Web Application_`;
       const timeLeftMs = order.cancelExpiry - Date.now();
       if (timeLeftMs <= 0) {
         showToast("Window Expired", "Sorry, the 90-minute cancellation window has closed.");
-        renderOrdersList();
+        renderMainOrdersSection();
         return;
       }
 
-      if (confirm(`Are you sure you want to cancel Order #${orderId}? This request will be transmitted directly to the store owner via WhatsApp.`)) {
+      if (confirm(`Are you sure you want to cancel Order #${orderId}? This cancellation request will route directly to the store owner on WhatsApp.`)) {
         order.status = "CANCELLED";
         saveOrdersToStorage();
-        renderOrdersList();
+        renderMainOrdersSection();
 
         // Format WhatsApp cancellation message
         const cancelMsg = `⚠️ *ORDER CANCELLATION REQUEST: #${order.orderId}*
