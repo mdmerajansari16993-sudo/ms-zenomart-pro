@@ -172,14 +172,14 @@
             </span>
           </button>
 
-          <!-- Admin Portal Trigger Button -->
+          <!-- Account / Sign In Trigger Button -->
           <button 
             id="adminNavBtn"
             onclick="handleAdminNavClick()" 
-            class="px-3 sm:px-3.5 py-2 rounded-xl bg-gradient-to-r from-gold-500/10 to-accent-orange/10 hover:from-gold-500/20 hover:to-accent-orange/20 border border-gold-500/40 text-gold-400 hover:text-gold-300 text-xs font-bold flex items-center gap-1.5 transition-all"
+            class="px-3 sm:px-3.5 py-2 rounded-xl bg-navy-900 hover:bg-navy-850 text-slate-300 hover:text-white border border-navy-700/80 text-xs font-semibold flex items-center gap-1.5 transition-all shadow-sm"
           >
-            <i class="fa-solid fa-lock" id="adminNavIcon"></i>
-            <span id="adminNavLabel" class="hidden sm:inline">Admin Login</span>
+            <i class="fa-regular fa-user text-gold-400" id="adminNavIcon"></i>
+            <span id="adminNavLabel" class="hidden sm:inline">Sign In</span>
           </button>
 
         </div>
@@ -396,18 +396,18 @@
   </footer>
 
   <!-- ======================================================== -->
-  <!-- MODAL 1: SECURE ADMIN LOGIN MODAL                       -->
+  <!-- MODAL 1: SIGN IN MODAL                                   -->
   <!-- ======================================================== -->
   <div id="adminLoginModalBackdrop" onclick="closeAdminLoginModal()" class="fixed inset-0 bg-navy-950/80 backdrop-blur-sm z-50 transition-opacity duration-300 opacity-0 pointer-events-none"></div>
   <div id="adminLoginModal" class="fixed top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-11/12 max-w-md z-50 bg-navy-900 border border-gold-500/40 rounded-3xl p-6 sm:p-7 shadow-2xl opacity-0 pointer-events-none transition-all duration-300">
     <div class="flex items-center justify-between mb-5 border-b border-navy-800 pb-3">
       <div class="flex items-center gap-2.5">
         <div class="w-9 h-9 rounded-xl bg-gold-500/20 text-gold-400 flex items-center justify-center text-base">
-          <i class="fa-solid fa-shield-halved"></i>
+          <i class="fa-regular fa-user"></i>
         </div>
         <div>
-          <h3 class="text-sm font-bold text-white">Owner Admin Access</h3>
-          <p class="text-[10px] text-slate-400">Strict Authorized Gmail Authentication</p>
+          <h3 class="text-sm font-bold text-white">Sign In to MS ZenoMart</h3>
+          <p class="text-[10px] text-slate-400">Enter your Gmail to sign in</p>
         </div>
       </div>
       <button onclick="closeAdminLoginModal()" class="text-slate-400 hover:text-white text-base">
@@ -415,23 +415,15 @@
       </button>
     </div>
 
-    <!-- Security Information Notice -->
-    <div class="bg-navy-950 border border-navy-800 rounded-xl p-3 mb-4 text-xs text-slate-300">
-      <p class="flex items-start gap-2">
-        <i class="fa-solid fa-triangle-exclamation text-accent-orange text-xs mt-0.5"></i>
-        <span>This portal is strictly restricted to store owner <strong>mdmerajansari16993@gmail.com</strong>. All unauthorized access attempts will be rejected.</span>
-      </p>
-    </div>
-
     <form onsubmit="handleAdminLoginSubmit(event)" class="space-y-4 text-xs">
       <div>
-        <label class="block text-slate-300 font-semibold mb-1">Owner Gmail Address</label>
+        <label class="block text-slate-300 font-semibold mb-1">Your Gmail Address</label>
         <div class="relative">
           <input 
             type="email" 
             id="adminEmailInput" 
             required 
-            placeholder="Enter owner Gmail..."
+            placeholder="Enter your Gmail..."
             value=""
             class="w-full bg-navy-950 border border-navy-700 rounded-xl py-2.5 pl-9 pr-3 text-white placeholder-slate-500 focus:outline-none focus:border-gold-500"
           />
@@ -440,15 +432,15 @@
       </div>
 
       <div id="loginErrorMessage" class="hidden bg-red-500/15 border border-red-500/30 text-red-400 p-2.5 rounded-xl text-[11px]">
-        <!-- Injected on invalid credentials -->
+        <!-- Injected if needed -->
       </div>
 
       <button 
         type="submit" 
         class="w-full py-3 rounded-xl bg-gradient-to-r from-gold-500 to-accent-orange text-navy-950 font-black text-xs hover:from-gold-400 hover:to-accent-glow shadow-glow-orange transition-all flex items-center justify-center gap-2"
       >
-        <i class="fa-solid fa-lock-open"></i>
-        <span>Login as Store Owner</span>
+        <i class="fa-solid fa-arrow-right-to-bracket"></i>
+        <span>Sign In</span>
       </button>
     </form>
   </div>
@@ -1099,21 +1091,28 @@
     }
 
     function checkAdminSession() {
-      const isAuth = isAdminLoggedIn();
+      const isOwner = isAdminLoggedIn();
+      const userEmail = sessionStorage.getItem("zenomart_user_email");
       const banner = document.getElementById("adminActiveBanner");
       const navIcon = document.getElementById("adminNavIcon");
       const navLabel = document.getElementById("adminNavLabel");
       const navBtn = document.getElementById("adminNavBtn");
 
-      if (isAuth) {
+      if (isOwner) {
         banner.classList.remove("hidden");
         navIcon.className = "fa-solid fa-user-shield text-accent-orange";
         navLabel.innerText = "Admin Console";
         navBtn.classList.add("bg-gold-500/20", "border-gold-400");
+      } else if (userEmail) {
+        banner.classList.add("hidden");
+        navIcon.className = "fa-solid fa-circle-user text-emerald-400";
+        const shortName = userEmail.split("@")[0];
+        navLabel.innerText = shortName.length > 10 ? shortName.substring(0, 9) + "..." : shortName;
+        navBtn.classList.remove("bg-gold-500/20", "border-gold-400");
       } else {
         banner.classList.add("hidden");
-        navIcon.className = "fa-solid fa-lock";
-        navLabel.innerText = "Admin Login";
+        navIcon.className = "fa-regular fa-user text-gold-400";
+        navLabel.innerText = "Sign In";
         navBtn.classList.remove("bg-gold-500/20", "border-gold-400");
       }
       renderProducts(); // Re-render to show/hide admin controls on cards
@@ -1122,6 +1121,12 @@
     function handleAdminNavClick() {
       if (isAdminLoggedIn()) {
         openAddProductModal();
+      } else if (sessionStorage.getItem("zenomart_user_email")) {
+        const currentEmail = sessionStorage.getItem("zenomart_user_email");
+        if (confirm(`You are signed in as: ${currentEmail}\n\nWould you like to sign out or switch accounts?`)) {
+          adminLogout();
+          openAdminLoginModal();
+        }
       } else {
         openAdminLoginModal();
       }
@@ -1154,32 +1159,30 @@
     function handleAdminLoginSubmit(e) {
       e.preventDefault();
       const email = document.getElementById("adminEmailInput").value.trim().toLowerCase();
-      const err = document.getElementById("loginErrorMessage");
+      if (!email) return;
 
-      // Strict Authorized Email Check: ONLY mdmerajansari16993@gmail.com
-      if (email !== AUTHORIZED_OWNER_GMAIL.toLowerCase()) {
-        if (err) {
-          err.innerHTML = `
-            <strong><i class="fa-solid fa-ban mr-1"></i> Access Denied:</strong>
-            Only the authorized store owner (<code>${AUTHORIZED_OWNER_GMAIL}</code>) can manage MS ZenoMart.
-          `;
-          err.classList.remove("hidden");
-        }
-        alert("Access Denied: You are not authorized to access the MS ZenoMart Admin Panel.");
-        return;
+      sessionStorage.setItem("zenomart_user_email", email);
+
+      // Strict check: Only mdmerajansari16993@gmail.com gets owner/admin access
+      if (email === AUTHORIZED_OWNER_GMAIL.toLowerCase()) {
+        sessionStorage.setItem("zenomart_admin_session", "true");
+        closeAdminLoginModal();
+        checkAdminSession();
+        showToast("Owner Access Granted", "Welcome, MD Meraj Ansari! You have full access to add, edit, delete products & change prices.");
+      } else {
+        // Any other email signs in as a normal user without admin controls
+        sessionStorage.setItem("zenomart_admin_session", "false");
+        closeAdminLoginModal();
+        checkAdminSession();
+        showToast("Signed In Successfully", `Browsing as ${email}. You can browse and order freely.`);
       }
-
-      // Successful Authentication - Grant full admin access instantly
-      sessionStorage.setItem("zenomart_admin_session", "true");
-      closeAdminLoginModal();
-      checkAdminSession();
-      showToast("Admin Authenticated", "Welcome, MD Meraj Ansari! You now have full management privileges.");
     }
 
     function adminLogout() {
       sessionStorage.removeItem("zenomart_admin_session");
+      sessionStorage.removeItem("zenomart_user_email");
       checkAdminSession();
-      showToast("Admin Logged Out", "Switched back to standard customer browsing mode.");
+      showToast("Signed Out", "You have signed out successfully.");
     }
 
     // --------------------------------------------------------
