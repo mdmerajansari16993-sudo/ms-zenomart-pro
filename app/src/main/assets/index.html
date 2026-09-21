@@ -1,0 +1,2107 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>MS ZenoMart - Hyperlocal Dropshipping</title>
+  
+  <!-- Tailwind CSS CDN -->
+  <script src="https://cdn.tailwindcss.com"></script>
+  <!-- FontAwesome Icons CDN -->
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" />
+  <!-- Google Fonts -->
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
+
+  <script>
+    tailwind.config = {
+      theme: {
+        extend: {
+          fontFamily: {
+            sans: ['Plus Jakarta Sans', 'sans-serif'],
+          },
+          colors: {
+            navy: {
+              950: '#050c18',
+              900: '#0A192F',
+              850: '#0D2040',
+              800: '#11294F',
+              700: '#1E3A8A',
+            },
+            gold: {
+              400: '#FBBF24',
+              500: '#F59E0B',
+              600: '#D97706',
+            },
+            accent: {
+              orange: '#FF6B00',
+              glow: '#FF8A00',
+              green: '#25D366', // WhatsApp Green
+            }
+          },
+          boxShadow: {
+            'glow-orange': '0 0 20px -3px rgba(255, 107, 0, 0.45)',
+            'glow-gold': '0 0 20px -3px rgba(245, 158, 11, 0.4)',
+            'glow-green': '0 0 20px -3px rgba(37, 211, 102, 0.4)',
+          }
+        }
+      }
+    }
+  </script>
+
+  <style>
+    /* Custom scrollbar and smooth scroll */
+    html {
+      scroll-behavior: smooth;
+    }
+    ::-webkit-scrollbar {
+      width: 7px;
+      height: 7px;
+    }
+    ::-webkit-scrollbar-track {
+      background: #0A192F;
+    }
+    ::-webkit-scrollbar-thumb {
+      background: #1E3A8A;
+      border-radius: 4px;
+    }
+    ::-webkit-scrollbar-thumb:hover {
+      background: #F59E0B;
+    }
+    .line-clamp-2 {
+      display: -webkit-box;
+      -webkit-line-clamp: 2;
+      -webkit-box-orient: vertical;
+      overflow: hidden;
+    }
+  </style>
+</head>
+<body class="bg-navy-950 text-slate-100 font-sans min-h-screen flex flex-col antialiased selection:bg-gold-500 selection:text-navy-950">
+
+  <!-- ======================================================== -->
+  <!-- TOP BANNER (Hyperlocal Dropshipping Notice)              -->
+  <!-- ======================================================== -->
+  <div class="bg-gradient-to-r from-navy-900 via-navy-800 to-navy-900 border-b border-navy-700/60 px-4 py-2 text-[11px] sm:text-xs">
+    <div class="max-w-7xl mx-auto flex flex-wrap items-center justify-between gap-2">
+      <div class="flex items-center gap-2 text-slate-300">
+        <span class="bg-accent-orange/20 text-accent-orange border border-accent-orange/30 px-2 py-0.5 rounded-full font-bold uppercase tracking-wider text-[10px] flex items-center gap-1">
+          <i class="fa-solid fa-bolt text-[9px] animate-pulse"></i> Hyperlocal
+        </span>
+        <span class="hidden sm:inline">Fresh items picked directly from verified local partner shops in your neighborhood!</span>
+        <span class="sm:hidden">Neighborhood dropshipping in 60-90 mins!</span>
+      </div>
+      <div class="flex items-center gap-4 text-slate-400">
+        <span class="flex items-center gap-1 text-gold-400 font-semibold">
+          <i class="fa-solid fa-clock-rotate-left"></i> 90-Min Cancellation Window
+        </span>
+        <span class="hidden md:flex items-center gap-1">
+          <i class="fa-brands fa-whatsapp text-accent-green"></i> Direct WhatsApp Order Dispatch
+        </span>
+      </div>
+    </div>
+  </div>
+
+  <!-- ======================================================== -->
+  <!-- MAIN NAVBAR                                              -->
+  <!-- ======================================================== -->
+  <header class="sticky top-0 z-40 bg-navy-950/95 backdrop-blur-md border-b border-navy-800/80 shadow-lg">
+    <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+      <div class="flex items-center justify-between h-16 sm:h-20 gap-3">
+        
+        <!-- Brand Logo -->
+        <a href="#" class="flex items-center gap-2.5 sm:gap-3 group shrink-0">
+          <div class="w-10 h-10 sm:w-11 sm:h-11 rounded-xl bg-gradient-to-br from-gold-400 via-accent-orange to-navy-900 p-0.5 shadow-glow-orange group-hover:scale-105 transition-transform duration-300">
+            <div class="w-full h-full bg-navy-950 rounded-[10px] flex items-center justify-center">
+              <span class="text-xl sm:text-2xl font-black bg-gradient-to-r from-gold-400 to-accent-orange bg-clip-text text-transparent">Z</span>
+            </div>
+          </div>
+          <div>
+            <div class="flex items-center gap-1.5">
+              <span class="text-lg sm:text-xl font-black tracking-tight text-white group-hover:text-gold-400 transition-colors">MS ZenoMart</span>
+              <span class="bg-gold-500/20 text-gold-400 border border-gold-500/30 text-[9px] font-bold px-1.5 py-0.2 rounded uppercase">Express</span>
+            </div>
+            <p class="text-[10px] text-slate-400 font-medium tracking-wide">Hyperlocal Dropshipping Hub</p>
+          </div>
+        </a>
+
+        <!-- Search Bar -->
+        <div class="flex-1 max-w-lg mx-2 hidden md:block">
+          <div class="relative">
+            <input 
+              type="text" 
+              id="searchInput" 
+              oninput="handleSearch(this.value)"
+              placeholder="Search products, local partner shops, or categories..." 
+              class="w-full bg-navy-900 border border-navy-700/80 rounded-full py-2.5 pl-11 pr-10 text-xs sm:text-sm text-slate-100 placeholder-slate-400 focus:outline-none focus:border-gold-500 focus:ring-1 focus:ring-gold-500 transition-all shadow-inner"
+            />
+            <i class="fa-solid fa-magnifying-glass absolute left-4 top-1/2 -translate-y-1/2 text-slate-400 text-sm"></i>
+            <button 
+              id="clearSearchBtn" 
+              onclick="clearSearch()" 
+              class="hidden absolute right-3.5 top-1/2 -translate-y-1/2 text-slate-400 hover:text-white"
+            >
+              <i class="fa-solid fa-xmark text-xs"></i>
+            </button>
+          </div>
+        </div>
+
+        <!-- Action Buttons -->
+        <div class="flex items-center gap-2 sm:gap-3">
+          
+          <!-- My Orders / 90-Min Tracker -->
+          <button 
+            onclick="openOrdersModal()" 
+            class="relative px-3 py-2 rounded-xl bg-navy-900 hover:bg-navy-850 text-slate-300 hover:text-white border border-navy-700/80 text-xs font-semibold flex items-center gap-2 transition-all"
+            title="Track recent orders and 90-minute cancellation"
+          >
+            <i class="fa-solid fa-box-archive text-gold-400"></i>
+            <span class="hidden lg:inline">My Orders</span>
+            <span id="ordersCountBadge" class="bg-accent-orange text-white text-[10px] font-black w-4 h-4 rounded-full flex items-center justify-center">0</span>
+          </button>
+
+          <!-- Cart Button -->
+          <button 
+            onclick="openCartDrawer()" 
+            class="relative p-2.5 sm:px-3.5 sm:py-2 rounded-xl bg-navy-900 hover:bg-navy-850 text-slate-300 hover:text-white border border-navy-700/80 text-xs font-semibold flex items-center gap-2 transition-all shadow-sm"
+          >
+            <i class="fa-solid fa-cart-shopping text-base text-gold-400"></i>
+            <span class="hidden sm:inline">Cart</span>
+            <span id="cartCountBadge" class="bg-accent-orange text-white text-[10px] font-black w-5 h-5 rounded-full flex items-center justify-center border-2 border-navy-950">
+              0
+            </span>
+          </button>
+
+          <!-- Admin Portal Trigger Button -->
+          <button 
+            id="adminNavBtn"
+            onclick="handleAdminNavClick()" 
+            class="px-3 sm:px-3.5 py-2 rounded-xl bg-gradient-to-r from-gold-500/10 to-accent-orange/10 hover:from-gold-500/20 hover:to-accent-orange/20 border border-gold-500/40 text-gold-400 hover:text-gold-300 text-xs font-bold flex items-center gap-1.5 transition-all"
+          >
+            <i class="fa-solid fa-lock" id="adminNavIcon"></i>
+            <span id="adminNavLabel" class="hidden sm:inline">Admin Login</span>
+          </button>
+
+        </div>
+      </div>
+
+      <!-- Mobile Search Bar -->
+      <div class="pb-3 md:hidden">
+        <div class="relative">
+          <input 
+            type="text" 
+            id="mobileSearchInput" 
+            oninput="handleSearch(this.value)"
+            placeholder="Search products or local partner shops..." 
+            class="w-full bg-navy-900 border border-navy-700 rounded-full py-2 pl-10 pr-9 text-xs text-slate-100 placeholder-slate-400 focus:outline-none focus:border-gold-500"
+          />
+          <i class="fa-solid fa-magnifying-glass absolute left-3.5 top-1/2 -translate-y-1/2 text-slate-400 text-xs"></i>
+          <button onclick="clearSearch()" class="absolute right-3 top-1/2 -translate-y-1/2 text-slate-400">
+            <i class="fa-solid fa-xmark text-xs"></i>
+          </button>
+        </div>
+      </div>
+    </div>
+  </header>
+
+  <!-- ======================================================== -->
+  <!-- ADMIN ACTIVE BANNER (Visible only when Admin is Logged In)-->
+  <!-- ======================================================== -->
+  <div id="adminActiveBanner" class="hidden bg-gradient-to-r from-gold-600 via-accent-orange to-gold-600 text-navy-950 px-4 py-2 text-xs font-bold border-b border-gold-400 shadow-md">
+    <div class="max-w-7xl mx-auto flex flex-wrap items-center justify-between gap-2">
+      <div class="flex items-center gap-2">
+        <span class="bg-navy-950 text-gold-400 px-2 py-0.5 rounded text-[10px] font-black uppercase">Admin Mode Active</span>
+        <span>Logged in as Store Owner: <strong class="underline">mdmerajansari16993@gmail.com</strong></span>
+      </div>
+      <div class="flex items-center gap-2">
+        <button onclick="openAddProductModal()" class="bg-navy-950 hover:bg-navy-900 text-white px-3 py-1 rounded-lg text-xs font-black flex items-center gap-1 transition-all">
+          <i class="fa-solid fa-plus text-gold-400"></i> Add New Product
+        </button>
+        <button onclick="adminLogout()" class="bg-red-700 hover:bg-red-800 text-white px-3 py-1 rounded-lg text-xs font-bold transition-all">
+          <i class="fa-solid fa-arrow-right-from-bracket mr-1"></i> Logout
+        </button>
+      </div>
+    </div>
+  </div>
+
+  <!-- ======================================================== -->
+  <!-- MAIN CONTENT CONTAINER                                   -->
+  <!-- ======================================================== -->
+  <main class="flex-1 max-w-7xl w-full mx-auto px-4 sm:px-6 lg:px-8 py-6">
+    
+    <!-- Hero / Dropshipping Intro Card -->
+    <div class="relative overflow-hidden rounded-3xl bg-gradient-to-br from-navy-900 via-navy-850 to-navy-950 border border-gold-500/30 p-6 sm:p-8 mb-8 shadow-2xl">
+      <!-- Glow ambient orb -->
+      <div class="absolute -right-16 -top-16 w-64 h-64 bg-accent-orange/15 rounded-full blur-3xl pointer-events-none"></div>
+      <div class="absolute -left-16 -bottom-16 w-64 h-64 bg-gold-500/10 rounded-full blur-3xl pointer-events-none"></div>
+
+      <div class="relative z-10 max-w-3xl">
+        <div class="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-gold-500/15 border border-gold-500/30 text-gold-400 text-xs font-bold mb-4">
+          <i class="fa-solid fa-truck-fast"></i>
+          <span>Hyperlocal Neighborhood Dropshipping Model</span>
+        </div>
+        <h1 class="text-2xl sm:text-4xl font-extrabold text-white tracking-tight leading-tight mb-3">
+          Order from Top Local Shops at <span class="bg-gradient-to-r from-gold-400 to-accent-orange bg-clip-text text-transparent">Custom Discounted Prices</span>.
+        </h1>
+        <p class="text-xs sm:text-sm text-slate-300 leading-relaxed mb-6">
+          We source directly from partner retail stores, wholesale hubs, and bakeries in your city. Seamlessly place orders with auto-memorized address and instant WhatsApp dispatch with a <strong>90-minute risk-free cancellation guarantee</strong>.
+        </p>
+
+        <!-- Feature Pills -->
+        <div class="grid grid-cols-2 sm:grid-cols-4 gap-3 text-xs">
+          <div class="bg-navy-950/60 border border-navy-700/80 rounded-xl p-2.5 flex items-center gap-2.5">
+            <div class="w-8 h-8 rounded-lg bg-gold-500/20 text-gold-400 flex items-center justify-center shrink-0">
+              <i class="fa-solid fa-shop"></i>
+            </div>
+            <div>
+              <p class="text-[10px] text-slate-400">Sourced From</p>
+              <p class="font-bold text-white text-[11px]">Local Partners</p>
+            </div>
+          </div>
+          <div class="bg-navy-950/60 border border-navy-700/80 rounded-xl p-2.5 flex items-center gap-2.5">
+            <div class="w-8 h-8 rounded-lg bg-accent-green/20 text-accent-green flex items-center justify-center shrink-0">
+              <i class="fa-brands fa-whatsapp text-sm"></i>
+            </div>
+            <div>
+              <p class="text-[10px] text-slate-400">Order System</p>
+              <p class="font-bold text-white text-[11px]">WhatsApp 1-Tap</p>
+            </div>
+          </div>
+          <div class="bg-navy-950/60 border border-navy-700/80 rounded-xl p-2.5 flex items-center gap-2.5">
+            <div class="w-8 h-8 rounded-lg bg-accent-orange/20 text-accent-orange flex items-center justify-center shrink-0">
+              <i class="fa-solid fa-address-book"></i>
+            </div>
+            <div>
+              <p class="text-[10px] text-slate-400">Address Memory</p>
+              <p class="font-bold text-white text-[11px]">Auto Saved</p>
+            </div>
+          </div>
+          <div class="bg-navy-950/60 border border-navy-700/80 rounded-xl p-2.5 flex items-center gap-2.5">
+            <div class="w-8 h-8 rounded-lg bg-blue-500/20 text-blue-400 flex items-center justify-center shrink-0">
+              <i class="fa-solid fa-hourglass-half"></i>
+            </div>
+            <div>
+              <p class="text-[10px] text-slate-400">Cancellation</p>
+              <p class="font-bold text-white text-[11px]">90-Min Window</p>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Category Filters & Store Controls -->
+    <div class="flex flex-wrap items-center justify-between gap-4 mb-6">
+      
+      <!-- Category Pills -->
+      <div class="flex items-center gap-2 overflow-x-auto pb-2 scrollbar-none max-w-full" id="categoryFilterContainer">
+        <!-- Rendered dynamically -->
+      </div>
+
+      <!-- Item Count & Sort -->
+      <div class="flex items-center gap-3 ml-auto text-xs text-slate-400">
+        <span id="productCountLabel">Showing all products</span>
+        <select 
+          id="sortSelect" 
+          onchange="handleSortChange(this.value)" 
+          class="bg-navy-900 border border-navy-700 rounded-xl px-3 py-1.5 text-xs text-slate-200 focus:outline-none focus:border-gold-500"
+        >
+          <option value="featured">Featured First</option>
+          <option value="price-asc">Price: Low to High</option>
+          <option value="price-desc">Price: High to Low</option>
+          <option value="rating">Top Rated</option>
+        </select>
+      </div>
+
+    </div>
+
+    <!-- Product Grid -->
+    <div id="productGrid" class="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-5">
+      <!-- Injected via JavaScript -->
+    </div>
+
+    <!-- Empty State -->
+    <div id="emptyState" class="hidden text-center py-16 px-4">
+      <div class="w-16 h-16 mx-auto mb-4 rounded-2xl bg-navy-900 border border-navy-800 flex items-center justify-center text-slate-500 text-2xl">
+        <i class="fa-solid fa-box-open"></i>
+      </div>
+      <h3 class="text-base font-bold text-white mb-1">No products match your criteria</h3>
+      <p class="text-xs text-slate-400 mb-4">Try clearing your search terms or picking another category.</p>
+      <button onclick="resetFilters()" class="px-4 py-2 rounded-xl bg-gold-500 text-navy-950 font-bold text-xs hover:bg-gold-400 transition-colors">
+        Reset All Filters
+      </button>
+    </div>
+
+  </main>
+
+  <!-- ======================================================== -->
+  <!-- FOOTER                                                   -->
+  <!-- ======================================================== -->
+  <footer class="bg-navy-950 border-t border-navy-800/80 mt-12 py-8 text-xs text-slate-400">
+    <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+      <div class="grid grid-cols-1 md:grid-cols-4 gap-6 mb-8">
+        <div>
+          <div class="flex items-center gap-2 mb-2">
+            <span class="text-lg font-black text-white">MS ZenoMart</span>
+            <span class="bg-gold-500/20 text-gold-400 text-[9px] font-bold px-1.5 py-0.2 rounded">Hyperlocal</span>
+          </div>
+          <p class="text-[11px] text-slate-400 leading-relaxed mb-3">
+            Hyperlocal dropshipping platform delivering neighborhood essentials, groceries, electronics, and lifestyle goods directly to your doorstep.
+          </p>
+          <p class="text-[11px] text-slate-400">
+            Founder & Operator: <strong class="text-slate-200">MD Meraj Ansari</strong>
+          </p>
+        </div>
+
+        <div>
+          <h4 class="text-xs font-bold text-white uppercase tracking-wider mb-2">Neighborhood Sourcing</h4>
+          <ul class="space-y-1.5 text-[11px]">
+            <li><i class="fa-solid fa-check text-gold-400 mr-1.5"></i> Verified Local Shop Partners</li>
+            <li><i class="fa-solid fa-check text-gold-400 mr-1.5"></i> Quality Check Before Dispatch</li>
+            <li><i class="fa-solid fa-check text-gold-400 mr-1.5"></i> Live Stock & Custom Pricing</li>
+            <li><i class="fa-solid fa-check text-gold-400 mr-1.5"></i> Hyperlocal 60-90 min Delivery</li>
+          </ul>
+        </div>
+
+        <div>
+          <h4 class="text-xs font-bold text-white uppercase tracking-wider mb-2">Smart Policies</h4>
+          <ul class="space-y-1.5 text-[11px]">
+            <li><i class="fa-solid fa-shield-halved text-accent-green mr-1.5"></i> 90-Minute Cancellation Window</li>
+            <li><i class="fa-solid fa-memory text-accent-orange mr-1.5"></i> Browser Address Memorization</li>
+            <li><i class="fa-brands fa-whatsapp text-accent-green mr-1.5"></i> Direct WhatsApp Order Tracking</li>
+            <li><i class="fa-solid fa-lock text-gold-400 mr-1.5"></i> Strict Owner-Gated Admin</li>
+          </ul>
+        </div>
+
+        <div>
+          <h4 class="text-xs font-bold text-white uppercase tracking-wider mb-2">Store Management</h4>
+          <p class="text-[11px] text-slate-400 mb-2">
+            Authorized administrative console for MD Meraj Ansari:
+          </p>
+          <button onclick="handleAdminNavClick()" class="w-full py-2 px-3 rounded-xl bg-navy-900 border border-navy-700 hover:border-gold-500/50 text-gold-400 text-xs font-semibold flex items-center justify-center gap-2 transition-all">
+            <i class="fa-solid fa-shield-halved"></i>
+            <span>Open Owner Portal</span>
+          </button>
+        </div>
+      </div>
+
+      <div class="border-t border-navy-900 pt-6 flex flex-wrap items-center justify-between gap-3 text-[11px] text-slate-400">
+        <p>© 2026 MS ZenoMart. All rights reserved. Created for MD Meraj Ansari Hyperlocal Dropshipping Enterprise.</p>
+        <p class="flex items-center gap-2">
+          <span>⚡ Local Sourcing</span>
+          <span>•</span>
+          <span>🔒 Secure Client Authentication</span>
+        </p>
+      </div>
+    </div>
+  </footer>
+
+  <!-- ======================================================== -->
+  <!-- MODAL 1: SECURE ADMIN LOGIN MODAL                       -->
+  <!-- ======================================================== -->
+  <div id="adminLoginModalBackdrop" onclick="closeAdminLoginModal()" class="fixed inset-0 bg-navy-950/80 backdrop-blur-sm z-50 transition-opacity duration-300 opacity-0 pointer-events-none"></div>
+  <div id="adminLoginModal" class="fixed top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-11/12 max-w-md z-50 bg-navy-900 border border-gold-500/40 rounded-3xl p-6 sm:p-7 shadow-2xl opacity-0 pointer-events-none transition-all duration-300">
+    <div class="flex items-center justify-between mb-5 border-b border-navy-800 pb-3">
+      <div class="flex items-center gap-2.5">
+        <div class="w-9 h-9 rounded-xl bg-gold-500/20 text-gold-400 flex items-center justify-center text-base">
+          <i class="fa-solid fa-shield-halved"></i>
+        </div>
+        <div>
+          <h3 class="text-sm font-bold text-white">Owner Admin Access</h3>
+          <p class="text-[10px] text-slate-400">Strict Authorized Gmail Authentication</p>
+        </div>
+      </div>
+      <button onclick="closeAdminLoginModal()" class="text-slate-400 hover:text-white text-base">
+        <i class="fa-solid fa-xmark"></i>
+      </button>
+    </div>
+
+    <!-- Security Information Notice -->
+    <div class="bg-navy-950 border border-navy-800 rounded-xl p-3 mb-4 text-xs text-slate-300">
+      <p class="flex items-start gap-2">
+        <i class="fa-solid fa-triangle-exclamation text-accent-orange text-xs mt-0.5"></i>
+        <span>This portal is strictly restricted to store owner <strong>mdmerajansari16993@gmail.com</strong>. All unauthorized access attempts will be rejected.</span>
+      </p>
+    </div>
+
+    <form onsubmit="handleAdminLoginSubmit(event)" class="space-y-4 text-xs">
+      <div>
+        <label class="block text-slate-300 font-semibold mb-1">Authorized Owner Gmail</label>
+        <div class="relative">
+          <input 
+            type="email" 
+            id="adminEmailInput" 
+            required 
+            placeholder="mdmerajansari16993@gmail.com"
+            value="mdmerajansari16993@gmail.com"
+            class="w-full bg-navy-950 border border-navy-700 rounded-xl py-2.5 pl-9 pr-3 text-white placeholder-slate-500 focus:outline-none focus:border-gold-500"
+          />
+          <i class="fa-regular fa-envelope absolute left-3 top-1/2 -translate-y-1/2 text-slate-500"></i>
+        </div>
+      </div>
+
+      <div>
+        <label class="block text-slate-300 font-semibold mb-1">Security PIN / Password</label>
+        <div class="relative">
+          <input 
+            type="password" 
+            id="adminPasswordInput" 
+            required 
+            placeholder="Enter owner security passcode" 
+            value="admin123"
+            class="w-full bg-navy-950 border border-navy-700 rounded-xl py-2.5 pl-9 pr-3 text-white placeholder-slate-500 focus:outline-none focus:border-gold-500"
+          />
+          <i class="fa-solid fa-key absolute left-3 top-1/2 -translate-y-1/2 text-slate-500"></i>
+        </div>
+        <p class="text-[10px] text-slate-400 mt-1">Default security code for owner: <code class="text-gold-400 font-bold">admin123</code></p>
+      </div>
+
+      <div id="loginErrorMessage" class="hidden bg-red-500/15 border border-red-500/30 text-red-400 p-2.5 rounded-xl text-[11px]">
+        <!-- Injected on invalid credentials -->
+      </div>
+
+      <button 
+        type="submit" 
+        class="w-full py-3 rounded-xl bg-gradient-to-r from-gold-500 to-accent-orange text-navy-950 font-black text-xs hover:from-gold-400 hover:to-accent-glow shadow-glow-orange transition-all flex items-center justify-center gap-2"
+      >
+        <i class="fa-solid fa-lock-open"></i>
+        <span>Authenticate as Store Owner</span>
+      </button>
+    </form>
+  </div>
+
+  <!-- ======================================================== -->
+  <!-- MODAL 2: ADD / EDIT PRODUCT MODAL (ADMIN ONLY)           -->
+  <!-- ======================================================== -->
+  <div id="productModalBackdrop" onclick="closeProductModal()" class="fixed inset-0 bg-navy-950/80 backdrop-blur-sm z-50 transition-opacity duration-300 opacity-0 pointer-events-none"></div>
+  <div id="productModal" class="fixed top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-11/12 max-w-lg z-50 bg-navy-900 border border-gold-500/40 rounded-3xl p-6 sm:p-7 shadow-2xl max-h-[90vh] overflow-y-auto opacity-0 pointer-events-none transition-all duration-300">
+    <div class="flex items-center justify-between mb-4 border-b border-navy-800 pb-3">
+      <div class="flex items-center gap-2.5">
+        <div class="w-9 h-9 rounded-xl bg-gold-500/20 text-gold-400 flex items-center justify-center text-base">
+          <i class="fa-solid fa-pen-to-square" id="productModalIcon"></i>
+        </div>
+        <div>
+          <h3 class="text-sm font-bold text-white" id="productModalTitle">Add New Hyperlocal Product</h3>
+          <p class="text-[10px] text-slate-400">Update local shop source, custom pricing & details</p>
+        </div>
+      </div>
+      <button onclick="closeProductModal()" class="text-slate-400 hover:text-white text-base">
+        <i class="fa-solid fa-xmark"></i>
+      </button>
+    </div>
+
+    <form onsubmit="handleProductFormSubmit(event)" class="space-y-3.5 text-xs">
+      <input type="hidden" id="editProductId" value="" />
+
+      <div>
+        <label class="block text-slate-300 font-semibold mb-1">Product Title</label>
+        <input 
+          type="text" 
+          id="prodTitleInput" 
+          required 
+          placeholder="e.g. Pure Desi Ghee 1L (Fresh Batch)" 
+          class="w-full bg-navy-950 border border-navy-700 rounded-xl px-3 py-2 text-white placeholder-slate-500 focus:outline-none focus:border-gold-500"
+        />
+      </div>
+
+      <div class="grid grid-cols-1 sm:grid-cols-2 gap-3">
+        <div>
+          <label class="block text-slate-300 font-semibold mb-1">Local Shop Source (Dropship Partner)</label>
+          <input 
+            type="text" 
+            id="prodSourceInput" 
+            required 
+            placeholder="e.g. City Supermart, Sec-4" 
+            class="w-full bg-navy-950 border border-navy-700 rounded-xl px-3 py-2 text-white placeholder-slate-500 focus:outline-none focus:border-gold-500"
+          />
+        </div>
+        <div>
+          <label class="block text-slate-300 font-semibold mb-1">Category</label>
+          <select 
+            id="prodCategoryInput" 
+            class="w-full bg-navy-950 border border-navy-700 rounded-xl px-3 py-2 text-white focus:outline-none focus:border-gold-500"
+          >
+            <option value="Groceries & Essentials">Groceries & Essentials</option>
+            <option value="Fresh Produce">Fresh Produce</option>
+            <option value="Electronics & Gadgets">Electronics & Gadgets</option>
+            <option value="Sweets & Bakery">Sweets & Bakery</option>
+            <option value="Daily Home Goods">Daily Home Goods</option>
+          </select>
+        </div>
+      </div>
+
+      <div class="grid grid-cols-1 sm:grid-cols-3 gap-3">
+        <div>
+          <label class="block text-slate-300 font-semibold mb-1">Custom Selling Price (₹)</label>
+          <input 
+            type="number" 
+            id="prodPriceInput" 
+            step="1" 
+            min="1" 
+            required 
+            placeholder="499" 
+            class="w-full bg-navy-950 border border-navy-700 rounded-xl px-3 py-2 text-white placeholder-slate-500 focus:outline-none focus:border-gold-500 font-bold text-gold-400"
+          />
+        </div>
+        <div>
+          <label class="block text-slate-300 font-semibold mb-1">Original MRP (₹)</label>
+          <input 
+            type="number" 
+            id="prodMrpInput" 
+            step="1" 
+            min="1" 
+            required 
+            placeholder="650" 
+            class="w-full bg-navy-950 border border-navy-700 rounded-xl px-3 py-2 text-white placeholder-slate-500 focus:outline-none focus:border-gold-500"
+          />
+        </div>
+        <div>
+          <label class="block text-slate-300 font-semibold mb-1">Badge Tag</label>
+          <input 
+            type="text" 
+            id="prodBadgeInput" 
+            placeholder="e.g. Hot Deal / Fresh" 
+            class="w-full bg-navy-950 border border-navy-700 rounded-xl px-3 py-2 text-white placeholder-slate-500 focus:outline-none focus:border-gold-500"
+          />
+        </div>
+      </div>
+
+      <div>
+        <label class="block text-slate-300 font-semibold mb-1">Image URL</label>
+        <input 
+          type="url" 
+          id="prodImageInput" 
+          required 
+          placeholder="https://images.unsplash.com/..." 
+          class="w-full bg-navy-950 border border-navy-700 rounded-xl px-3 py-2 text-white placeholder-slate-500 focus:outline-none focus:border-gold-500"
+        />
+        <!-- Quick Preset Image Pickers -->
+        <div class="flex items-center gap-1.5 mt-1.5 text-[10px] text-slate-400 overflow-x-auto">
+          <span>Presets:</span>
+          <button type="button" onclick="setPresetImg('ghee')" class="hover:text-gold-400 underline">Ghee</button>
+          <button type="button" onclick="setPresetImg('headphones')" class="hover:text-gold-400 underline">Headphones</button>
+          <button type="button" onclick="setPresetImg('sweets')" class="hover:text-gold-400 underline">Sweets</button>
+          <button type="button" onclick="setPresetImg('tea')" class="hover:text-gold-400 underline">Tea</button>
+          <button type="button" onclick="setPresetImg('dryfruits')" class="hover:text-gold-400 underline">Dry Fruits</button>
+        </div>
+      </div>
+
+      <div>
+        <label class="block text-slate-300 font-semibold mb-1">Short Description</label>
+        <textarea 
+          id="prodDescInput" 
+          rows="2" 
+          required 
+          placeholder="Fresh batch sourced same day from neighborhood partner shop..."
+          class="w-full bg-navy-950 border border-navy-700 rounded-xl px-3 py-2 text-white placeholder-slate-500 focus:outline-none focus:border-gold-500"
+        ></textarea>
+      </div>
+
+      <div class="flex items-center justify-between pt-2">
+        <label class="flex items-center gap-2 cursor-pointer">
+          <input type="checkbox" id="prodInStockInput" checked class="w-4 h-4 rounded text-accent-orange bg-navy-950 border-navy-700 focus:ring-0">
+          <span class="text-slate-300">In Stock & Ready for Dispatch</span>
+        </label>
+      </div>
+
+      <div class="flex items-center gap-3 pt-3 border-t border-navy-800">
+        <button 
+          type="button" 
+          onclick="closeProductModal()" 
+          class="w-1/3 py-2.5 rounded-xl bg-navy-800 hover:bg-navy-700 text-slate-300 font-bold transition-colors"
+        >
+          Cancel
+        </button>
+        <button 
+          type="submit" 
+          class="w-2/3 py-2.5 rounded-xl bg-gradient-to-r from-gold-500 to-accent-orange text-navy-950 font-black hover:from-gold-400 hover:to-accent-glow shadow-glow-orange transition-all flex items-center justify-center gap-2"
+        >
+          <i class="fa-solid fa-floppy-disk"></i>
+          <span id="saveProductBtnText">Save Product</span>
+        </button>
+      </div>
+    </form>
+  </div>
+
+  <!-- ======================================================== -->
+  <!-- MODAL 3: SMART CHECKOUT WITH ADDRESS MEMORY              -->
+  <!-- ======================================================== -->
+  <div id="checkoutModalBackdrop" onclick="closeCheckoutModal()" class="fixed inset-0 bg-navy-950/85 backdrop-blur-md z-50 transition-opacity duration-300 opacity-0 pointer-events-none"></div>
+  <div id="checkoutModal" class="fixed top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-11/12 max-w-lg z-50 bg-navy-900 border border-gold-500/40 rounded-3xl p-6 sm:p-7 shadow-2xl max-h-[92vh] overflow-y-auto opacity-0 pointer-events-none transition-all duration-300">
+    
+    <!-- Modal Header -->
+    <div class="flex items-center justify-between mb-4 border-b border-navy-800 pb-3">
+      <div class="flex items-center gap-2.5">
+        <div class="w-9 h-9 rounded-xl bg-accent-green/20 text-accent-green flex items-center justify-center text-lg">
+          <i class="fa-brands fa-whatsapp"></i>
+        </div>
+        <div>
+          <h3 class="text-sm font-bold text-white">Smart Hyperlocal Checkout</h3>
+          <p class="text-[10px] text-slate-400">Direct WhatsApp Order + 90-Min Cancellation Window</p>
+        </div>
+      </div>
+      <button onclick="closeCheckoutModal()" class="text-slate-400 hover:text-white text-base">
+        <i class="fa-solid fa-xmark"></i>
+      </button>
+    </div>
+
+    <!-- 90-Minute Cancellation Notice Banner -->
+    <div class="bg-gradient-to-r from-navy-950 to-navy-850 border border-gold-500/30 rounded-2xl p-3.5 mb-4 text-xs">
+      <div class="flex items-start gap-2.5">
+        <div class="w-7 h-7 rounded-lg bg-gold-500/20 text-gold-400 flex items-center justify-center shrink-0 mt-0.5">
+          <i class="fa-solid fa-clock-rotate-left text-sm"></i>
+        </div>
+        <div>
+          <p class="font-bold text-gold-400 text-xs">90-Minute Cancellation Window Notice</p>
+          <p class="text-[11px] text-slate-300 mt-0.5 leading-snug">
+            You can modify or request cancellation of this order <strong>within 1.5 hours (90 mins)</strong> after placement. Once the 90-minute window passes, items are collected from our local partner shop and out for delivery!
+          </p>
+        </div>
+      </div>
+    </div>
+
+    <!-- Order Items Summary in Checkout -->
+    <div class="bg-navy-950 border border-navy-800 rounded-2xl p-3 mb-4 text-xs">
+      <div class="flex items-center justify-between text-slate-400 text-[11px] mb-2 border-b border-navy-800 pb-1.5">
+        <span>Order Items</span>
+        <span id="checkoutItemsCount">1 Item</span>
+      </div>
+      <div id="checkoutItemsList" class="space-y-1.5 max-h-28 overflow-y-auto pr-1">
+        <!-- Injected dynamically -->
+      </div>
+      <div class="border-t border-navy-800 mt-2 pt-2 flex items-center justify-between font-bold">
+        <span class="text-white">Payable Amount:</span>
+        <span id="checkoutTotalAmount" class="text-gold-400 text-sm font-black font-mono">₹0</span>
+      </div>
+    </div>
+
+    <!-- Checkout Form with Address Memorization -->
+    <form onsubmit="handlePlaceOrderSubmit(event)" class="space-y-3 text-xs">
+      
+      <div class="flex items-center justify-between">
+        <span class="text-slate-300 font-bold flex items-center gap-1.5">
+          <i class="fa-solid fa-map-location-dot text-accent-orange"></i>
+          <span>Delivery Details & Address Memory</span>
+        </span>
+        <span id="addressMemoryStatus" class="text-[10px] text-slate-400 flex items-center gap-1">
+          <i class="fa-solid fa-circle-check text-accent-green"></i> Auto-fills on return
+        </span>
+      </div>
+
+      <div class="grid grid-cols-1 sm:grid-cols-2 gap-3">
+        <div>
+          <label class="block text-slate-400 text-[11px] mb-1">Customer Full Name *</label>
+          <input 
+            type="text" 
+            id="custNameInput" 
+            required 
+            placeholder="e.g. Rahul Sharma" 
+            class="w-full bg-navy-950 border border-navy-700 rounded-xl px-3 py-2 text-white placeholder-slate-500 focus:outline-none focus:border-gold-500"
+          />
+        </div>
+        <div>
+          <label class="block text-slate-400 text-[11px] mb-1">Phone / WhatsApp Number *</label>
+          <input 
+            type="tel" 
+            id="custPhoneInput" 
+            required 
+            placeholder="e.g. 9876543210" 
+            class="w-full bg-navy-950 border border-navy-700 rounded-xl px-3 py-2 text-white placeholder-slate-500 focus:outline-none focus:border-gold-500"
+          />
+        </div>
+      </div>
+
+      <div>
+        <label class="block text-slate-400 text-[11px] mb-1">Complete Delivery Address & Flat / House No. *</label>
+        <textarea 
+          id="custAddressInput" 
+          rows="2" 
+          required 
+          placeholder="House/Flat #, Building Name, Street / Sector..." 
+          class="w-full bg-navy-950 border border-navy-700 rounded-xl px-3 py-2 text-white placeholder-slate-500 focus:outline-none focus:border-gold-500"
+        ></textarea>
+      </div>
+
+      <div class="grid grid-cols-1 sm:grid-cols-2 gap-3">
+        <div>
+          <label class="block text-slate-400 text-[11px] mb-1">Nearby Landmark (Optional)</label>
+          <input 
+            type="text" 
+            id="custLandmarkInput" 
+            placeholder="e.g. Near Metro Pillar 124" 
+            class="w-full bg-navy-950 border border-navy-700 rounded-xl px-3 py-2 text-white placeholder-slate-500 focus:outline-none focus:border-gold-500"
+          />
+        </div>
+        <div>
+          <label class="block text-slate-400 text-[11px] mb-1">City & PIN Code *</label>
+          <input 
+            type="text" 
+            id="custPincodeInput" 
+            required 
+            placeholder="e.g. New Delhi - 110001" 
+            class="w-full bg-navy-950 border border-navy-700 rounded-xl px-3 py-2 text-white placeholder-slate-500 focus:outline-none focus:border-gold-500"
+          />
+        </div>
+      </div>
+
+      <!-- Address Memory Checkbox -->
+      <div class="bg-navy-950/80 border border-navy-800 rounded-xl p-2.5 flex items-center justify-between">
+        <label class="flex items-center gap-2 cursor-pointer select-none">
+          <input 
+            type="checkbox" 
+            id="rememberAddressCheck" 
+            checked 
+            class="w-4 h-4 rounded text-accent-green bg-navy-900 border-navy-700 focus:ring-0"
+          />
+          <span class="text-slate-300 text-[11px]">Save address to device (Never type it again)</span>
+        </label>
+        <button 
+          type="button" 
+          onclick="clearSavedAddress()" 
+          class="text-[10px] text-slate-400 hover:text-red-400 transition-colors"
+        >
+          Clear Memory
+        </button>
+      </div>
+
+      <div>
+        <label class="block text-slate-400 text-[11px] mb-1">Special Delivery Note (Optional)</label>
+        <input 
+          type="text" 
+          id="custNotesInput" 
+          placeholder="e.g. Please ring doorbell twice / deliver before 7 PM" 
+          class="w-full bg-navy-950 border border-navy-700 rounded-xl px-3 py-2 text-white placeholder-slate-500 focus:outline-none focus:border-gold-500"
+        />
+      </div>
+
+      <!-- WhatsApp Submit Button -->
+      <button 
+        type="submit" 
+        class="w-full py-3.5 rounded-2xl bg-gradient-to-r from-accent-green to-emerald-600 hover:from-emerald-500 hover:to-accent-green text-white font-extrabold text-sm shadow-glow-green transition-all flex items-center justify-center gap-2 mt-4"
+      >
+        <i class="fa-brands fa-whatsapp text-lg"></i>
+        <span>Place Order via WhatsApp & Start 90-Min Window</span>
+      </button>
+
+      <p class="text-[10px] text-center text-slate-400 mt-2">
+        <i class="fa-solid fa-lock text-gold-400 mr-1"></i> Order forwarded directly to Store Owner WhatsApp for instant dispatch.
+      </p>
+
+    </form>
+  </div>
+
+  <!-- ======================================================== -->
+  <!-- MODAL 4: MY ORDERS & 90-MINUTE CANCELLATION TRACKER      -->
+  <!-- ======================================================== -->
+  <div id="ordersModalBackdrop" onclick="closeOrdersModal()" class="fixed inset-0 bg-navy-950/80 backdrop-blur-sm z-50 transition-opacity duration-300 opacity-0 pointer-events-none"></div>
+  <div id="ordersModal" class="fixed top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-11/12 max-w-xl z-50 bg-navy-900 border border-gold-500/40 rounded-3xl p-6 sm:p-7 shadow-2xl max-h-[90vh] overflow-y-auto opacity-0 pointer-events-none transition-all duration-300">
+    
+    <div class="flex items-center justify-between mb-4 border-b border-navy-800 pb-3">
+      <div class="flex items-center gap-2.5">
+        <div class="w-9 h-9 rounded-xl bg-gold-500/20 text-gold-400 flex items-center justify-center text-base">
+          <i class="fa-solid fa-box-archive"></i>
+        </div>
+        <div>
+          <h3 class="text-sm font-bold text-white">My Hyperlocal Orders</h3>
+          <p class="text-[10px] text-slate-400">Live 90-Minute Cancellation Timers & WhatsApp Dispatch</p>
+        </div>
+      </div>
+      <button onclick="closeOrdersModal()" class="text-slate-400 hover:text-white text-base">
+        <i class="fa-solid fa-xmark"></i>
+      </button>
+    </div>
+
+    <!-- Active Timer Notice -->
+    <div class="bg-navy-950 border border-navy-800 rounded-xl p-3 mb-4 text-xs text-slate-300 flex items-center gap-2.5">
+      <i class="fa-solid fa-hourglass-half text-gold-400 text-sm animate-pulse"></i>
+      <span class="text-[11px]">
+        Orders have an active <strong>90-minute countdown</strong>. Once expired, order fulfillment is locked.
+      </span>
+    </div>
+
+    <div id="ordersListContainer" class="space-y-3 text-xs">
+      <!-- Injected dynamically -->
+    </div>
+
+  </div>
+
+  <!-- ======================================================== -->
+  <!-- SLIDE-OVER: CART DRAWER                                  -->
+  <!-- ======================================================== -->
+  <div id="cartDrawerBackdrop" onclick="closeCartDrawer()" class="fixed inset-0 bg-navy-950/70 backdrop-blur-sm z-50 transition-opacity duration-300 opacity-0 pointer-events-none"></div>
+  <div id="cartDrawer" class="fixed top-0 right-0 h-full w-full max-w-md bg-navy-900 border-l border-navy-800 shadow-2xl z-50 flex flex-col translate-x-full transition-transform duration-300">
+    
+    <!-- Drawer Header -->
+    <div class="p-4 sm:p-5 border-b border-navy-800 flex items-center justify-between bg-navy-950">
+      <div class="flex items-center gap-2">
+        <i class="fa-solid fa-cart-shopping text-gold-400 text-base"></i>
+        <h3 class="text-sm font-bold text-white">Your Shopping Cart</h3>
+        <span id="cartDrawerCountBadge" class="bg-accent-orange text-white text-[10px] font-black px-2 py-0.5 rounded-full">0</span>
+      </div>
+      <button onclick="closeCartDrawer()" class="w-8 h-8 rounded-lg bg-navy-900 hover:bg-navy-800 text-slate-400 hover:text-white flex items-center justify-center text-sm transition-colors">
+        <i class="fa-solid fa-xmark"></i>
+      </button>
+    </div>
+
+    <!-- Free Delivery Progress -->
+    <div class="p-3 bg-navy-850 border-b border-navy-800 text-[11px]">
+      <div class="flex items-center justify-between mb-1.5 text-slate-300">
+        <span class="flex items-center gap-1.5 text-gold-400 font-bold">
+          <i class="fa-solid fa-bolt"></i> Hyperlocal Free Delivery
+        </span>
+        <span id="freeDeliveryStatus" class="text-accent-green font-semibold">Active for all orders!</span>
+      </div>
+      <div class="w-full bg-navy-950 rounded-full h-1.5 overflow-hidden">
+        <div class="bg-gradient-to-r from-gold-500 to-accent-green h-full w-full"></div>
+      </div>
+    </div>
+
+    <!-- Cart Items Scrollable List -->
+    <div id="cartItemsList" class="flex-1 overflow-y-auto p-4 space-y-3">
+      <!-- Injected via JavaScript -->
+    </div>
+
+    <!-- Drawer Footer -->
+    <div class="p-4 sm:p-5 border-t border-navy-800 bg-navy-950 space-y-3">
+      <div class="space-y-1.5 text-xs text-slate-300">
+        <div class="flex justify-between">
+          <span>Subtotal</span>
+          <span id="cartSubtotal" class="font-mono font-bold text-white">₹0</span>
+        </div>
+        <div class="flex justify-between text-accent-green">
+          <span>Hyperlocal Delivery Fee</span>
+          <span class="font-bold">FREE</span>
+        </div>
+        <div class="border-t border-navy-800 pt-2 flex justify-between text-sm font-bold text-white">
+          <span>Total Amount</span>
+          <span id="cartGrandTotal" class="text-gold-400 font-black text-base font-mono">₹0</span>
+        </div>
+      </div>
+
+      <button 
+        id="cartCheckoutBtn"
+        onclick="openCheckoutFromCart()" 
+        class="w-full py-3.5 rounded-xl bg-gradient-to-r from-gold-500 to-accent-orange text-navy-950 font-black text-xs hover:from-gold-400 hover:to-accent-glow shadow-glow-orange transition-all flex items-center justify-center gap-2"
+      >
+        <i class="fa-brands fa-whatsapp text-base"></i>
+        <span>Proceed to WhatsApp Checkout</span>
+      </button>
+    </div>
+  </div>
+
+  <!-- ======================================================== -->
+  <!-- TOAST NOTIFICATION CONTAINER                             -->
+  <!-- ======================================================== -->
+  <div id="toast" class="fixed bottom-5 right-5 z-50 transform translate-y-20 opacity-0 transition-all duration-300 pointer-events-none">
+    <div class="bg-navy-900 border border-gold-500/50 shadow-2xl rounded-2xl p-4 flex items-center gap-3 text-xs text-white max-w-sm">
+      <div id="toastIcon" class="w-8 h-8 rounded-xl bg-gold-500/20 text-gold-400 flex items-center justify-center shrink-0">
+        <i class="fa-solid fa-check"></i>
+      </div>
+      <div>
+        <p id="toastTitle" class="font-bold text-white text-xs"></p>
+        <p id="toastDesc" class="text-slate-300 text-[11px]"></p>
+      </div>
+    </div>
+  </div>
+
+  <!-- ======================================================== -->
+  <!-- JAVASCRIPT APPLICATION LOGIC                             -->
+  <!-- ======================================================== -->
+  <script>
+    // --------------------------------------------------------
+    // Configuration & State
+    // --------------------------------------------------------
+    const AUTHORIZED_OWNER_GMAIL = "mdmerajansari16993@gmail.com";
+    // Private Store Owner WhatsApp (Kept 100% hidden and private from customer UI)
+    const PRIVATE_OWNER_WHATSAPP = "917979864406";
+
+    // Initial Hyperlocal Catalog (Seeded if localStorage is empty)
+    const INITIAL_PRODUCTS = [
+      {
+        id: 1,
+        title: "Pure Desi Cow Ghee (A2 Bilona 1L)",
+        sourceShop: "City Organics, Sector-4",
+        category: "Groceries & Essentials",
+        price: 899,
+        mrp: 1200,
+        rating: 4.9,
+        reviews: 42,
+        badge: "Pure Organic",
+        image: "https://images.unsplash.com/photo-1628088062854-d1870b4553da?w=500&q=80",
+        description: "Freshly churned traditional A2 cow ghee sourced from local farm partner in Sec-4.",
+        inStock: true
+      },
+      {
+        id: 2,
+        title: "Zeno Wireless Noise-Cancelling Headphones",
+        sourceShop: "Apex Tech Bazaar, MG Road",
+        category: "Electronics & Gadgets",
+        price: 1999,
+        mrp: 3499,
+        rating: 4.8,
+        reviews: 118,
+        badge: "Top Seller",
+        image: "https://images.unsplash.com/photo-1505740420928-5e560c06d30e?w=500&q=80",
+        description: "40mm dynamic drivers with 40-hr battery. Tested & verified from Apex Tech partner shop.",
+        inStock: true
+      },
+      {
+        id: 3,
+        title: "Royal Pistachio & Kaju Sweets Gift Box (800g)",
+        sourceShop: "Royal Sweets & Dairy, Station Road",
+        category: "Sweets & Bakery",
+        price: 649,
+        mrp: 850,
+        rating: 5.0,
+        reviews: 79,
+        badge: "Fresh Today",
+        image: "https://images.unsplash.com/photo-1599785209707-a456fc1337bb?w=500&q=80",
+        description: "Mouth-watering premium assortment packed fresh every morning from Royal Sweets.",
+        inStock: true
+      },
+      {
+        id: 4,
+        title: "Organic Kashmiri Almonds & Walnuts Combo (500g)",
+        sourceShop: "Green Valley Dry Fruits, Market-2",
+        category: "Groceries & Essentials",
+        price: 749,
+        mrp: 999,
+        rating: 4.7,
+        reviews: 35,
+        badge: "Farm Fresh",
+        image: "https://images.unsplash.com/photo-1508061252445-5350f372292a?w=500&q=80",
+        description: "Premium jumbo almonds and shelled walnuts directly procured from market wholesale hub.",
+        inStock: true
+      },
+      {
+        id: 5,
+        title: "Smart Fast Charging 65W GaN Hub",
+        sourceShop: "City Electronics, Commercial Complex",
+        category: "Electronics & Gadgets",
+        price: 1299,
+        mrp: 1899,
+        rating: 4.9,
+        reviews: 64,
+        badge: "Quick Charge",
+        image: "https://images.unsplash.com/photo-1583863788434-e58a36330cf0?w=500&q=80",
+        description: "Ultra-compact dual USB-C + USB-A GaN charger with surge protector.",
+        inStock: true
+      },
+      {
+        id: 6,
+        title: "Darjeeling First Flush Whole Leaf Tea (250g)",
+        sourceShop: "Heritage Tea Corner, Old Bazaar",
+        category: "Groceries & Essentials",
+        price: 389,
+        mrp: 520,
+        rating: 4.8,
+        reviews: 51,
+        badge: "Aromatic",
+        image: "https://images.unsplash.com/photo-1576092768241-dec231879fc3?w=500&q=80",
+        description: "Single estate premium orthodox whole leaf tea packed straight from local tea depot.",
+        inStock: true
+      },
+      {
+        id: 7,
+        title: "Artisanal Multigrain Sourdough Bread (400g)",
+        sourceShop: "Crust & Crumb Artisan Bakery",
+        category: "Sweets & Bakery",
+        price: 149,
+        mrp: 199,
+        rating: 4.7,
+        reviews: 29,
+        badge: "Baked 6 AM",
+        image: "https://images.unsplash.com/photo-1509440159596-0249088772ff?w=500&q=80",
+        description: "Naturally fermented sourdough with stone-ground whole wheat and seeds.",
+        inStock: true
+      },
+      {
+        id: 8,
+        title: "Copper Hammered Water Dispenser (5L)",
+        sourceShop: "Metro Utensils & Living, Main Market",
+        category: "Daily Home Goods",
+        price: 1599,
+        mrp: 2299,
+        rating: 4.9,
+        reviews: 87,
+        badge: "100% Pure",
+        image: "https://images.unsplash.com/photo-1610701596007-11502861dcfa?w=500&q=80",
+        description: "Ayurvedic health benefit 99.8% pure copper hand-crafted water pot with tap.",
+        inStock: true
+      }
+    ];
+
+    // App State
+    let products = [];
+    let cart = [];
+    let orders = [];
+    let activeCategory = "All";
+    let searchQuery = "";
+    let sortOption = "featured";
+    let directCheckoutProduct = null; // Used for "Buy Now" flow
+
+    // --------------------------------------------------------
+    // Initialization & LocalStorage Management
+    // --------------------------------------------------------
+    document.addEventListener("DOMContentLoaded", () => {
+      loadProductsFromStorage();
+      loadCartFromStorage();
+      loadOrdersFromStorage();
+      renderCategoryFilters();
+      renderProducts();
+      updateCartUI();
+      updateOrdersCountBadge();
+      checkAdminSession();
+
+      // Live countdown interval for 90-minute order cancellation window
+      setInterval(updateOrderTimers, 1000);
+    });
+
+    function loadProductsFromStorage() {
+      const stored = localStorage.getItem("zenomart_products");
+      if (stored) {
+        try {
+          products = JSON.parse(stored);
+        } catch (e) {
+          products = [...INITIAL_PRODUCTS];
+          saveProductsToStorage();
+        }
+      } else {
+        products = [...INITIAL_PRODUCTS];
+        saveProductsToStorage();
+      }
+    }
+
+    function saveProductsToStorage() {
+      localStorage.setItem("zenomart_products", JSON.stringify(products));
+    }
+
+    function loadCartFromStorage() {
+      const stored = localStorage.getItem("zenomart_cart");
+      if (stored) {
+        try {
+          cart = JSON.parse(stored);
+        } catch (e) {
+          cart = [];
+        }
+      }
+    }
+
+    function saveCartToStorage() {
+      localStorage.setItem("zenomart_cart", JSON.stringify(cart));
+      updateCartUI();
+    }
+
+    function loadOrdersFromStorage() {
+      const stored = localStorage.getItem("zenomart_orders");
+      if (stored) {
+        try {
+          orders = JSON.parse(stored);
+        } catch (e) {
+          orders = [];
+        }
+      }
+    }
+
+    function saveOrdersToStorage() {
+      localStorage.setItem("zenomart_orders", JSON.stringify(orders));
+      updateOrdersCountBadge();
+    }
+
+    // --------------------------------------------------------
+    // Admin Security & Authentication Logic
+    // --------------------------------------------------------
+    function isAdminLoggedIn() {
+      return sessionStorage.getItem("zenomart_admin_session") === "true";
+    }
+
+    function checkAdminSession() {
+      const isAuth = isAdminLoggedIn();
+      const banner = document.getElementById("adminActiveBanner");
+      const navIcon = document.getElementById("adminNavIcon");
+      const navLabel = document.getElementById("adminNavLabel");
+      const navBtn = document.getElementById("adminNavBtn");
+
+      if (isAuth) {
+        banner.classList.remove("hidden");
+        navIcon.className = "fa-solid fa-user-shield text-accent-orange";
+        navLabel.innerText = "Admin Console";
+        navBtn.classList.add("bg-gold-500/20", "border-gold-400");
+      } else {
+        banner.classList.add("hidden");
+        navIcon.className = "fa-solid fa-lock";
+        navLabel.innerText = "Admin Login";
+        navBtn.classList.remove("bg-gold-500/20", "border-gold-400");
+      }
+      renderProducts(); // Re-render to show/hide admin controls on cards
+    }
+
+    function handleAdminNavClick() {
+      if (isAdminLoggedIn()) {
+        openAddProductModal();
+      } else {
+        openAdminLoginModal();
+      }
+    }
+
+    function openAdminLoginModal() {
+      const modal = document.getElementById("adminLoginModal");
+      const backdrop = document.getElementById("adminLoginModalBackdrop");
+      const err = document.getElementById("loginErrorMessage");
+      err.classList.add("hidden");
+
+      backdrop.classList.remove("opacity-0", "pointer-events-none");
+      backdrop.classList.add("opacity-100", "pointer-events-auto");
+      modal.classList.remove("opacity-0", "pointer-events-none");
+      modal.classList.add("opacity-100", "pointer-events-auto");
+    }
+
+    function closeAdminLoginModal() {
+      const modal = document.getElementById("adminLoginModal");
+      const backdrop = document.getElementById("adminLoginModalBackdrop");
+      backdrop.classList.add("opacity-0", "pointer-events-none");
+      backdrop.classList.remove("opacity-100", "pointer-events-auto");
+      modal.classList.add("opacity-0", "pointer-events-none");
+      modal.classList.remove("opacity-100", "pointer-events-auto");
+    }
+
+    function handleAdminLoginSubmit(e) {
+      e.preventDefault();
+      const email = document.getElementById("adminEmailInput").value.trim().toLowerCase();
+      const password = document.getElementById("adminPasswordInput").value.trim();
+      const err = document.getElementById("loginErrorMessage");
+
+      // Strict Authorized Email Check: ONLY mdmerajansari16993@gmail.com
+      if (email !== AUTHORIZED_OWNER_GMAIL.toLowerCase()) {
+        err.innerHTML = `
+          <strong><i class="fa-solid fa-ban mr-1"></i> Access Denied:</strong>
+          Only the authorized store owner (<code>${AUTHORIZED_OWNER_GMAIL}</code>) can manage MS ZenoMart.
+        `;
+        err.classList.remove("hidden");
+        return;
+      }
+
+      if (password !== "admin123") {
+        err.innerHTML = `<strong><i class="fa-solid fa-circle-exclamation mr-1"></i> Invalid Password:</strong> Please check your security passcode.`;
+        err.classList.remove("hidden");
+        return;
+      }
+
+      // Successful Authentication
+      sessionStorage.setItem("zenomart_admin_session", "true");
+      closeAdminLoginModal();
+      checkAdminSession();
+      showToast("Admin Authenticated", "Welcome, MD Meraj Ansari! You now have full management privileges.");
+    }
+
+    function adminLogout() {
+      sessionStorage.removeItem("zenomart_admin_session");
+      checkAdminSession();
+      showToast("Admin Logged Out", "Switched back to standard customer browsing mode.");
+    }
+
+    // --------------------------------------------------------
+    // Product Catalog Management (Admin Only)
+    // --------------------------------------------------------
+    function openAddProductModal() {
+      if (!isAdminLoggedIn()) {
+        openAdminLoginModal();
+        return;
+      }
+      document.getElementById("editProductId").value = "";
+      document.getElementById("productModalTitle").innerText = "Add New Hyperlocal Product";
+      document.getElementById("productModalIcon").className = "fa-solid fa-plus";
+      document.getElementById("saveProductBtnText").innerText = "Publish Product";
+
+      document.getElementById("prodTitleInput").value = "";
+      document.getElementById("prodSourceInput").value = "";
+      document.getElementById("prodCategoryInput").value = "Groceries & Essentials";
+      document.getElementById("prodPriceInput").value = "";
+      document.getElementById("prodMrpInput").value = "";
+      document.getElementById("prodBadgeInput").value = "New Arrival";
+      document.getElementById("prodImageInput").value = "https://images.unsplash.com/photo-1542838132-92c53300491e?w=500&q=80";
+      document.getElementById("prodDescInput").value = "";
+      document.getElementById("prodInStockInput").checked = true;
+
+      showProductModal();
+    }
+
+    function openEditProductModal(productId) {
+      if (!isAdminLoggedIn()) {
+        openAdminLoginModal();
+        return;
+      }
+      const prod = products.find(p => p.id === productId);
+      if (!prod) return;
+
+      document.getElementById("editProductId").value = prod.id;
+      document.getElementById("productModalTitle").innerText = "Edit Product & Custom Price";
+      document.getElementById("productModalIcon").className = "fa-solid fa-pen-to-square";
+      document.getElementById("saveProductBtnText").innerText = "Update Product";
+
+      document.getElementById("prodTitleInput").value = prod.title;
+      document.getElementById("prodSourceInput").value = prod.sourceShop || "Local Partner";
+      document.getElementById("prodCategoryInput").value = prod.category;
+      document.getElementById("prodPriceInput").value = prod.price;
+      document.getElementById("prodMrpInput").value = prod.mrp;
+      document.getElementById("prodBadgeInput").value = prod.badge || "";
+      document.getElementById("prodImageInput").value = prod.image;
+      document.getElementById("prodDescInput").value = prod.description || "";
+      document.getElementById("prodInStockInput").checked = prod.inStock !== false;
+
+      showProductModal();
+    }
+
+    function showProductModal() {
+      const modal = document.getElementById("productModal");
+      const backdrop = document.getElementById("productModalBackdrop");
+      backdrop.classList.remove("opacity-0", "pointer-events-none");
+      backdrop.classList.add("opacity-100", "pointer-events-auto");
+      modal.classList.remove("opacity-0", "pointer-events-none");
+      modal.classList.add("opacity-100", "pointer-events-auto");
+    }
+
+    function closeProductModal() {
+      const modal = document.getElementById("productModal");
+      const backdrop = document.getElementById("productModalBackdrop");
+      backdrop.classList.add("opacity-0", "pointer-events-none");
+      backdrop.classList.remove("opacity-100", "pointer-events-auto");
+      modal.classList.add("opacity-0", "pointer-events-none");
+      modal.classList.remove("opacity-100", "pointer-events-auto");
+    }
+
+    function handleProductFormSubmit(e) {
+      e.preventDefault();
+      if (!isAdminLoggedIn()) {
+        showToast("Access Denied", "Only authenticated admin can alter catalog.");
+        return;
+      }
+
+      const editId = document.getElementById("editProductId").value;
+      const title = document.getElementById("prodTitleInput").value.trim();
+      const sourceShop = document.getElementById("prodSourceInput").value.trim();
+      const category = document.getElementById("prodCategoryInput").value;
+      const price = parseFloat(document.getElementById("prodPriceInput").value);
+      const mrp = parseFloat(document.getElementById("prodMrpInput").value);
+      const badge = document.getElementById("prodBadgeInput").value.trim();
+      const image = document.getElementById("prodImageInput").value.trim();
+      const desc = document.getElementById("prodDescInput").value.trim();
+      const inStock = document.getElementById("prodInStockInput").checked;
+
+      if (editId) {
+        // Update existing product
+        const idNum = parseInt(editId);
+        const idx = products.findIndex(p => p.id === idNum);
+        if (idx !== -1) {
+          products[idx] = {
+            ...products[idx],
+            title,
+            sourceShop,
+            category,
+            price,
+            mrp,
+            badge,
+            image,
+            description: desc,
+            inStock
+          };
+          showToast("Product Updated", `${title} price and shop details saved!`);
+        }
+      } else {
+        // Create new product
+        const newId = products.length > 0 ? Math.max(...products.map(p => p.id)) + 1 : 1;
+        const newProd = {
+          id: newId,
+          title,
+          sourceShop,
+          category,
+          price,
+          mrp,
+          rating: 5.0,
+          reviews: 1,
+          badge: badge || "New",
+          image,
+          description: desc,
+          inStock
+        };
+        products.unshift(newProd);
+        showToast("Product Added", `${title} is now live on the storefront!`);
+      }
+
+      saveProductsToStorage();
+      closeProductModal();
+      renderCategoryFilters();
+      renderProducts();
+    }
+
+    function deleteProduct(productId) {
+      if (!isAdminLoggedIn()) {
+        showToast("Restricted Action", "Only admin can delete items.");
+        return;
+      }
+      const prod = products.find(p => p.id === productId);
+      if (!prod) return;
+
+      if (confirm(`Are you sure you want to delete "${prod.title}" from the catalog?`)) {
+        products = products.filter(p => p.id !== productId);
+        saveProductsToStorage();
+        renderProducts();
+        showToast("Product Removed", `${prod.title} was deleted from store.`);
+      }
+    }
+
+    function setPresetImg(type) {
+      const presets = {
+        ghee: "https://images.unsplash.com/photo-1628088062854-d1870b4553da?w=500&q=80",
+        headphones: "https://images.unsplash.com/photo-1505740420928-5e560c06d30e?w=500&q=80",
+        sweets: "https://images.unsplash.com/photo-1599785209707-a456fc1337bb?w=500&q=80",
+        tea: "https://images.unsplash.com/photo-1576092768241-dec231879fc3?w=500&q=80",
+        dryfruits: "https://images.unsplash.com/photo-1508061252445-5350f372292a?w=500&q=80"
+      };
+      if (presets[type]) {
+        document.getElementById("prodImageInput").value = presets[type];
+      }
+    }
+
+    // --------------------------------------------------------
+    // UI Rendering: Products & Category Filters
+    // --------------------------------------------------------
+    function renderCategoryFilters() {
+      const container = document.getElementById("categoryFilterContainer");
+      const categories = ["All", ...new Set(products.map(p => p.category))];
+
+      container.innerHTML = categories.map(cat => {
+        const isActive = activeCategory === cat;
+        return `
+          <button 
+            onclick="setCategory('${cat}')" 
+            class="px-3.5 py-1.5 rounded-full text-xs font-bold transition-all whitespace-nowrap ${
+              isActive 
+                ? 'bg-gradient-to-r from-gold-500 to-accent-orange text-navy-950 shadow-glow-orange' 
+                : 'bg-navy-900 hover:bg-navy-800 text-slate-300 border border-navy-700/80'
+            }"
+          >
+            ${cat}
+          </button>
+        `;
+      }).join('');
+    }
+
+    function setCategory(cat) {
+      activeCategory = cat;
+      renderCategoryFilters();
+      renderProducts();
+    }
+
+    function handleSearch(query) {
+      searchQuery = query.toLowerCase().trim();
+      const clearBtn = document.getElementById("clearSearchBtn");
+      if (clearBtn) {
+        if (searchQuery) clearBtn.classList.remove("hidden");
+        else clearBtn.classList.add("hidden");
+      }
+      renderProducts();
+    }
+
+    function clearSearch() {
+      searchQuery = "";
+      document.getElementById("searchInput").value = "";
+      const mobileInput = document.getElementById("mobileSearchInput");
+      if (mobileInput) mobileInput.value = "";
+      const clearBtn = document.getElementById("clearSearchBtn");
+      if (clearBtn) clearBtn.classList.add("hidden");
+      renderProducts();
+    }
+
+    function handleSortChange(val) {
+      sortOption = val;
+      renderProducts();
+    }
+
+    function resetFilters() {
+      activeCategory = "All";
+      searchQuery = "";
+      document.getElementById("searchInput").value = "";
+      renderCategoryFilters();
+      renderProducts();
+    }
+
+    function renderProducts() {
+      const grid = document.getElementById("productGrid");
+      const empty = document.getElementById("emptyState");
+      const countLabel = document.getElementById("productCountLabel");
+      const isAdmin = isAdminLoggedIn();
+
+      let filtered = products.filter(p => {
+        const matchesCategory = activeCategory === "All" || p.category === activeCategory;
+        const matchesSearch = !searchQuery || 
+          p.title.toLowerCase().includes(searchQuery) ||
+          (p.sourceShop && p.sourceShop.toLowerCase().includes(searchQuery)) ||
+          p.category.toLowerCase().includes(searchQuery);
+        return matchesCategory && matchesSearch;
+      });
+
+      // Sorting
+      if (sortOption === "price-asc") filtered.sort((a, b) => a.price - b.price);
+      else if (sortOption === "price-desc") filtered.sort((a, b) => b.price - a.price);
+      else if (sortOption === "rating") filtered.sort((a, b) => b.rating - a.rating);
+
+      countLabel.innerText = `Showing ${filtered.length} of ${products.length} items`;
+
+      if (filtered.length === 0) {
+        grid.innerHTML = "";
+        empty.classList.remove("hidden");
+        return;
+      }
+      empty.classList.add("hidden");
+
+      grid.innerHTML = filtered.map(product => {
+        const discountPercent = product.mrp > product.price 
+          ? Math.round(((product.mrp - product.price) / product.mrp) * 100) 
+          : 0;
+
+        return `
+          <div class="group bg-navy-900 border border-navy-800 hover:border-gold-500/50 rounded-2xl overflow-hidden transition-all duration-300 hover:shadow-2xl flex flex-col">
+            
+            <!-- Image & Badges -->
+            <div class="relative h-48 bg-navy-950 overflow-hidden">
+              <img 
+                src="${product.image}" 
+                alt="${product.title}" 
+                class="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500" 
+                loading="lazy"
+                onerror="this.src='https://images.unsplash.com/photo-1542838132-92c53300491e?w=500&q=80'"
+              />
+              
+              <!-- Tag Badge -->
+              ${product.badge ? `
+                <span class="absolute top-2.5 left-2.5 bg-gradient-to-r from-gold-500 to-accent-orange text-navy-950 font-black text-[10px] px-2.5 py-0.5 rounded-full shadow-md">
+                  ${product.badge}
+                </span>
+              ` : ''}
+
+              <!-- Discount Tag -->
+              ${discountPercent > 0 ? `
+                <span class="absolute top-2.5 right-2.5 bg-navy-950/90 text-accent-orange border border-accent-orange/40 font-bold text-[10px] px-2 py-0.5 rounded-md">
+                  ${discountPercent}% OFF
+                </span>
+              ` : ''}
+
+              <!-- Stock Tag -->
+              <span class="absolute bottom-2 left-2.5 bg-navy-950/85 backdrop-blur-sm text-[10px] font-semibold px-2 py-0.5 rounded flex items-center gap-1 ${product.inStock ? 'text-emerald-400' : 'text-red-400'}">
+                <span class="w-1.5 h-1.5 rounded-full ${product.inStock ? 'bg-emerald-400 animate-pulse' : 'bg-red-400'}"></span>
+                ${product.inStock ? 'Hyperlocal Stock' : 'Out of Stock'}
+              </span>
+            </div>
+
+            <!-- Product Info -->
+            <div class="p-4 flex-1 flex flex-col justify-between">
+              <div>
+                
+                <!-- Local Shop Partner Source Badge (Hyperlocal Dropship Source) -->
+                <div class="mb-2 flex items-center gap-1.5 bg-navy-950 border border-navy-800 px-2 py-1 rounded-lg text-[10px] text-slate-300">
+                  <i class="fa-solid fa-store text-gold-400"></i>
+                  <span class="truncate">Source: <strong class="text-white">${product.sourceShop || 'Local Partner Hub'}</strong></span>
+                </div>
+
+                <!-- Product Title -->
+                <h3 class="font-bold text-sm text-white group-hover:text-gold-400 transition-colors line-clamp-2 mb-1.5" title="${product.title}">
+                  ${product.title}
+                </h3>
+
+                <!-- Rating -->
+                <div class="flex items-center gap-1.5 text-xs text-slate-400 mb-2.5">
+                  <div class="flex items-center text-gold-400 text-[11px]">
+                    <i class="fa-solid fa-star"></i>
+                  </div>
+                  <span class="font-bold text-white text-[11px]">${product.rating || '4.9'}</span>
+                  <span class="text-[10px]">(${product.reviews || '28'})</span>
+                  <span class="text-slate-600">•</span>
+                  <span class="text-[10px] text-slate-400 truncate">${product.category}</span>
+                </div>
+
+                <!-- Price Row -->
+                <div class="flex items-baseline gap-2 mb-4">
+                  <span class="text-base font-black text-gold-400 font-mono">₹${product.price}</span>
+                  ${product.mrp > product.price ? `
+                    <span class="text-xs text-slate-500 line-through font-mono">₹${product.mrp}</span>
+                  ` : ''}
+                </div>
+              </div>
+
+              <!-- Customer Action Buttons -->
+              <div class="space-y-2 pt-2 border-t border-navy-800">
+                <div class="grid grid-cols-2 gap-2">
+                  <button 
+                    onclick="addToCart(${product.id})" 
+                    class="py-2 px-2.5 rounded-xl bg-navy-800 hover:bg-navy-750 text-slate-200 text-xs font-semibold flex items-center justify-center gap-1.5 transition-colors border border-navy-700"
+                  >
+                    <i class="fa-solid fa-cart-plus text-gold-400 text-[11px]"></i>
+                    <span>Add Cart</span>
+                  </button>
+                  <button 
+                    onclick="openBuyNowModal(${product.id})" 
+                    class="py-2 px-2.5 rounded-xl bg-gradient-to-r from-gold-500 to-accent-orange text-navy-950 font-bold text-xs hover:from-gold-400 hover:to-accent-glow shadow-glow-orange transition-all flex items-center justify-center gap-1.5"
+                  >
+                    <i class="fa-brands fa-whatsapp text-xs"></i>
+                    <span>Buy Now</span>
+                  </button>
+                </div>
+
+                <!-- Admin Action Buttons (Visible ONLY to Owner) -->
+                ${isAdmin ? `
+                  <div class="grid grid-cols-2 gap-1.5 pt-1.5 border-t border-navy-800/60">
+                    <button 
+                      onclick="openEditProductModal(${product.id})" 
+                      class="py-1 px-2 rounded-lg bg-navy-950 hover:bg-navy-850 text-gold-400 border border-gold-500/30 text-[10px] font-bold transition-colors flex items-center justify-center gap-1"
+                    >
+                      <i class="fa-solid fa-pen"></i> Edit Price
+                    </button>
+                    <button 
+                      onclick="deleteProduct(${product.id})" 
+                      class="py-1 px-2 rounded-lg bg-red-500/10 hover:bg-red-500/20 text-red-400 border border-red-500/30 text-[10px] font-bold transition-colors flex items-center justify-center gap-1"
+                    >
+                      <i class="fa-solid fa-trash"></i> Delete
+                    </button>
+                  </div>
+                ` : ''}
+
+              </div>
+
+            </div>
+          </div>
+        `;
+      }).join('');
+    }
+
+    // --------------------------------------------------------
+    // Shopping Cart Operations
+    // --------------------------------------------------------
+    function addToCart(productId) {
+      const prod = products.find(p => p.id === productId);
+      if (!prod) return;
+
+      const existing = cart.find(c => c.productId === productId);
+      if (existing) {
+        existing.quantity += 1;
+      } else {
+        cart.push({
+          productId: prod.id,
+          title: prod.title,
+          price: prod.price,
+          image: prod.image,
+          sourceShop: prod.sourceShop || "Local Partner Hub",
+          quantity: 1
+        });
+      }
+      saveCartToStorage();
+      showToast("Added to Cart", `${prod.title} added to your bag.`);
+    }
+
+    function updateCartQuantity(productId, delta) {
+      const idx = cart.findIndex(c => c.productId === productId);
+      if (idx === -1) return;
+
+      cart[idx].quantity += delta;
+      if (cart[idx].quantity <= 0) {
+        cart.splice(idx, 1);
+      }
+      saveCartToStorage();
+    }
+
+    function removeCartItem(productId) {
+      cart = cart.filter(c => c.productId !== productId);
+      saveCartToStorage();
+    }
+
+    function updateCartUI() {
+      const totalCount = cart.reduce((sum, item) => sum + item.quantity, 0);
+      const subtotal = cart.reduce((sum, item) => sum + (item.price * item.quantity), 0);
+
+      // Nav badges
+      const navBadge = document.getElementById("cartCountBadge");
+      const drawerBadge = document.getElementById("cartDrawerCountBadge");
+      if (navBadge) navBadge.innerText = totalCount;
+      if (drawerBadge) drawerBadge.innerText = totalCount;
+
+      // Drawer Items
+      const list = document.getElementById("cartItemsList");
+      const subtotalEl = document.getElementById("cartSubtotal");
+      const grandTotalEl = document.getElementById("cartGrandTotal");
+      const checkoutBtn = document.getElementById("cartCheckoutBtn");
+
+      if (subtotalEl) subtotalEl.innerText = `₹${subtotal}`;
+      if (grandTotalEl) grandTotalEl.innerText = `₹${subtotal}`;
+
+      if (!list) return;
+
+      if (cart.length === 0) {
+        list.innerHTML = `
+          <div class="h-64 flex flex-col items-center justify-center text-center text-slate-400">
+            <i class="fa-solid fa-cart-shopping text-4xl text-navy-800 mb-3"></i>
+            <p class="font-bold text-sm text-white">Your cart is empty</p>
+            <p class="text-xs text-slate-400 mt-1">Add items from neighborhood shops to continue.</p>
+          </div>
+        `;
+        if (checkoutBtn) checkoutBtn.disabled = true;
+        return;
+      }
+
+      if (checkoutBtn) checkoutBtn.disabled = false;
+
+      list.innerHTML = cart.map(item => `
+        <div class="bg-navy-950 border border-navy-800 rounded-xl p-3 flex items-center gap-3">
+          <img src="${item.image}" alt="${item.title}" class="w-14 h-14 rounded-lg object-cover shrink-0" />
+          <div class="flex-1 min-w-0">
+            <h4 class="font-bold text-xs text-white truncate">${item.title}</h4>
+            <p class="text-[10px] text-slate-400 truncate">Source: ${item.sourceShop}</p>
+            <div class="flex items-center justify-between mt-2">
+              <span class="text-xs font-bold text-gold-400 font-mono">₹${item.price}</span>
+              
+              <!-- Quantity Controls -->
+              <div class="flex items-center gap-2 bg-navy-900 border border-navy-700 px-2 py-0.5 rounded-lg text-xs">
+                <button onclick="updateCartQuantity(${item.productId}, -1)" class="text-slate-400 hover:text-white px-1 font-bold">-</button>
+                <span class="font-bold text-white text-xs">${item.quantity}</span>
+                <button onclick="updateCartQuantity(${item.productId}, 1)" class="text-slate-400 hover:text-white px-1 font-bold">+</button>
+              </div>
+
+            </div>
+          </div>
+          <button onclick="removeCartItem(${item.productId})" class="text-slate-500 hover:text-red-400 p-1">
+            <i class="fa-solid fa-trash text-xs"></i>
+          </button>
+        </div>
+      `).join('');
+    }
+
+    function openCartDrawer() {
+      const drawer = document.getElementById("cartDrawer");
+      const backdrop = document.getElementById("cartDrawerBackdrop");
+      backdrop.classList.remove("opacity-0", "pointer-events-none");
+      backdrop.classList.add("opacity-100", "pointer-events-auto");
+      drawer.classList.remove("translate-x-full");
+    }
+
+    function closeCartDrawer() {
+      const drawer = document.getElementById("cartDrawer");
+      const backdrop = document.getElementById("cartDrawerBackdrop");
+      backdrop.classList.add("opacity-0", "pointer-events-none");
+      backdrop.classList.remove("opacity-100", "pointer-events-auto");
+      drawer.classList.add("translate-x-full");
+    }
+
+    // --------------------------------------------------------
+    // Smart Checkout & Address Memory Feature
+    // --------------------------------------------------------
+    function openBuyNowModal(productId) {
+      const prod = products.find(p => p.id === productId);
+      if (!prod) return;
+
+      directCheckoutProduct = {
+        title: prod.title,
+        price: prod.price,
+        sourceShop: prod.sourceShop || "Local Partner Hub",
+        quantity: 1
+      };
+      openCheckoutModalWithItems([directCheckoutProduct]);
+    }
+
+    function openCheckoutFromCart() {
+      if (cart.length === 0) return;
+      closeCartDrawer();
+      directCheckoutProduct = null;
+      openCheckoutModalWithItems(cart);
+    }
+
+    function openCheckoutModalWithItems(items) {
+      const modal = document.getElementById("checkoutModal");
+      const backdrop = document.getElementById("checkoutModalBackdrop");
+      const listEl = document.getElementById("checkoutItemsList");
+      const countEl = document.getElementById("checkoutItemsCount");
+      const totalEl = document.getElementById("checkoutTotalAmount");
+
+      const totalQuantity = items.reduce((sum, i) => sum + i.quantity, 0);
+      const grandTotal = items.reduce((sum, i) => sum + (i.price * i.quantity), 0);
+
+      countEl.innerText = `${totalQuantity} Item${totalQuantity === 1 ? '' : 's'}`;
+      totalEl.innerText = `₹${grandTotal}`;
+
+      listEl.innerHTML = items.map(item => `
+        <div class="flex items-center justify-between text-[11px] py-1">
+          <div class="truncate pr-2">
+            <span class="font-semibold text-white">${item.title}</span>
+            <span class="text-slate-400 text-[10px] block">Source: ${item.sourceShop} (Qty: ${item.quantity})</span>
+          </div>
+          <span class="font-bold text-gold-400 shrink-0 font-mono">₹${item.price * item.quantity}</span>
+        </div>
+      `).join('');
+
+      // Auto-populate Address Memory Feature from localStorage
+      loadSavedAddressToForm();
+
+      backdrop.classList.remove("opacity-0", "pointer-events-none");
+      backdrop.classList.add("opacity-100", "pointer-events-auto");
+      modal.classList.remove("opacity-0", "pointer-events-none");
+      modal.classList.add("opacity-100", "pointer-events-auto");
+    }
+
+    function closeCheckoutModal() {
+      const modal = document.getElementById("checkoutModal");
+      const backdrop = document.getElementById("checkoutModalBackdrop");
+      backdrop.classList.add("opacity-0", "pointer-events-none");
+      backdrop.classList.remove("opacity-100", "pointer-events-auto");
+      modal.classList.add("opacity-0", "pointer-events-none");
+      modal.classList.remove("opacity-100", "pointer-events-auto");
+    }
+
+    // Address Memorization Storage Helpers
+    function loadSavedAddressToForm() {
+      const saved = localStorage.getItem("zenomart_saved_address");
+      const statusEl = document.getElementById("addressMemoryStatus");
+
+      if (saved) {
+        try {
+          const addr = JSON.parse(saved);
+          document.getElementById("custNameInput").value = addr.name || "";
+          document.getElementById("custPhoneInput").value = addr.phone || "";
+          document.getElementById("custAddressInput").value = addr.address || "";
+          document.getElementById("custLandmarkInput").value = addr.landmark || "";
+          document.getElementById("custPincodeInput").value = addr.pincode || "";
+          statusEl.innerHTML = `<i class="fa-solid fa-memory text-accent-green"></i> Loaded from memory!`;
+        } catch (e) {
+          statusEl.innerHTML = `<i class="fa-regular fa-bookmark"></i> New Address`;
+        }
+      } else {
+        statusEl.innerHTML = `<i class="fa-regular fa-bookmark"></i> Enter once, saved forever`;
+      }
+    }
+
+    function clearSavedAddress() {
+      localStorage.removeItem("zenomart_saved_address");
+      document.getElementById("custNameInput").value = "";
+      document.getElementById("custPhoneInput").value = "";
+      document.getElementById("custAddressInput").value = "";
+      document.getElementById("custLandmarkInput").value = "";
+      document.getElementById("custPincodeInput").value = "";
+      document.getElementById("addressMemoryStatus").innerHTML = `Cleared from memory`;
+      showToast("Address Cleared", "Saved delivery address removed from browser storage.");
+    }
+
+    // --------------------------------------------------------
+    // Order Placement & WhatsApp Redirection Flow
+    // --------------------------------------------------------
+    function handlePlaceOrderSubmit(e) {
+      e.preventDefault();
+
+      const name = document.getElementById("custNameInput").value.trim();
+      const phone = document.getElementById("custPhoneInput").value.trim();
+      const address = document.getElementById("custAddressInput").value.trim();
+      const landmark = document.getElementById("custLandmarkInput").value.trim();
+      const pincode = document.getElementById("custPincodeInput").value.trim();
+      const notes = document.getElementById("custNotesInput").value.trim();
+      const rememberAddress = document.getElementById("rememberAddressCheck").checked;
+
+      // Persist address in localStorage if checked
+      if (rememberAddress) {
+        const addressObj = { name, phone, address, landmark, pincode };
+        localStorage.setItem("zenomart_saved_address", JSON.stringify(addressObj));
+      }
+
+      // Determine items list
+      const itemsToOrder = directCheckoutProduct ? [directCheckoutProduct] : [...cart];
+      if (itemsToOrder.length === 0) {
+        showToast("Error", "No items to order.");
+        return;
+      }
+
+      const grandTotal = itemsToOrder.reduce((sum, i) => sum + (i.price * i.quantity), 0);
+      const orderId = "ZM-" + Math.floor(100000 + Math.random() * 900000);
+      const orderTime = Date.now();
+      const cancelExpiry = orderTime + (90 * 60 * 1000); // 90 minutes = 1.5 hours
+
+      // Build New Order Record
+      const newOrder = {
+        orderId,
+        orderTime,
+        cancelExpiry,
+        status: "CONFIRMED", // CONFIRMED, CANCELLED
+        items: itemsToOrder,
+        total: grandTotal,
+        customer: { name, phone, address, landmark, pincode, notes }
+      };
+
+      orders.unshift(newOrder);
+      saveOrdersToStorage();
+
+      // Clear cart if ordered from cart
+      if (!directCheckoutProduct) {
+        cart = [];
+        saveCartToStorage();
+      }
+
+      closeCheckoutModal();
+
+      // Format WhatsApp Message & Automatically Route to Private Owner WhatsApp
+      const whatsappMsg = formatWhatsAppOrderMessage(newOrder);
+      const encodedMsg = encodeURIComponent(whatsappMsg);
+      const waUrl = `https://wa.me/${PRIVATE_OWNER_WHATSAPP}?text=${encodedMsg}`;
+
+      // Show Confirmation & Open Orders Modal
+      showToast("Order Placed!", `Order #${orderId} generated with 90-min cancellation window.`);
+      
+      // Open WhatsApp in new window/tab
+      window.open(waUrl, "_blank");
+
+      // Open orders tracker to view active countdown
+      setTimeout(() => {
+        openOrdersModal();
+      }, 600);
+    }
+
+    function formatWhatsAppOrderMessage(order) {
+      const itemsText = order.items.map(i => 
+        `• ${i.title} (x${i.quantity}) — ₹${i.price * i.quantity} [Source: ${i.sourceShop}]`
+      ).join("\n");
+
+      return `🛍️ *NEW HYPERLOCAL ORDER: #${order.orderId}*
+🏬 *Store:* MS ZenoMart Hyperlocal Dropshipping
+⏰ *Ordered At:* ${new Date(order.orderTime).toLocaleTimeString()}
+⏱️ *Cancellation Window:* 90 Minutes (Active)
+
+👤 *CUSTOMER & DELIVERY LOCATION DETAILS:*
+• Customer Name: ${order.customer.name}
+• Customer Phone: ${order.customer.phone}
+• Complete Delivery Address: ${order.customer.address}
+${order.customer.landmark ? `• Landmark: ${order.customer.landmark}\n` : ''}• City & PIN Code: ${order.customer.pincode}
+${order.customer.notes ? `• Special Delivery Note: ${order.customer.notes}\n` : ''}
+🛒 *ORDERED ITEMS (Local Shop Sourced):*
+${itemsText}
+
+💰 *PAYABLE AMOUNT:* ₹${order.total} (Free Hyperlocal Delivery)
+⚡ *Delivery Guarantee:* 60-90 mins from nearest partner hub
+
+_Sent automatically from MS ZenoMart Web Application_`;
+    }
+
+    // --------------------------------------------------------
+    // Order Cancellation Window System (90 Minutes / 1.5 Hours)
+    // --------------------------------------------------------
+    function updateOrdersCountBadge() {
+      const badge = document.getElementById("ordersCountBadge");
+      if (badge) badge.innerText = orders.length;
+    }
+
+    function openOrdersModal() {
+      const modal = document.getElementById("ordersModal");
+      const backdrop = document.getElementById("ordersModalBackdrop");
+      renderOrdersList();
+      backdrop.classList.remove("opacity-0", "pointer-events-none");
+      backdrop.classList.add("opacity-100", "pointer-events-auto");
+      modal.classList.remove("opacity-0", "pointer-events-none");
+      modal.classList.add("opacity-100", "pointer-events-auto");
+    }
+
+    function closeOrdersModal() {
+      const modal = document.getElementById("ordersModal");
+      const backdrop = document.getElementById("ordersModalBackdrop");
+      backdrop.classList.add("opacity-0", "pointer-events-none");
+      backdrop.classList.remove("opacity-100", "pointer-events-auto");
+      modal.classList.add("opacity-0", "pointer-events-none");
+      modal.classList.remove("opacity-100", "pointer-events-auto");
+    }
+
+    function renderOrdersList() {
+      const container = document.getElementById("ordersListContainer");
+      if (!container) return;
+
+      if (orders.length === 0) {
+        container.innerHTML = `
+          <div class="text-center py-10 text-slate-400">
+            <i class="fa-solid fa-box-open text-3xl mb-2 text-navy-800"></i>
+            <p class="font-bold text-white text-sm">No Orders Placed Yet</p>
+            <p class="text-xs text-slate-400 mt-0.5">Order items to experience the 90-minute cancellation guarantee.</p>
+          </div>
+        `;
+        return;
+      }
+
+      const now = Date.now();
+
+      container.innerHTML = orders.map(order => {
+        const isCancelled = order.status === "CANCELLED";
+        const timeLeftMs = order.cancelExpiry - now;
+        const canCancel = !isCancelled && timeLeftMs > 0;
+
+        let timerDisplay = "";
+        if (isCancelled) {
+          timerDisplay = `<span class="text-red-400 font-bold"><i class="fa-solid fa-ban mr-1"></i> Order Cancelled</span>`;
+        } else if (canCancel) {
+          const totalSec = Math.floor(timeLeftMs / 1000);
+          const mins = Math.floor(totalSec / 60);
+          const secs = totalSec % 60;
+          timerDisplay = `
+            <span class="text-gold-400 font-bold font-mono">
+              <i class="fa-solid fa-hourglass-start animate-pulse mr-1"></i>
+              ${String(mins).padStart(2, '0')}:${String(secs).padStart(2, '0')} left to cancel
+            </span>
+          `;
+        } else {
+          timerDisplay = `
+            <span class="text-slate-500 font-semibold">
+              <i class="fa-solid fa-lock mr-1"></i> 90-Min Cancellation Window Expired
+            </span>
+          `;
+        }
+
+        return `
+          <div class="bg-navy-950 border border-navy-800 rounded-2xl p-4 transition-all">
+            <div class="flex flex-wrap items-center justify-between gap-2 border-b border-navy-800 pb-2.5 mb-2.5">
+              <div class="flex items-center gap-2">
+                <span class="font-mono font-black text-white text-xs">#${order.orderId}</span>
+                <span class="text-[10px] px-2 py-0.5 rounded-full font-bold ${
+                  isCancelled ? 'bg-red-500/15 text-red-400 border border-red-500/30' : 'bg-emerald-500/15 text-emerald-400 border border-emerald-500/30'
+                }">
+                  ${order.status}
+                </span>
+              </div>
+              <div class="text-[11px] text-right">
+                ${timerDisplay}
+              </div>
+            </div>
+
+            <!-- Items & Info -->
+            <div class="text-slate-300 text-xs mb-3 space-y-1">
+              ${order.items.map(item => `
+                <div class="flex justify-between text-[11px]">
+                  <span class="truncate pr-2">${item.title} (x${item.quantity})</span>
+                  <span class="font-mono text-gold-400 shrink-0">₹${item.price * item.quantity}</span>
+                </div>
+              `).join('')}
+            </div>
+
+            <div class="text-[10px] text-slate-400 bg-navy-900 border border-navy-800/80 rounded-xl p-2.5 mb-3">
+              <p>📍 <strong>Deliver to:</strong> ${order.customer.name}, ${order.customer.address}, ${order.customer.pincode}</p>
+              <p>📞 <strong>Phone:</strong> ${order.customer.phone}</p>
+            </div>
+
+            <!-- Cancellation & WhatsApp Actions -->
+            <div class="flex items-center justify-between pt-2 border-t border-navy-800">
+              <span class="text-xs font-bold text-white font-mono">Total: ₹${order.total}</span>
+              
+              <div class="flex items-center gap-2">
+                ${canCancel ? `
+                  <button 
+                    onclick="requestOrderCancellation('${order.orderId}')" 
+                    class="px-3 py-1.5 rounded-xl bg-red-500/15 hover:bg-red-500/25 border border-red-500/40 text-red-300 font-bold text-xs transition-colors flex items-center gap-1.5"
+                  >
+                    <i class="fa-solid fa-xmark"></i>
+                    <span>Cancel Order</span>
+                  </button>
+                ` : `
+                  <button 
+                    disabled 
+                    class="px-3 py-1.5 rounded-xl bg-navy-900 border border-navy-800 text-slate-600 font-semibold text-xs cursor-not-allowed flex items-center gap-1.5"
+                    title="Cancellation is permanently locked after 90 minutes of order placement"
+                  >
+                    <i class="fa-solid fa-lock"></i>
+                    <span>Cancellation Locked</span>
+                  </button>
+                `}
+
+                <button 
+                  onclick="trackOrderWhatsApp('${order.orderId}')" 
+                  class="px-3 py-1.5 rounded-xl bg-accent-green/20 hover:bg-accent-green/30 border border-accent-green/40 text-accent-green font-bold text-xs transition-colors flex items-center gap-1"
+                >
+                  <i class="fa-brands fa-whatsapp"></i>
+                  <span>Track on WhatsApp</span>
+                </button>
+              </div>
+
+            </div>
+
+          </div>
+        `;
+      }).join('');
+    }
+
+    function updateOrderTimers() {
+      const modal = document.getElementById("ordersModal");
+      if (modal && !modal.classList.contains("opacity-0")) {
+        renderOrdersList();
+      }
+    }
+
+    function requestOrderCancellation(orderId) {
+      const order = orders.find(o => o.orderId === orderId);
+      if (!order) return;
+
+      const timeLeftMs = order.cancelExpiry - Date.now();
+      if (timeLeftMs <= 0) {
+        showToast("Window Expired", "Sorry, the 90-minute cancellation window has closed.");
+        renderOrdersList();
+        return;
+      }
+
+      if (confirm(`Are you sure you want to cancel Order #${orderId}? This request will be transmitted directly to the store owner via WhatsApp.`)) {
+        order.status = "CANCELLED";
+        saveOrdersToStorage();
+        renderOrdersList();
+
+        // Format WhatsApp cancellation message
+        const cancelMsg = `⚠️ *ORDER CANCELLATION REQUEST: #${order.orderId}*
+🏬 *Store:* MS ZenoMart Hyperlocal Dropshipping
+⏰ *Request Time:* ${new Date().toLocaleTimeString()} (Within 90-Min Window)
+
+👤 *Customer Name:* ${order.customer.name}
+📞 *Customer Phone:* ${order.customer.phone}
+📍 *Address:* ${order.customer.address}, ${order.customer.pincode}
+
+❌ *Status:* Customer requested immediate cancellation within the guaranteed 1.5-hour window. Please halt local shop pickup.`;
+
+        const waUrl = `https://wa.me/${PRIVATE_OWNER_WHATSAPP}?text=${encodeURIComponent(cancelMsg)}`;
+        window.open(waUrl, "_blank");
+
+        showToast("Cancellation Submitted", `Order #${orderId} was cancelled within the 90-min window.`);
+      }
+    }
+
+    function trackOrderWhatsApp(orderId) {
+      const order = orders.find(o => o.orderId === orderId);
+      if (!order) return;
+
+      const msg = `👋 *ORDER STATUS INQUIRY: #${order.orderId}*
+👤 *Customer:* ${order.customer.name}
+📍 *Address:* ${order.customer.address}
+
+Please share the live delivery executive tracking and hyperlocal shop dispatch status.`;
+
+      const waUrl = `https://wa.me/${PRIVATE_OWNER_WHATSAPP}?text=${encodeURIComponent(msg)}`;
+      window.open(waUrl, "_blank");
+    }
+
+    // --------------------------------------------------------
+    // Toast Notification Utility
+    // --------------------------------------------------------
+    let toastTimer = null;
+    function showToast(title, desc) {
+      const toast = document.getElementById("toast");
+      const titleEl = document.getElementById("toastTitle");
+      const descEl = document.getElementById("toastDesc");
+
+      if (!toast || !titleEl || !descEl) return;
+
+      titleEl.innerText = title;
+      descEl.innerText = desc;
+
+      toast.classList.remove("translate-y-20", "opacity-0");
+      toast.classList.add("translate-y-0", "opacity-100");
+
+      if (toastTimer) clearTimeout(toastTimer);
+      toastTimer = setTimeout(() => {
+        toast.classList.remove("translate-y-0", "opacity-100");
+        toast.classList.add("translate-y-20", "opacity-0");
+      }, 3500);
+    }
+  </script>
+
+</body>
+</html>

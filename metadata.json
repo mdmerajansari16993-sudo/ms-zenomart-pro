@@ -1,0 +1,7 @@
+{
+  "name": "MS ZenoMart",
+  "description": "Premium e-commerce platform founded by MD Meraj Ansari featuring live store catalog, interactive cart, UPI payments, and an Admin Dashboard for orders, inventory, and users.",
+  "requestFramePermissions": [],
+  "majorCapabilities": ["MAJOR_CAPABILITY_SERVER_SIDE_GEMINI_API"]
+}
+
