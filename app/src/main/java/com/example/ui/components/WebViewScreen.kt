@@ -1,6 +1,7 @@
 package com.example.ui.components
 
 import android.annotation.SuppressLint
+import android.webkit.GeolocationPermissions
 import android.webkit.WebChromeClient
 import android.webkit.WebView
 import android.webkit.WebViewClient
@@ -22,8 +23,16 @@ fun ZenoMartWebView(
                 settings.domStorageEnabled = true
                 settings.allowFileAccess = true
                 settings.allowContentAccess = true
+                settings.setGeolocationEnabled(true)
                 webViewClient = WebViewClient()
-                webChromeClient = WebChromeClient()
+                webChromeClient = object : WebChromeClient() {
+                    override fun onGeolocationPermissionsShowPrompt(
+                        origin: String?,
+                        callback: GeolocationPermissions.Callback?
+                    ) {
+                        callback?.invoke(origin, true, false)
+                    }
+                }
                 loadUrl("file:///android_asset/index.html")
             }
         }
