@@ -1,0 +1,10 @@
+{
+  "name": "ms-zenomart",
+  "version": "1.0.0",
+  "private": true,
+  "description": "MS ZenoMart Web Storefront Preview Server",
+  "scripts": {
+    "dev": "node preview-server.js",
+    "start": "node preview-server.js"
+  }
+}

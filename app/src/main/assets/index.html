@@ -15,6 +15,7 @@
   <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
 
   <script>
+    var tailwind = window.tailwind = window.tailwind || {};
     tailwind.config = {
       theme: {
         extend: {
@@ -51,6 +52,12 @@
   </script>
 
   <style>
+    /* Prevent white screen flashes while external CSS/scripts load */
+    html, body {
+      background-color: #050c18 !important;
+      color: #f1f5f9;
+      min-height: 100vh;
+    }
     /* Custom scrollbar and smooth scroll */
     html {
       scroll-behavior: smooth;
@@ -246,7 +253,7 @@
         </div>
         <div class="flex items-center gap-3 text-slate-400 shrink-0">
           <span class="inline-flex items-center gap-1 text-emerald-400 font-semibold text-[10px] sm:text-[11px]">
-            <i class="fa-solid fa-truck-fast text-accent-orange"></i> Neighborhood Store Delivery
+            <i class="fa-solid fa-truck-fast text-accent-orange"></i> Estimated Delivery: 60–90 mins
           </span>
         </div>
       </div>
@@ -650,8 +657,8 @@
           <h4 class="text-xs font-bold text-white uppercase tracking-wider mb-2">Smart Policies</h4>
           <ul class="space-y-1.5 text-[11px]">
             <li><i class="fa-solid fa-shield-halved text-accent-green mr-1.5"></i> Easy Cancellation While Processing</li>
-            <li><i class="fa-solid fa-memory text-accent-orange mr-1.5"></i> Browser Address Memorization</li>
-            <li><i class="fa-brands fa-whatsapp text-accent-green mr-1.5"></i> Direct WhatsApp Order Tracking</li>
+            <li><i class="fa-solid fa-floppy-disk text-accent-orange mr-1.5"></i> Save address on this device (optional)</li>
+            <li><i class="fa-solid fa-truck-fast text-accent-green mr-1.5"></i> Direct Order Tracking</li>
             <li><i class="fa-solid fa-lock text-gold-400 mr-1.5"></i> Strict Owner-Gated Admin</li>
           </ul>
         </div>
@@ -942,10 +949,10 @@
       <div class="flex items-center justify-between">
         <span class="text-slate-300 font-bold flex items-center gap-1.5">
           <i class="fa-solid fa-map-location-dot text-accent-orange"></i>
-          <span>Delivery Details & Address Memory</span>
+          <span>Delivery Details</span>
         </span>
         <span id="addressMemoryStatus" class="text-[10px] text-slate-400 flex items-center gap-1">
-          <i class="fa-solid fa-circle-check text-accent-green"></i> Auto-fills on return
+          <i class="fa-solid fa-shield-check text-accent-green"></i> Secure Delivery
         </span>
       </div>
 
@@ -961,7 +968,7 @@
           />
         </div>
         <div>
-          <label class="block text-slate-400 text-[11px] mb-1">Phone / WhatsApp Number *</label>
+          <label class="block text-slate-400 text-[11px] mb-1">Phone / Mobile Number *</label>
           <input 
             type="tel" 
             id="custPhoneInput" 
@@ -1023,17 +1030,16 @@
           <input 
             type="checkbox" 
             id="rememberAddressCheck" 
-            checked 
             class="w-4 h-4 rounded text-accent-green bg-navy-900 border-navy-700 focus:ring-0"
           />
-          <span class="text-slate-300 text-[11px]">Save address to device (Never type it again)</span>
+          <span class="text-slate-300 text-[11px]">Save address on this device (optional)</span>
         </label>
         <button 
           type="button" 
           onclick="clearSavedAddress()" 
           class="text-[10px] text-slate-400 hover:text-red-400 transition-colors"
         >
-          Clear Memory
+          Clear Saved Address
         </button>
       </div>
 
@@ -1626,7 +1632,36 @@
     const DISPLAY_MERCHANT_NAME = "MS ZenoMart Verified Store";
 
     // --------------------------------------------------------
-    // Initialization & LocalStorage Management
+    // Safe Storage Accessors (Prevents DOMException in restricted iframe preview)
+    // --------------------------------------------------------
+    const _fallbackMemoryStore = {};
+    function getStoreItem(key, isSession = false) {
+      try {
+        const store = isSession ? window.sessionStorage : window.localStorage;
+        return store ? store.getItem(key) : (_fallbackMemoryStore[key] || null);
+      } catch (e) {
+        return _fallbackMemoryStore[key] || null;
+      }
+    }
+    function setStoreItem(key, value, isSession = false) {
+      try {
+        const store = isSession ? window.sessionStorage : window.localStorage;
+        if (store) store.setItem(key, value);
+      } catch (e) {
+        _fallbackMemoryStore[key] = String(value);
+      }
+    }
+    function removeStoreItem(key, isSession = false) {
+      try {
+        const store = isSession ? window.sessionStorage : window.localStorage;
+        if (store) store.removeItem(key);
+      } catch (e) {
+        delete _fallbackMemoryStore[key];
+      }
+    }
+
+    // --------------------------------------------------------
+    // Initialization & Storage Management
     // --------------------------------------------------------
     document.addEventListener("DOMContentLoaded", () => {
       loadProductsFromStorage();
@@ -1642,7 +1677,7 @@
     });
 
     function loadProductsFromStorage() {
-      const stored = localStorage.getItem("zenomart_products");
+      const stored = getStoreItem("zenomart_products");
       if (stored) {
         try {
           products = JSON.parse(stored);
@@ -1664,11 +1699,11 @@
     }
 
     function saveProductsToStorage() {
-      localStorage.setItem("zenomart_products", JSON.stringify(products));
+      setStoreItem("zenomart_products", JSON.stringify(products));
     }
 
     function loadCartFromStorage() {
-      const stored = localStorage.getItem("zenomart_cart");
+      const stored = getStoreItem("zenomart_cart");
       if (stored) {
         try {
           cart = JSON.parse(stored);
@@ -1679,12 +1714,12 @@
     }
 
     function saveCartToStorage() {
-      localStorage.setItem("zenomart_cart", JSON.stringify(cart));
+      setStoreItem("zenomart_cart", JSON.stringify(cart));
       updateCartUI();
     }
 
     function loadOrdersFromStorage() {
-      const stored = localStorage.getItem("zenomart_orders");
+      const stored = getStoreItem("zenomart_orders");
       if (stored) {
         try {
           orders = JSON.parse(stored);
@@ -1695,7 +1730,7 @@
     }
 
     function saveOrdersToStorage() {
-      localStorage.setItem("zenomart_orders", JSON.stringify(orders));
+      setStoreItem("zenomart_orders", JSON.stringify(orders));
       updateOrdersCountBadge();
     }
 
@@ -1703,12 +1738,12 @@
     // Admin Security & Authentication Logic
     // --------------------------------------------------------
     function isAdminLoggedIn() {
-      return sessionStorage.getItem("zenomart_admin_session") === "true";
+      return getStoreItem("zenomart_admin_session", true) === "true";
     }
 
     function checkAdminSession() {
       const isOwner = isAdminLoggedIn();
-      const userEmail = sessionStorage.getItem("zenomart_user_email");
+      const userEmail = getStoreItem("zenomart_user_email", true);
       const banner = document.getElementById("adminActiveBanner");
       const navIcon = document.getElementById("adminNavIcon");
       const navLabel = document.getElementById("adminNavLabel");
@@ -1737,8 +1772,8 @@
     function handleAdminNavClick() {
       if (isAdminLoggedIn()) {
         openAddProductModal();
-      } else if (sessionStorage.getItem("zenomart_user_email")) {
-        const currentEmail = sessionStorage.getItem("zenomart_user_email");
+      } else if (getStoreItem("zenomart_user_email", true)) {
+        const currentEmail = getStoreItem("zenomart_user_email", true);
         if (confirm(`You are signed in as: ${currentEmail}\n\nWould you like to sign out or switch accounts?`)) {
           adminLogout();
           openAdminLoginModal();
@@ -1777,17 +1812,17 @@
       const email = document.getElementById("adminEmailInput").value.trim().toLowerCase();
       if (!email) return;
 
-      sessionStorage.setItem("zenomart_user_email", email);
+      setStoreItem("zenomart_user_email", email, true);
 
       // Strict check: Only mdmerajansari16993@gmail.com gets owner/admin access
       if (email === AUTHORIZED_OWNER_GMAIL.toLowerCase()) {
-        sessionStorage.setItem("zenomart_admin_session", "true");
+        setStoreItem("zenomart_admin_session", "true", true);
         closeAdminLoginModal();
         checkAdminSession();
         showToast("Owner Access Granted", "Welcome, MD Meraj Ansari! You have full access to add, edit, delete products & change prices.");
       } else {
         // Any other email signs in as a normal user without admin controls
-        sessionStorage.setItem("zenomart_admin_session", "false");
+        setStoreItem("zenomart_admin_session", "false", true);
         closeAdminLoginModal();
         checkAdminSession();
         showToast("Signed In Successfully", `Browsing as ${email}. You can browse and order freely.`);
@@ -1795,8 +1830,8 @@
     }
 
     function adminLogout() {
-      sessionStorage.removeItem("zenomart_admin_session");
-      sessionStorage.removeItem("zenomart_user_email");
+      removeStoreItem("zenomart_admin_session", true);
+      removeStoreItem("zenomart_user_email", true);
       checkAdminSession();
       showToast("Signed Out", "You have signed out successfully.");
     }
@@ -2554,7 +2589,7 @@
 
     // Address Memorization Storage Helpers
     function loadSavedAddressToForm() {
-      const saved = localStorage.getItem("zenomart_saved_address");
+      const saved = getStoreItem("zenomart_saved_address");
       const statusEl = document.getElementById("addressMemoryStatus");
 
       if (saved) {
@@ -2575,7 +2610,7 @@
     }
 
     function clearSavedAddress() {
-      localStorage.removeItem("zenomart_saved_address");
+      removeStoreItem("zenomart_saved_address");
       document.getElementById("custNameInput").value = "";
       document.getElementById("custPhoneInput").value = "";
       document.getElementById("custAddressInput").value = "";
@@ -2602,7 +2637,7 @@
       // Persist address in localStorage if checked
       if (rememberAddress) {
         const addressObj = { name, phone, address, landmark, pincode };
-        localStorage.setItem("zenomart_saved_address", JSON.stringify(addressObj));
+        setStoreItem("zenomart_saved_address", JSON.stringify(addressObj));
       }
 
       // Determine items list
@@ -2799,7 +2834,7 @@ _Sent automatically from MS ZenoMart Web Application_`;
     }
 
     function loadSavedDeliveryLocation() {
-      const saved = localStorage.getItem("zenomart_saved_address");
+      const saved = getStoreItem("zenomart_saved_address");
       const headerLocationText = document.getElementById("headerLocationText");
       if (saved && headerLocationText) {
         try {
@@ -2924,7 +2959,7 @@ _Sent automatically from MS ZenoMart Web Application_`;
                   <span class="text-xs font-bold text-slate-300 flex items-center gap-1.5">
                     <i class="fa-solid fa-truck-ramp-box text-gold-400"></i> Live Delivery Progress
                   </span>
-                  <span class="text-[11px] text-emerald-400 font-semibold">⚡ Verified Local Store Sourced</span>
+                  <span class="text-[11px] text-emerald-400 font-semibold">⚡ Estimated Delivery: 60–90 mins</span>
                 </div>
 
                 <div class="relative grid grid-cols-4 gap-2 text-center">
@@ -2976,7 +3011,7 @@ _Sent automatically from MS ZenoMart Web Application_`;
             ` : `
               <div class="mb-4 bg-red-500/10 border border-red-500/30 rounded-2xl p-3 text-red-300 text-xs flex items-center gap-2">
                 <i class="fa-solid fa-circle-exclamation text-red-400 text-sm"></i>
-                <span>This order was cancelled by request within the 90-minute guaranteed window. Local partner shop was halted.</span>
+                <span>This order was cancelled upon request while processing. Local partner shop pickup was halted.</span>
               </div>
             `}
 
