@@ -273,7 +273,7 @@
         <div class="flex items-center gap-1.5 text-slate-300 truncate">
           <i class="fa-solid fa-location-dot text-accent-orange"></i>
           <span class="text-slate-400">Deliver to:</span>
-          <span id="headerLocationText" class="font-bold text-white truncate">Local Hub / Hyperlocal Zone</span>
+          <span id="headerLocationText" class="font-bold text-white truncate">Deoghar – Ghormora – Raghunathpur Zone</span>
           <button onclick="openCheckoutModal()" class="text-gold-400 hover:underline text-[10px] ml-1 shrink-0 font-semibold">Change</button>
         </div>
         <div class="flex items-center gap-3 text-slate-400 shrink-0">
@@ -1004,6 +1004,29 @@
         </div>
       </div>
 
+      <!-- Service Boundary Banner -->
+      <div class="bg-navy-950 border border-gold-500/30 rounded-xl p-3 text-xs text-slate-300 flex items-start gap-2.5 shadow-sm">
+        <i class="fa-solid fa-map-location-dot text-gold-400 mt-0.5 text-base shrink-0"></i>
+        <div>
+          <div class="font-bold text-white flex items-center gap-1.5 flex-wrap">
+            <span>Verified Local Delivery Boundary</span>
+            <span class="text-[9px] bg-emerald-500/20 text-emerald-400 border border-emerald-500/30 px-2 py-0.5 rounded-full font-bold">Active Zone</span>
+          </div>
+          <p class="text-[11px] text-slate-300 mt-1 leading-relaxed">
+            Delivering exclusively within: <strong class="text-gold-300">रघुनाथपुर (पिलवाही, मधुबन, अमगाछी तक)</strong> • <strong class="text-gold-300">जियाखड़ा</strong> • <strong class="text-gold-300">रहबत (रहबाद)</strong> • <strong class="text-gold-300">देवघर</strong> • <strong class="text-gold-300">घोरमोरा</strong> एवं इसके घेरे में आने वाले सभी गांव व इलाके।
+          </p>
+        </div>
+      </div>
+
+      <!-- Outside Boundary Error Message (Required) -->
+      <div id="deliveryBoundaryError" class="hidden bg-red-500/15 border border-red-500/60 rounded-xl p-3 text-red-400 text-xs font-bold flex items-start gap-2.5 animate-pulse">
+        <i class="fa-solid fa-circle-exclamation text-base shrink-0 mt-0.5 text-red-400"></i>
+        <div>
+          <p class="font-black text-red-300 text-xs sm:text-sm">Sorry, Delivery is only available within our local service boundary.</p>
+          <p class="text-[10px] text-slate-300 font-normal mt-0.5">हमारा डिलीवरी नेटवर्क केवल रघुनाथपुर (पिलवाही, मधुबन, अमगाछी), जियाखड़ा, रहबत (रहबाद), देवघर, और घोरमोरा के घेरे में उपलब्ध है। कृपया सेवा क्षेत्र का पता दर्ज करें।</p>
+        </div>
+      </div>
+
       <div>
         <div class="flex items-center justify-between mb-1">
           <label class="block text-slate-400 text-[11px]">Complete Delivery Address & Flat / House No. *</label>
@@ -1033,7 +1056,7 @@
           <input 
             type="text" 
             id="custLandmarkInput" 
-            placeholder="e.g. Near Metro Pillar 124" 
+            placeholder="e.g. Near Chowk / School" 
             class="w-full bg-navy-950 border border-navy-700 rounded-xl px-3 py-2 text-white placeholder-slate-500 focus:outline-none focus:border-gold-500"
           />
         </div>
@@ -1043,7 +1066,7 @@
             type="text" 
             id="custPincodeInput" 
             required 
-            placeholder="e.g. New Delhi - 110001" 
+            placeholder="e.g. Deoghar - 814112 / Ghormora / Raghunathpur" 
             class="w-full bg-navy-950 border border-navy-700 rounded-xl px-3 py-2 text-white placeholder-slate-500 focus:outline-none focus:border-gold-500"
           />
         </div>
@@ -1676,6 +1699,98 @@
     const DISPLAY_MERCHANT_NAME = "MS_ZenoMart";
 
     // --------------------------------------------------------
+    // Hyperlocal Delivery Boundary Configuration (5 Anchor Points & Enclosed Localities):
+    // 1. Raghunathpur (forward to Pilwahi, Madhuban, Amgachhi)
+    // 2. Jiyakhada (Jiyakhara)
+    // 3. Rahbat (Rahbad)
+    // 4. Deoghar (Jasidih, Rohini, Kunda, Mohanpur, etc.)
+    // 5. Ghormora (Ghormara)
+    // --------------------------------------------------------
+    let lastDetectedCoords = null;
+
+    const DELIVERY_BOUNDARY_KEYWORDS = [
+      // 1. Raghunathpur & forward points (Pilwahi, Madhuban, Amgachhi)
+      "raghunathpur", "रघुनाथपुर",
+      "pilwahi", "पिलवाही", "पिलवाहि",
+      "madhuban", "मधुबन",
+      "amgachhi", "amgachi", "amgachhia", "अमगाछी", "अमगाछिया",
+      // 2. Jiyakhada
+      "jiyakhada", "jiyakhara", "jiakhada", "jiakhara", "jiyakhda", "jiakhda", "जियाखड़ा", "जियाखरा", "जियाखडा",
+      // 3. Rahbat (Rahbad)
+      "rahbat", "rahbad", "rehbat", "rehbad", "rahabat", "rahabad", "रहबत", "रहबाद", "रेहबत", "रेहबाद",
+      // 4. Deoghar & enclosed localities
+      "deoghar", "devghar", "deogarh", "devgarh", "देवघर", "देवगढ",
+      "jasidih", "jashidih", "जसीडीह",
+      "baidyanath", "बैद्यनाथ", "baba dham", "बाबाधाम", "बाबा धाम",
+      "castairs", "bompas", "williams town", "bilasi", "बिलासी",
+      "karnibagh", "karnibad", "करनीबाग", "करनीबाद",
+      "kunda", "कुंडा",
+      "rohini", "रोहिणी",
+      "daburgram", "डाबरग्राम",
+      "satsang", "सत्संग",
+      "tower chowk", "tiwari chowk", "टावर चौक", "तिवारी चौक",
+      "shivganga", "शिवगंगा",
+      "tapovan", "तपोवन",
+      "nandan pahar", "नंदन पहाड़",
+      "mohanpur", "मोहनपुर",
+      "sarwan", "सारवां", "सारवा",
+      "rikhiya", "रिखिया",
+      // 5. Ghormora / Ghormara
+      "ghormora", "ghormara", "ghoramora", "ghoramara", "घोरमोरा", "घोरमारा", "घोरामोरा", "घोरामारा"
+    ];
+
+    const DELIVERY_BOUNDARY_PINCODES = [
+      "814112", "814113", "814114", "814115", "814116", 
+      "814120", "814142", "814143", "814152", "814157", "814168",
+      "813131", "813106"
+    ];
+
+    // Geo coordinates bounding box enclosing the 5 boundary points
+    const DELIVERY_GEO_BOUNDS = {
+      minLat: 24.25,
+      maxLat: 24.80,
+      minLon: 86.45,
+      maxLon: 87.05
+    };
+
+    function isAddressWithinDeliveryBoundary(address = "", pincode = "", landmark = "", coords = null) {
+      // 1. If GPS coordinates available, verify against geofence
+      if (coords && typeof coords.lat === "number" && typeof coords.lon === "number") {
+        if (coords.lat >= DELIVERY_GEO_BOUNDS.minLat && coords.lat <= DELIVERY_GEO_BOUNDS.maxLat &&
+            coords.lon >= DELIVERY_GEO_BOUNDS.minLon && coords.lon <= DELIVERY_GEO_BOUNDS.maxLon) {
+          return true;
+        }
+      }
+
+      const combined = `${address || ""} ${landmark || ""} ${pincode || ""}`.toLowerCase();
+
+      // 2. Reject if explicit outside major cities are present without any local anchor point
+      const outsideCities = [
+        "delhi", "mumbai", "kolkata", "chennai", "bengaluru", "bangalore", "hyderabad",
+        "patna", "ranchi", "dhanbad", "bokaro", "jamshedpur", "gaya", "muzaffarpur",
+        "bhagalpur", "pune", "ahmedabad", "jaipur", "lucknow", "noida", "gurgaon"
+      ];
+      for (const city of outsideCities) {
+        if (combined.includes(city)) {
+          const hasLocalAnchor = DELIVERY_BOUNDARY_KEYWORDS.some(kw => combined.includes(kw.toLowerCase()));
+          if (!hasLocalAnchor) return false;
+        }
+      }
+
+      // 3. Match against known local pin codes
+      for (const pin of DELIVERY_BOUNDARY_PINCODES) {
+        if (combined.includes(pin)) return true;
+      }
+
+      // 4. Match against boundary keywords and enclosed areas
+      for (const kw of DELIVERY_BOUNDARY_KEYWORDS) {
+        if (combined.includes(kw.toLowerCase())) return true;
+      }
+
+      return false;
+    }
+
+    // --------------------------------------------------------
     // Safe Storage Accessors (Prevents DOMException in restricted iframe preview)
     // --------------------------------------------------------
     const _fallbackMemoryStore = {};
@@ -1718,6 +1833,25 @@
       updateOrdersCountBadge();
       checkAdminSession();
       loadSavedDeliveryLocation();
+
+      // Auto-hide boundary error when valid address is typed
+      const addrEl = document.getElementById("custAddressInput");
+      const pinEl = document.getElementById("custPincodeInput");
+      const landEl = document.getElementById("custLandmarkInput");
+      const checkBoundaryTyping = () => {
+        const errorEl = document.getElementById("deliveryBoundaryError");
+        if (errorEl && !errorEl.classList.contains("hidden")) {
+          const a = addrEl ? addrEl.value.trim() : "";
+          const p = pinEl ? pinEl.value.trim() : "";
+          const l = landEl ? landEl.value.trim() : "";
+          if (isAddressWithinDeliveryBoundary(a, p, l, lastDetectedCoords)) {
+            errorEl.classList.add("hidden");
+          }
+        }
+      };
+      if (addrEl) addrEl.addEventListener("input", checkBoundaryTyping);
+      if (pinEl) pinEl.addEventListener("input", checkBoundaryTyping);
+      if (landEl) landEl.addEventListener("input", checkBoundaryTyping);
     });
 
     function loadProductsFromStorage() {
@@ -2425,6 +2559,7 @@
         async (position) => {
           const lat = position.coords.latitude;
           const lon = position.coords.longitude;
+          lastDetectedCoords = { lat, lon };
           showToast("Location Detected", "Fetching neighborhood address...");
 
           try {
@@ -2456,7 +2591,16 @@
                 headerLoc.innerText = `${area || city}${postcode ? ' - ' + postcode : ''}`;
               }
 
-              showToast("Address Auto-filled", "Your current location was detected. Review and adjust if needed.");
+              // Check boundary with auto-detected address and coordinates
+              const isInside = isAddressWithinDeliveryBoundary(fullAddr, cityPincode, area, lastDetectedCoords);
+              const boundaryErrEl = document.getElementById("deliveryBoundaryError");
+              if (!isInside) {
+                if (boundaryErrEl) boundaryErrEl.classList.remove("hidden");
+                showToast("Delivery Unavailable", "Sorry, Delivery is only available within our local service boundary.");
+              } else {
+                if (boundaryErrEl) boundaryErrEl.classList.add("hidden");
+                showToast("Address Auto-filled", "Your current location was detected within our delivery boundary.");
+              }
             } else {
               showToast("Location Found", "GPS detected. Please complete flat and street details.");
             }
@@ -2629,6 +2773,10 @@
       selectPaymentOption("COD");
       updateQrCodeDisplay();
 
+      // Reset any previous boundary error banner
+      const boundaryErr = document.getElementById("deliveryBoundaryError");
+      if (boundaryErr) boundaryErr.classList.add("hidden");
+
       backdrop.classList.remove("opacity-0", "pointer-events-none");
       backdrop.classList.add("opacity-100", "pointer-events-auto");
       modal.classList.remove("opacity-0", "pointer-events-none");
@@ -2691,7 +2839,19 @@
       const notes = document.getElementById("custNotesInput").value.trim();
       const rememberAddress = document.getElementById("rememberAddressCheck").checked;
 
-      // Persist address in localStorage if checked
+      // Delivery Boundary Strict Validation:
+      // Must be within Raghunathpur (Pilwahi, Madhuban, Amgachhi), Jiyakhada, Rahbat, Deoghar, Ghormora
+      if (!isAddressWithinDeliveryBoundary(address, pincode, landmark, lastDetectedCoords)) {
+        const errorEl = document.getElementById("deliveryBoundaryError");
+        if (errorEl) {
+          errorEl.classList.remove("hidden");
+          errorEl.scrollIntoView({ behavior: "smooth", block: "center" });
+        }
+        showToast("Delivery Unavailable", "Sorry, Delivery is only available within our local service boundary.");
+        return;
+      }
+
+      // Persist address in localStorage if checked and valid
       if (rememberAddress) {
         const addressObj = { name, phone, address, landmark, pincode };
         setStoreItem("zenomart_saved_address", JSON.stringify(addressObj));
@@ -2792,6 +2952,7 @@
 
       return `🛍️ *NEW HYPERLOCAL ORDER: #${order.orderId}*
 🏬 *Store:* MS ZenoMart Hyperlocal Dropshipping
+📍 *DELIVERY BOUNDARY:* Local Service Area (Raghunathpur, Jiyakhada, Rahbat, Deoghar, Ghormora)
 ⏰ *Ordered At:* ${new Date(order.orderTime).toLocaleTimeString()}
 🔒 *ORDER LOCK STATUS:* ${isLocked ? 'LOCKED (Strict Anti-Fraud: Awaiting Airtel Bank Credit)' : 'UNLOCKED (COD Doorstep Verified)'}
 
@@ -2923,8 +3084,12 @@ _Sent automatically from MS ZenoMart Web Application_`;
           const addr = JSON.parse(saved);
           if (addr.name && addr.pincode) {
             headerLocationText.innerText = `${addr.name} - ${addr.pincode}`;
+            return;
           }
         } catch (e) {}
+      }
+      if (headerLocationText) {
+        headerLocationText.innerText = "Deoghar – Ghormora – Raghunathpur Zone";
       }
     }
 
