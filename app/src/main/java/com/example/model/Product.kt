@@ -14,7 +14,8 @@ data class Product(
     val badge: String = "",
     val iconType: String = "gadget",
     val imageUrl: String = "",
-    val inStock: Boolean = true
+    val inStock: Boolean = true,
+    val images: List<String> = emptyList()
 ) {
     val discountPercent: Int
         get() = if (mrp > 0 && mrp > price) (((mrp - price) / mrp) * 100).toInt() else 0

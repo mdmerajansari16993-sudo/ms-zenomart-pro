@@ -123,6 +123,143 @@ class ZenoMartViewModel : ViewModel() {
             badge = "Summer Pick",
             description = "Ultra-lightweight titanium alloy frame with anti-glare scratch-resistant lenses.",
             iconType = "glasses"
+        ),
+        Product(
+            id = 23,
+            title = "Levi's Men's Heritage Genuine Leather Bifold Wallet with Red Tab & Gift Box",
+            category = "Fashion",
+            price = 250.0,
+            mrp = 899.0,
+            rating = 4.9,
+            reviewsCount = 94,
+            badge = "Levi's Original",
+            description = "100% handcrafted top-grain cowhide leather with iconic red tab, 6 card slots, dual currency divider, RFID protection, and collector's gift tin box.",
+            iconType = "wallet",
+            imageUrl = "assets/products/levis_wallet_closed.jpg",
+            images = listOf(
+                "assets/products/levis_wallet_closed.jpg",
+                "assets/products/wallet_interior_open.jpg",
+                "assets/products/brown_wallet_gift_pack.jpg"
+            )
+        ),
+        Product(
+            id = 24,
+            title = "Reebok Sport Pro Textured Genuine Leather Men's Bi-Fold Wallet",
+            category = "Fashion",
+            price = 250.0,
+            mrp = 799.0,
+            rating = 4.8,
+            reviewsCount = 67,
+            badge = "Reebok Sport",
+            description = "Textured water-resistant genuine leather with Reebok vector crest, 8 card sleeves, double bill divider, and gift box.",
+            iconType = "wallet",
+            imageUrl = "assets/products/black_luxury_wallet.jpg",
+            images = listOf(
+                "assets/products/black_luxury_wallet.jpg",
+                "assets/products/wallet_interior_open.jpg"
+            )
+        ),
+        Product(
+            id = 25,
+            title = "United Colors of Benetton (UCB) Classic Cognac Tan Genuine Leather Wallet",
+            category = "Fashion",
+            price = 250.0,
+            mrp = 899.0,
+            rating = 4.9,
+            reviewsCount = 73,
+            badge = "UCB Italian",
+            description = "Italian cognac tan full-grain leather wallet with debossed Benetton crest, 6 card slots, coin pocket, and presentation box.",
+            iconType = "wallet",
+            imageUrl = "assets/products/tan_wallet_open_view.jpg",
+            images = listOf(
+                "assets/products/tan_wallet_open_view.jpg",
+                "assets/products/wallet_interior_open.jpg"
+            )
+        ),
+        Product(
+            id = 26,
+            title = "Calvin Klein (CK) Luxury Matte Saffiano Leather Men's Slim Wallet",
+            category = "Fashion",
+            price = 250.0,
+            mrp = 999.0,
+            rating = 5.0,
+            reviewsCount = 112,
+            badge = "CK Luxury",
+            description = "Ultra-slim profile scratch-resistant Saffiano leather with gunmetal CK plaque, RFID blocking lining, and hard-shell casing.",
+            iconType = "wallet",
+            imageUrl = "assets/products/black_luxury_wallet.jpg",
+            images = listOf(
+                "assets/products/black_luxury_wallet.jpg",
+                "assets/products/wallet_interior_open.jpg"
+            )
+        ),
+        Product(
+            id = 27,
+            title = "Versace Medusa Couture Edition Premium Grained Leather Men's Wallet",
+            category = "Fashion",
+            price = 250.0,
+            mrp = 999.0,
+            rating = 5.0,
+            reviewsCount = 88,
+            badge = "Versace Couture",
+            description = "Grained calfskin leather with polished gold-tone Medusa emblem, 8 card slots, 2 cash sleeves, and luxury magnetic gift box.",
+            iconType = "wallet",
+            imageUrl = "assets/products/black_luxury_wallet.jpg",
+            images = listOf(
+                "assets/products/black_luxury_wallet.jpg",
+                "assets/products/wallet_interior_open.jpg"
+            )
+        ),
+        Product(
+            id = 28,
+            title = "Emporio Armani Classic Eagle Crest Bi-Fold Men's Leather Wallet",
+            category = "Fashion",
+            price = 250.0,
+            mrp = 999.0,
+            rating = 4.9,
+            reviewsCount = 95,
+            badge = "Armani Premium",
+            description = "Espresso brown vegetable-tanned genuine leather with Armani eagle crest insignia, twin currency partitions, and gift box.",
+            iconType = "wallet",
+            imageUrl = "assets/products/levis_wallet_closed.jpg",
+            images = listOf(
+                "assets/products/levis_wallet_closed.jpg",
+                "assets/products/wallet_interior_open.jpg"
+            )
+        ),
+        Product(
+            id = 29,
+            title = "Diesel Rugged Raw-Finish Vintage Tan Brown Genuine Leather Bifold Wallet",
+            category = "Fashion",
+            price = 250.0,
+            mrp = 899.0,
+            rating = 4.8,
+            reviewsCount = 79,
+            badge = "Diesel Rugged",
+            description = "Vintage oil-waxed full-grain leather wallet with raw-edge detailing, stamped Diesel crest, 7 card slots, and metal tin box.",
+            iconType = "wallet",
+            imageUrl = "assets/products/tan_wallet_open_view.jpg",
+            images = listOf(
+                "assets/products/tan_wallet_open_view.jpg",
+                "assets/products/wallet_interior_open.jpg"
+            )
+        ),
+        Product(
+            id = 30,
+            title = "Allen Solly London Executive Dual-Tone Genuine Leather Men's Wallet",
+            category = "Fashion",
+            price = 250.0,
+            mrp = 799.0,
+            rating = 4.8,
+            reviewsCount = 62,
+            badge = "Allen Solly",
+            description = "British tailoring smooth leather with contrast stitching, Allen Solly stag emblem, 6 card slots, and presentation box.",
+            iconType = "wallet",
+            imageUrl = "assets/products/levis_wallet_closed.jpg",
+            images = listOf(
+                "assets/products/levis_wallet_closed.jpg",
+                "assets/products/wallet_interior_open.jpg"
+            )
         )
     )
 
