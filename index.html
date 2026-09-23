@@ -1280,6 +1280,25 @@
 
         </div>
 
+        <!-- Optional UTR Input for QR & Direct UPI -->
+        <div id="upiUtrInputWrapper" class="hidden bg-navy-950 border border-gold-500/30 rounded-2xl p-3.5 mb-3 text-left">
+          <label class="block text-[11px] font-bold text-white mb-1 flex items-center justify-between">
+            <span class="flex items-center gap-1.5"><i class="fa-solid fa-receipt text-gold-400"></i> UPI Ref / UTR No. (12 Digits)</span>
+            <span class="text-[9px] text-slate-400 font-normal">Optional (speeds up verification)</span>
+          </label>
+          <input 
+            type="text" 
+            id="custUtrInput" 
+            placeholder="e.g. 4235XXXXXXXX (from Google Pay/PhonePe/Paytm)" 
+            maxlength="22" 
+            class="w-full bg-navy-900 border border-navy-700 rounded-xl px-3 py-2 text-white placeholder-slate-500 text-xs focus:outline-none focus:border-gold-500 font-mono"
+          />
+          <p class="text-[10px] text-amber-400/90 mt-1.5 flex items-center gap-1.5">
+            <i class="fa-solid fa-lock text-[10px]"></i>
+            <span>Order remains locked until payment credit is confirmed in the owner's Airtel Bank account.</span>
+          </p>
+        </div>
+
       </div>
 
       <!-- Checkout Submit Button -->
@@ -1651,10 +1670,10 @@
     let activeMainView = "store"; // "store" or "orders"
     let selectedPaymentMethod = "COD"; // "COD", "QR", "UPI_APPS"
 
-    // Secured Merchant Details (Zero Plaintext Leakage: Masked on Customer UI)
-    const SECURE_STORE_VPA = "7979864406@ybl"; // Handled in JS functions for intent/QR, NEVER exposed in UI
+    // Secured Merchant Details (Zero Plaintext Leakage: Hidden from Public UI, Handled Internally)
+    const SECURE_STORE_VPA = "7979864406-i40c@axl"; // Handled strictly for intent/QR, NEVER printed or visible on UI
     const DISPLAY_MASKED_VPA = "merchant.zenomart@icici";
-    const DISPLAY_MERCHANT_NAME = "MS ZenoMart Verified Store";
+    const DISPLAY_MERCHANT_NAME = "MS_ZenoMart";
 
     // --------------------------------------------------------
     // Safe Storage Accessors (Prevents DOMException in restricted iframe preview)
@@ -2477,6 +2496,7 @@
       const panelQr = document.getElementById("paymentPanelQr");
       const panelUpiApps = document.getElementById("paymentPanelUpiApps");
       const submitBtnText = document.getElementById("checkoutSubmitBtnText");
+      const utrWrapper = document.getElementById("upiUtrInputWrapper");
 
       const baseBtnClass = "p-2.5 rounded-2xl border-2 transition-all flex flex-col items-center justify-center text-center gap-1 bg-navy-950 border-navy-800 text-slate-400 hover:text-white";
       const activeCodClass = "p-2.5 rounded-2xl border-2 transition-all flex flex-col items-center justify-center text-center gap-1 bg-navy-950 border-gold-500 text-white shadow-sm ring-2 ring-gold-500/20";
@@ -2491,6 +2511,14 @@
       if (panelQr) panelQr.classList.add("hidden");
       if (panelUpiApps) panelUpiApps.classList.add("hidden");
 
+      if (utrWrapper) {
+        if (mode === "COD") {
+          utrWrapper.classList.add("hidden");
+        } else {
+          utrWrapper.classList.remove("hidden");
+        }
+      }
+
       if (mode === "COD") {
         if (codBtn) codBtn.className = activeCodClass;
         if (panelCod) panelCod.classList.remove("hidden");
@@ -2498,12 +2526,12 @@
       } else if (mode === "QR") {
         if (qrBtn) qrBtn.className = activeQrClass;
         if (panelQr) panelQr.classList.remove("hidden");
-        if (submitBtnText) submitBtnText.innerText = "Confirm & Place Order (QR Paid)";
+        if (submitBtnText) submitBtnText.innerText = "Place Order (QR Scan & Pay)";
         updateQrCodeDisplay();
       } else if (mode === "UPI_APPS") {
         if (upiAppsBtn) upiAppsBtn.className = activeUpiClass;
         if (panelUpiApps) panelUpiApps.classList.remove("hidden");
-        if (submitBtnText) submitBtnText.innerText = "Confirm & Place Order (UPI Paid)";
+        if (submitBtnText) submitBtnText.innerText = "1-Click UPI Pay & Place Order";
       }
     }
 
@@ -2524,30 +2552,34 @@
 
       if (qrImg) {
         // Zero leakage: uses internal backend VPA constant, never outputs personal number in DOM
-        const upiUri = `upi://pay?pa=${SECURE_STORE_VPA}&pn=${encodeURIComponent(DISPLAY_MERCHANT_NAME)}&am=${total}&cu=INR&tn=${encodeURIComponent("ZenoMart-Order")}`;
+        const upiUri = `upi://pay?pa=${SECURE_STORE_VPA}&pn=MS_ZenoMart&cu=INR&am=${total}&tn=${encodeURIComponent("MS_ZenoMart_Order")}`;
         qrImg.src = `https://api.qrserver.com/v1/create-qr-code/?size=220x220&margin=10&data=${encodeURIComponent(upiUri)}`;
       }
     }
 
-    function triggerDirectUpiApp(app) {
+    function triggerDirectUpiApp(app = 'all') {
       const currentTotal = getCheckoutTotal();
       if (currentTotal <= 0) {
         showToast("Error", "Payable amount is zero.");
         return;
       }
-      const payeeName = "MS ZenoMart";
-      const note = "ZenoMart Order Payment";
-      const rawUpi = `upi://pay?pa=${SECURE_STORE_VPA}&pn=${encodeURIComponent(payeeName)}&am=${currentTotal}&cu=INR&tn=${encodeURIComponent(note)}`;
+      const payeeName = "MS_ZenoMart";
+      const note = "MS_ZenoMart_Order";
+      // Exact requested 1-click UPI intent link: upi://pay?pa=7979864406-i40c@axl&pn=MS_ZenoMart&cu=INR
+      const rawUpi = `upi://pay?pa=${SECURE_STORE_VPA}&pn=${payeeName}&cu=INR&am=${currentTotal}&tn=${encodeURIComponent(note)}`;
 
-      const appName = app === 'phonepe' ? 'PhonePe' : app === 'gpay' ? 'Google Pay' : 'Paytm';
-      showToast(`Launching ${appName}`, `Opening UPI app with ₹${currentTotal} pre-filled...`);
+      const appName = app === 'phonepe' ? 'PhonePe' : app === 'gpay' ? 'Google Pay' : app === 'paytm' ? 'Paytm' : 'UPI Payment';
+      showToast(`Launching ${appName}`, `Opening UPI app for ₹${currentTotal}...`);
 
       if (app === 'phonepe') {
-        window.location.href = `phonepe://pay?pa=${SECURE_STORE_VPA}&pn=${encodeURIComponent(payeeName)}&am=${currentTotal}&cu=INR&tn=${encodeURIComponent(note)}`;
+        window.location.href = `phonepe://pay?pa=${SECURE_STORE_VPA}&pn=${payeeName}&cu=INR&am=${currentTotal}&tn=${encodeURIComponent(note)}`;
+        setTimeout(() => { window.location.href = rawUpi; }, 900);
       } else if (app === 'gpay') {
-        window.location.href = `tez://upi/pay?pa=${SECURE_STORE_VPA}&pn=${encodeURIComponent(payeeName)}&am=${currentTotal}&cu=INR&tn=${encodeURIComponent(note)}`;
+        window.location.href = `tez://upi/pay?pa=${SECURE_STORE_VPA}&pn=${payeeName}&cu=INR&am=${currentTotal}&tn=${encodeURIComponent(note)}`;
+        setTimeout(() => { window.location.href = rawUpi; }, 900);
       } else if (app === 'paytm') {
-        window.location.href = `paytmmp://pay?pa=${SECURE_STORE_VPA}&pn=${encodeURIComponent(payeeName)}&am=${currentTotal}&cu=INR&tn=${encodeURIComponent(note)}`;
+        window.location.href = `paytmmp://pay?pa=${SECURE_STORE_VPA}&pn=${payeeName}&cu=INR&am=${currentTotal}&tn=${encodeURIComponent(note)}`;
+        setTimeout(() => { window.location.href = rawUpi; }, 900);
       } else {
         window.location.href = rawUpi;
       }
@@ -2677,23 +2709,38 @@
       const orderTime = Date.now();
       const cancelExpiry = orderTime + (90 * 60 * 1000); // 90 minutes = 1.5 hours
 
+      // Retrieve customer UTR if provided
+      const custUtrEl = document.getElementById("custUtrInput");
+      const utrNumber = custUtrEl ? custUtrEl.value.trim() : "";
+
+      const isUpi = selectedPaymentMethod === "QR" || selectedPaymentMethod === "UPI_APPS";
+
+      // If user selected Direct UPI Apps and clicks checkout submit, auto-trigger 1-click UPI intent
+      if (selectedPaymentMethod === "UPI_APPS") {
+        const rawUpi = `upi://pay?pa=${SECURE_STORE_VPA}&pn=MS_ZenoMart&cu=INR&am=${grandTotal}&tn=${encodeURIComponent("MS_ZenoMart_Order")}`;
+        window.location.href = rawUpi;
+      }
+
       // Determine payment method and status
       const paymentMethodLabel = selectedPaymentMethod === "COD" 
         ? "Cash on Delivery (COD)" 
         : selectedPaymentMethod === "QR" 
         ? "QR Code Scan & Pay (UPI)" 
-        : "Direct UPI Apps (PhonePe / Google Pay / Paytm)";
+        : "1-Click Direct UPI (PhonePe / GPay / Paytm)";
 
       const paymentStatusLabel = selectedPaymentMethod === "COD" 
         ? "Pending (Doorstep Collection)" 
-        : "Paid / Initiated via UPI";
+        : "Locked: Awaiting Owner's Airtel Bank Confirmation";
 
-      // Build New Order Record
+      // Build New Order Record (STRICT PAYMENT LOCKING: Locked until Airtel Bank Credit Confirmation)
       const newOrder = {
         orderId,
         orderTime,
         cancelExpiry,
-        status: "CONFIRMED", // CONFIRMED, CANCELLED
+        status: isUpi ? "LOCKED_PAYMENT_PENDING" : "CONFIRMED",
+        isPaymentLocked: isUpi,
+        paymentVerification: isUpi ? "AWAITING_AIRTEL_BANK_CREDIT" : "COD_VERIFIED",
+        utr: utrNumber || null,
         items: itemsToOrder,
         total: grandTotal,
         customer: { name, phone, address, landmark, pincode, notes },
@@ -2710,6 +2757,9 @@
         saveCartToStorage();
       }
 
+      // Reset UTR input
+      if (custUtrEl) custUtrEl.value = "";
+
       closeCheckoutModal();
 
       // Format WhatsApp Message & Automatically Route to Private Owner WhatsApp
@@ -2718,7 +2768,11 @@
       const waUrl = `https://wa.me/${PRIVATE_OWNER_WHATSAPP}?text=${encodedMsg}`;
 
       // Show Confirmation & Open Orders Modal
-      showToast("Order Placed!", `Order #${orderId} confirmed successfully.`);
+      if (isUpi) {
+        showToast("Order Created & Locked", `Order #${orderId} locked. Awaiting Airtel Bank credit verification.`);
+      } else {
+        showToast("Order Placed!", `Order #${orderId} confirmed successfully.`);
+      }
       
       // Open WhatsApp in new window/tab
       window.open(waUrl, "_blank");
@@ -2734,14 +2788,17 @@
         `• ${i.title} (x${i.quantity}) — ₹${i.price * i.quantity} [Source: ${i.sourceShop}]`
       ).join("\n");
 
+      const isLocked = order.isPaymentLocked === true;
+
       return `🛍️ *NEW HYPERLOCAL ORDER: #${order.orderId}*
 🏬 *Store:* MS ZenoMart Hyperlocal Dropshipping
 ⏰ *Ordered At:* ${new Date(order.orderTime).toLocaleTimeString()}
-⏱️ *Order Status:* Processing (Local Partner Sourced)
+🔒 *ORDER LOCK STATUS:* ${isLocked ? 'LOCKED (Strict Anti-Fraud: Awaiting Airtel Bank Credit)' : 'UNLOCKED (COD Doorstep Verified)'}
 
 💳 *PAYMENT METHOD:* ${order.paymentMethod || 'Cash on Delivery (COD)'}
-💵 *PAYMENT STATUS:* ${order.paymentStatus || 'Pending (Doorstep Collection)'}
-
+💵 *PAYMENT STATUS:* ${order.paymentStatus || 'Pending'}
+${order.utr ? `🧾 *CUSTOMER UTR / REF ID:* ${order.utr}\n` : ''}
+${isLocked ? `⚠️ *OWNER AIRTEL BANK NOTICE:* Check your Airtel Payments Bank account (7979864406-i40c@axl) for ₹${order.total} credit before unlocking this order for local shop partner sourcing!\n` : ''}
 👤 *CUSTOMER & DELIVERY LOCATION DETAILS:*
 • Customer Name: ${order.customer.name}
 • Customer Phone: ${order.customer.phone}
@@ -2935,12 +2992,20 @@ _Sent automatically from MS ZenoMart Web Application_`;
 
       container.innerHTML = orders.map(order => {
         const isCancelled = order.status === "CANCELLED";
+        const isLocked = order.isPaymentLocked === true || order.status === "LOCKED_PAYMENT_PENDING";
         const canCancel = !isCancelled && order.status !== "DELIVERED";
-        const stage = getDeliveryStage(order);
+        const stage = isLocked ? 0 : getDeliveryStage(order);
 
         let timerDisplay = "";
         if (isCancelled) {
           timerDisplay = `<span class="text-red-400 font-bold text-xs"><i class="fa-solid fa-ban mr-1"></i> Cancelled</span>`;
+        } else if (isLocked) {
+          timerDisplay = `
+            <div class="inline-flex items-center gap-1.5 px-3 py-1 rounded-xl bg-amber-500/15 border border-amber-500/40 text-amber-400 font-bold text-xs">
+              <i class="fa-solid fa-lock text-[10px]"></i>
+              <span>Payment Locked</span>
+            </div>
+          `;
         } else if (order.status === "DELIVERED") {
           timerDisplay = `<span class="text-emerald-400 font-bold text-xs"><i class="fa-solid fa-circle-check mr-1"></i> Delivered</span>`;
         } else {
@@ -2962,9 +3027,11 @@ _Sent automatically from MS ZenoMart Web Application_`;
                 <span class="text-[11px] px-2.5 py-0.5 rounded-full font-bold ${
                   isCancelled 
                     ? 'bg-red-500/15 text-red-400 border border-red-500/30' 
+                    : isLocked
+                    ? 'bg-amber-500/15 text-amber-400 border border-amber-500/40'
                     : 'bg-emerald-500/15 text-emerald-400 border border-emerald-500/30'
                 }">
-                  ${isCancelled ? 'CANCELLED' : 'ACTIVE ORDER'}
+                  ${isCancelled ? 'CANCELLED' : isLocked ? 'LOCKED (AWAITING AIRTEL BANK)' : 'ACTIVE ORDER'}
                 </span>
                 <span class="text-slate-400 text-[11px] hidden sm:inline">• Placed at ${new Date(order.orderTime).toLocaleTimeString([], {hour: '2-digit', minute:'2-digit'})}</span>
                 <span class="text-[10px] px-2.5 py-0.5 rounded-full font-bold bg-navy-950 border border-navy-700 text-slate-300 inline-flex items-center gap-1">
@@ -2977,8 +3044,135 @@ _Sent automatically from MS ZenoMart Web Application_`;
               </div>
             </div>
 
+            <!-- Locked Order Alert & Verification Card -->
+            ${isLocked ? `
+              <div class="mb-5 bg-navy-950/90 border border-amber-500/40 rounded-2xl p-4 shadow-lg">
+                <div class="flex items-start gap-3">
+                  <div class="w-9 h-9 rounded-xl bg-amber-500/20 text-amber-400 flex items-center justify-center shrink-0 mt-0.5 text-base">
+                    <i class="fa-solid fa-lock"></i>
+                  </div>
+                  <div class="flex-1">
+                    <div class="flex flex-wrap items-center justify-between gap-2">
+                      <h4 class="text-xs sm:text-sm font-bold text-amber-400 flex items-center gap-1.5">
+                        <span>Order & Sourcing Strictly Locked</span>
+                      </h4>
+                      <span class="text-[10px] px-2 py-0.5 rounded-full bg-amber-500/10 border border-amber-500/30 text-amber-300 font-mono">
+                        Airtel Payments Bank Confirmation Required
+                      </span>
+                    </div>
+                    <p class="text-[11px] text-slate-300 mt-1 leading-relaxed">
+                      Security Protection: Local shop sourcing and delivery are <strong class="text-amber-300">LOCKED</strong> until payment of <strong class="text-gold-400 font-mono">₹${order.total}</strong> is confirmed received in the merchant's Airtel Payments Bank account.
+                    </p>
+
+                    <!-- Customer UTR Display or Input -->
+                    <div class="mt-3">
+                      ${order.utr ? `
+                        <div class="inline-flex items-center gap-2 px-3 py-1.5 rounded-xl bg-navy-900 border border-emerald-500/30 text-emerald-400 text-xs">
+                          <i class="fa-solid fa-check-double"></i>
+                          <span>Submitted UTR: <strong class="font-mono text-white tracking-wider">${order.utr}</strong></span>
+                        </div>
+                      ` : `
+                        <div class="flex flex-wrap items-center gap-2">
+                          <input 
+                            type="text" 
+                            id="orderUtrInput_${order.orderId}" 
+                            placeholder="Enter 12-digit UTR from UPI app" 
+                            maxlength="22" 
+                            class="bg-navy-900 border border-navy-700 rounded-xl px-3 py-1.5 text-xs text-white placeholder-slate-500 font-mono w-56 focus:outline-none focus:border-gold-500"
+                          />
+                          <button 
+                            type="button"
+                            onclick="submitOrderUtr('${order.orderId}')" 
+                            class="px-3.5 py-1.5 rounded-xl bg-gradient-to-r from-gold-500 to-accent-orange hover:from-gold-400 text-navy-950 font-extrabold text-xs transition-all shadow-md flex items-center gap-1.5"
+                          >
+                            <i class="fa-solid fa-receipt"></i>
+                            <span>Submit UTR</span>
+                          </button>
+                        </div>
+                      `}
+                    </div>
+                  </div>
+                </div>
+
+                <!-- Owner Verification Controls (Visible when logged in as Owner mdmerajansari16993@gmail.com) -->
+                ${isAdminLoggedIn() ? `
+                  <div class="mt-4 pt-3 border-t border-navy-800/80 flex flex-wrap items-center justify-between gap-2.5 bg-navy-900/80 p-3 rounded-xl">
+                    <div class="flex items-center gap-2">
+                      <span class="w-2 h-2 rounded-full bg-emerald-400 animate-pulse"></span>
+                      <span class="text-xs font-black text-white">Owner Portal (Airtel Payments Bank):</span>
+                      <span class="text-[11px] text-slate-300">Received ₹${order.total} credit?</span>
+                    </div>
+                    <div class="flex items-center gap-2">
+                      <button 
+                        type="button"
+                        onclick="verifyAndUnlockOrder('${order.orderId}')" 
+                        class="px-3.5 py-1.5 rounded-xl bg-gradient-to-r from-emerald-500 to-teal-500 hover:from-emerald-400 text-navy-950 font-black text-xs transition-all flex items-center gap-1.5 shadow-md"
+                      >
+                        <i class="fa-solid fa-unlock-keyhole"></i>
+                        <span>Confirm Payment & Unlock Order</span>
+                      </button>
+                      <button 
+                        type="button"
+                        onclick="rejectLockedOrder('${order.orderId}')" 
+                        class="px-2.5 py-1.5 rounded-xl bg-red-500/20 hover:bg-red-500/30 text-red-300 font-bold text-xs transition-all border border-red-500/40"
+                      >
+                        <span>Reject (Unpaid)</span>
+                      </button>
+                    </div>
+                  </div>
+                ` : ''}
+              </div>
+            ` : ''}
+
             <!-- Amazon / Flipkart 4-Step Interactive Visual Delivery Timeline -->
-            ${!isCancelled ? `
+            ${isLocked ? `
+              <div class="mb-6 bg-navy-950/70 border border-amber-500/20 rounded-2xl p-4 sm:p-5 opacity-80">
+                <div class="flex items-center justify-between mb-3">
+                  <span class="text-xs font-bold text-amber-400 flex items-center gap-1.5">
+                    <i class="fa-solid fa-lock"></i> Sourcing & Dispatch Locked
+                  </span>
+                  <span class="text-[11px] text-slate-400 font-semibold">Awaiting Airtel Bank Confirmation</span>
+                </div>
+
+                <div class="relative grid grid-cols-4 gap-2 text-center">
+                  <!-- Step 1: Payment Verification -->
+                  <div class="flex flex-col items-center">
+                    <div class="w-8 h-8 sm:w-10 sm:h-10 rounded-full flex items-center justify-center text-xs sm:text-sm font-black mb-1.5 bg-amber-500/20 text-amber-400 ring-4 ring-amber-500/20">
+                      <i class="fa-solid fa-lock"></i>
+                    </div>
+                    <span class="text-[10px] sm:text-xs font-bold text-amber-400">Payment Lock</span>
+                    <span class="text-[9px] text-slate-400 hidden sm:inline">Pending Bank Credit</span>
+                  </div>
+
+                  <!-- Step 2: Sourced -->
+                  <div class="flex flex-col items-center">
+                    <div class="w-8 h-8 sm:w-10 sm:h-10 rounded-full flex items-center justify-center text-xs sm:text-sm font-black mb-1.5 bg-navy-850 text-slate-600">
+                      <i class="fa-solid fa-lock text-[10px]"></i>
+                    </div>
+                    <span class="text-[10px] sm:text-xs font-bold text-slate-600">Partner Shop</span>
+                    <span class="text-[9px] text-slate-600 hidden sm:inline">Locked</span>
+                  </div>
+
+                  <!-- Step 3: Out for Delivery -->
+                  <div class="flex flex-col items-center">
+                    <div class="w-8 h-8 sm:w-10 sm:h-10 rounded-full flex items-center justify-center text-xs sm:text-sm font-black mb-1.5 bg-navy-850 text-slate-600">
+                      <i class="fa-solid fa-lock text-[10px]"></i>
+                    </div>
+                    <span class="text-[10px] sm:text-xs font-bold text-slate-600">Out for Delivery</span>
+                    <span class="text-[9px] text-slate-600 hidden sm:inline">Locked</span>
+                  </div>
+
+                  <!-- Step 4: Delivered -->
+                  <div class="flex flex-col items-center">
+                    <div class="w-8 h-8 sm:w-10 sm:h-10 rounded-full flex items-center justify-center text-xs sm:text-sm font-black mb-1.5 bg-navy-850 text-slate-600">
+                      <i class="fa-solid fa-lock text-[10px]"></i>
+                    </div>
+                    <span class="text-[10px] sm:text-xs font-bold text-slate-600">Delivered</span>
+                    <span class="text-[9px] text-slate-600 hidden sm:inline">Locked</span>
+                  </div>
+                </div>
+              </div>
+            ` : !isCancelled ? `
               <div class="mb-6 bg-navy-950/70 border border-navy-800/70 rounded-2xl p-4 sm:p-5">
                 <div class="flex items-center justify-between mb-3">
                   <span class="text-xs font-bold text-slate-300 flex items-center gap-1.5">
@@ -3121,6 +3315,71 @@ _Sent automatically from MS ZenoMart Web Application_`;
     function updateOrderTimers() {
       if (activeMainView === "orders") {
         renderMainOrdersSection();
+      }
+    }
+
+    function submitOrderUtr(orderId) {
+      const input = document.getElementById(`orderUtrInput_${orderId}`);
+      if (!input) return;
+      const utrVal = input.value.trim();
+      if (!utrVal || utrVal.length < 6) {
+        showToast("Invalid UTR", "Please enter a valid 12-digit UPI transaction reference / UTR.");
+        return;
+      }
+      const order = orders.find(o => o.orderId === orderId);
+      if (!order) return;
+      order.utr = utrVal;
+      saveOrdersToStorage();
+      renderMainOrdersSection();
+      showToast("UTR Saved", "Transaction reference recorded! Notifying owner for verification.");
+
+      // Send WhatsApp notification with UTR
+      const utrMsg = `🧾 *PAYMENT UTR SUBMISSION: #${order.orderId}*
+🏬 *Store:* MS ZenoMart
+💰 *Payable:* ₹${order.total}
+🔢 *Customer UTR / Ref ID:* ${utrVal}
+👤 *Customer:* ${order.customer.name} (${order.customer.phone})
+
+Please check your Airtel Payments Bank account (7979864406-i40c@axl) for this credit and unlock this order in your owner dashboard.`;
+
+      const waUrl = `https://wa.me/${PRIVATE_OWNER_WHATSAPP}?text=${encodeURIComponent(utrMsg)}`;
+      window.open(waUrl, "_blank");
+    }
+
+    function verifyAndUnlockOrder(orderId) {
+      if (!isAdminLoggedIn()) {
+        showToast("Access Denied", "Only authenticated store owner can unlock orders.");
+        return;
+      }
+      const order = orders.find(o => o.orderId === orderId);
+      if (!order) return;
+
+      if (confirm(`Confirm Airtel Payments Bank credit of ₹${order.total} for Order #${orderId}?\n\nThis will UNLOCK the order for local partner shop sourcing and fulfillment.`)) {
+        order.isPaymentLocked = false;
+        order.status = "CONFIRMED";
+        order.paymentStatus = "Verified & Credited to Airtel Payments Bank";
+        order.paymentVerifiedAt = Date.now();
+        saveOrdersToStorage();
+        renderMainOrdersSection();
+        showToast("Order Unlocked!", `Payment verified in Airtel Payments Bank. Order #${orderId} is now unlocked!`);
+      }
+    }
+
+    function rejectLockedOrder(orderId) {
+      if (!isAdminLoggedIn()) {
+        showToast("Access Denied", "Only authenticated store owner can reject orders.");
+        return;
+      }
+      const order = orders.find(o => o.orderId === orderId);
+      if (!order) return;
+
+      if (confirm(`Reject Order #${orderId}? Mark as cancelled due to unverified/missing payment in Airtel Bank.`)) {
+        order.isPaymentLocked = false;
+        order.status = "CANCELLED";
+        order.paymentStatus = "Payment Failed / Missing in Airtel Bank";
+        saveOrdersToStorage();
+        renderMainOrdersSection();
+        showToast("Order Rejected", `Order #${orderId} marked cancelled due to missing payment.`);
       }
     }
 
