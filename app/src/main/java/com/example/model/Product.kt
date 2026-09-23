@@ -17,7 +17,7 @@ data class Product(
     val inStock: Boolean = true
 ) {
     val discountPercent: Int
-        get() = (((mrp - price) / mrp) * 100).toInt()
+        get() = if (mrp > 0 && mrp > price) (((mrp - price) / mrp) * 100).toInt() else 0
 }
 
 data class CartItem(

@@ -812,10 +812,10 @@
             id="prodCategoryInput" 
             class="w-full bg-navy-950 border border-navy-700 rounded-xl px-3 py-2 text-white focus:outline-none focus:border-gold-500"
           >
-            <option value="Groceries & Essentials">Groceries & Essentials</option>
+            <option value="Fashion & Clothing">Fashion & Clothing</option>
             <option value="Fashion & Jeans">Fashion & Jeans</option>
+            <option value="Groceries & Essentials">Groceries & Essentials</option>
             <option value="Footwear & Shoes">Footwear & Shoes</option>
-            <option value="Fresh Produce">Fresh Produce</option>
             <option value="Electronics & Gadgets">Electronics & Gadgets</option>
             <option value="Sweets & Bakery">Sweets & Bakery</option>
             <option value="Daily Home Goods">Daily Home Goods</option>
@@ -830,9 +830,8 @@
             type="number" 
             id="prodPriceInput" 
             step="1" 
-            min="1" 
-            required 
-            placeholder="499" 
+            min="0" 
+            placeholder="e.g. 499 (or leave blank)" 
             class="w-full bg-navy-950 border border-navy-700 rounded-xl px-3 py-2 text-white placeholder-slate-500 focus:outline-none focus:border-gold-500 font-bold text-gold-400"
           />
         </div>
@@ -842,9 +841,8 @@
             type="number" 
             id="prodMrpInput" 
             step="1" 
-            min="1" 
-            required 
-            placeholder="650" 
+            min="0" 
+            placeholder="e.g. 999" 
             class="w-full bg-navy-950 border border-navy-700 rounded-xl px-3 py-2 text-white placeholder-slate-500 focus:outline-none focus:border-gold-500"
           />
         </div>
@@ -860,22 +858,25 @@
       </div>
 
       <div>
-        <label class="block text-slate-300 font-semibold mb-1">Image URL</label>
+        <label class="block text-slate-300 font-semibold mb-1">Image URL or Local Asset Path</label>
         <input 
-          type="url" 
+          type="text" 
           id="prodImageInput" 
           required 
-          placeholder="https://images.unsplash.com/..." 
+          placeholder="https://... or assets/products/..." 
           class="w-full bg-navy-950 border border-navy-700 rounded-xl px-3 py-2 text-white placeholder-slate-500 focus:outline-none focus:border-gold-500"
         />
         <!-- Quick Preset Image Pickers -->
-        <div class="flex items-center gap-1.5 mt-1.5 text-[10px] text-slate-400 overflow-x-auto">
+        <div class="flex items-center gap-1.5 mt-1.5 text-[10px] text-slate-400 overflow-x-auto pb-1">
           <span>Presets:</span>
+          <button type="button" onclick="setPresetImg('cargo')" class="hover:text-gold-400 underline">Cargo Jeans</button>
+          <button type="button" onclick="setPresetImg('trackpant')" class="hover:text-gold-400 underline">Trackpant</button>
+          <button type="button" onclick="setPresetImg('boxed_shirts')" class="hover:text-gold-400 underline">Boxed Shirts</button>
+          <button type="button" onclick="setPresetImg('floral_shirt')" class="hover:text-gold-400 underline">Floral Shirt</button>
+          <button type="button" onclick="setPresetImg('jeans')" class="hover:text-gold-400 underline">Denim Jeans</button>
+          <button type="button" onclick="setPresetImg('tshirt')" class="hover:text-gold-400 underline">T-Shirt</button>
           <button type="button" onclick="setPresetImg('ghee')" class="hover:text-gold-400 underline">Ghee</button>
-          <button type="button" onclick="setPresetImg('headphones')" class="hover:text-gold-400 underline">Headphones</button>
-          <button type="button" onclick="setPresetImg('sweets')" class="hover:text-gold-400 underline">Sweets</button>
-          <button type="button" onclick="setPresetImg('tea')" class="hover:text-gold-400 underline">Tea</button>
-          <button type="button" onclick="setPresetImg('dryfruits')" class="hover:text-gold-400 underline">Dry Fruits</button>
+          <button type="button" onclick="setPresetImg('headphones')" class="hover:text-gold-400 underline">Electronics</button>
         </div>
       </div>
 
@@ -1679,6 +1680,156 @@
         image: "https://images.unsplash.com/photo-1542291026-7eec264c27ff?w=500&q=80",
         description: "Ergonomic running shoes with shock-absorbing foam midsole and breathable mesh upper.",
         inStock: true
+      },
+      {
+        id: 13,
+        title: "Men's Stylish Minimalist Grey-Beige Crewneck T-Shirt",
+        sourceShop: "City Trends Lifestyle, Station Road",
+        category: "Fashion & Clothing",
+        price: 0,
+        mrp: 0,
+        rating: 4.8,
+        reviews: 38,
+        badge: "New Arrival",
+        image: "https://images.unsplash.com/photo-1521572267360-ee0c2909d518?w=700&q=85",
+        description: "Premium 220 GSM combed biowashed cotton t-shirt with ribbed crew neckline, breathable weave, and tailored regular fit on crisp white studio backdrop. Ultra-soft all-day luxury wear.",
+        inStock: true,
+        isPriceEditable: true
+      },
+      {
+        id: 14,
+        title: "Orga Sports Royal Blue Pro-Performance Athletic Trackpant",
+        sourceShop: "Active Sports Hub, Main Market",
+        category: "Fashion & Clothing",
+        price: 0,
+        mrp: 0,
+        rating: 4.9,
+        reviews: 52,
+        badge: "Sports Pro",
+        image: "https://images.unsplash.com/photo-1552902865-b72c031ac5ea?w=700&q=85",
+        description: "High-grade 4-way stretch quick-dry poly-spandex moisture-wicking fabric. Equipped with dual deep zipper pockets, elasticated drawstring waistband, and ergonomic gym & lounge fit.",
+        inStock: true,
+        isPriceEditable: true
+      },
+      {
+        id: 15,
+        title: "Urban Explorer Multi-Pocket Tactical Grey Cargo Jeans",
+        sourceShop: "Apex Denim & Casuals, MG Road",
+        category: "Fashion & Clothing",
+        price: 0,
+        mrp: 0,
+        rating: 4.9,
+        reviews: 64,
+        badge: "Hot Trend",
+        image: "assets/products/cargo_jeans_grey.jpg",
+        description: "Heavy-duty washed cotton-denim cargo pants with 6 reinforced utility pockets, silver metallic zippers, heavy bar-tack stitching, and modern relaxed tapered ankle fit.",
+        inStock: true,
+        isPriceEditable: true
+      },
+      {
+        id: 16,
+        title: "Classic Earth Brown Slim-Fit Multi-Pocket Cargo Pants",
+        sourceShop: "Vogue Men's Wear, Sector-2",
+        category: "Fashion & Clothing",
+        price: 0,
+        mrp: 0,
+        rating: 4.7,
+        reviews: 41,
+        badge: "Top Pick",
+        image: "https://images.unsplash.com/photo-1624378439575-d8705ad7ae80?w=700&q=85",
+        description: "100% durable cotton twill structure with soft enzyme wash, roomy bellowed side flap cargo pockets, tailored ankle taper, and ergonomic belt loops for rugged all-day comfort.",
+        inStock: true,
+        isPriceEditable: true
+      },
+      {
+        id: 17,
+        title: "Men's Premium Ice-Blue Acid-Wash Stretch Denim Jeans",
+        sourceShop: "Apex Denim & Casuals, MG Road",
+        category: "Fashion & Clothing",
+        price: 0,
+        mrp: 0,
+        rating: 4.8,
+        reviews: 59,
+        badge: "Denim Trend",
+        image: "https://images.unsplash.com/photo-1541099649105-f69ad21f3246?w=700&q=85",
+        description: "Contemporary light ice-blue stone-washed finish with subtle whiskers, flexible cotton-elastane blend for 360° stretch, and modern slim straight silhouette.",
+        inStock: true,
+        isPriceEditable: true
+      },
+      {
+        id: 18,
+        title: "Puma Sportswear Forest Green Trackpant with Signature White Side Stripes",
+        sourceShop: "Pro Athletes Corner, Stadium Road",
+        category: "Fashion & Clothing",
+        price: 0,
+        mrp: 0,
+        rating: 4.9,
+        reviews: 78,
+        badge: "Puma Athletic",
+        image: "assets/products/green_trackpant_stripes.jpg",
+        description: "Iconic athletic trackpant tailored with soft French terry cotton blend fabric, high-contrast twin white racing side stripes, ribbed ankle cuffs, and secure zippered hand pockets.",
+        inStock: true,
+        isPriceEditable: true
+      },
+      {
+        id: 19,
+        title: "Executive Black & White Fine Vertical Striped Oxford Shirt",
+        sourceShop: "Royal Garments & Suiting, Plaza",
+        category: "Fashion & Clothing",
+        price: 0,
+        mrp: 0,
+        rating: 4.8,
+        reviews: 46,
+        badge: "Smart Classic",
+        image: "https://images.unsplash.com/photo-1596755094514-f87e34085b2c?w=700&q=85",
+        description: "Crafted from 100% long-staple breathable Oxford cotton with classic vertical pin-stripes, spread collar, clean button placket, and wrinkle-resistant easy-iron finish.",
+        inStock: true,
+        isPriceEditable: true
+      },
+      {
+        id: 20,
+        title: "Artisan Royal Navy Floral Micro-Textured Designer Casual Shirt",
+        sourceShop: "Fashion Forward Studio, Sector-1",
+        category: "Fashion & Clothing",
+        price: 0,
+        mrp: 0,
+        rating: 4.9,
+        reviews: 62,
+        badge: "Designer Exclusive",
+        image: "assets/products/blue_floral_shirt.jpg",
+        description: "Lightweight cotton-modal blended fabric showcasing an intricate royal blue botanical floral motif print, contoured slim fit, curved hemline, and Mother-of-Pearl finished buttons.",
+        inStock: true,
+        isPriceEditable: true
+      },
+      {
+        id: 21,
+        title: "Sparky Luxury 2-Pack Premium Boxed Formal Shirts (Rich Maroon & Crisp White)",
+        sourceShop: "Sparky Exclusive Brand Store, Commercial Hub",
+        category: "Fashion & Clothing",
+        price: 0,
+        mrp: 0,
+        rating: 5.0,
+        reviews: 84,
+        badge: "Sparky Duo Pack",
+        image: "assets/products/sparky_boxed_shirts.jpg",
+        description: "Twin luxury presentation gift pack featuring 1 Royal Maroon sateen dress shirt and 1 Crisp Snow White cotton formal shirt. Stiffened stay-collar, adjustable barrel cuffs, and branded gift box.",
+        inStock: true,
+        isPriceEditable: true
+      },
+      {
+        id: 22,
+        title: "Signature Classic Sky Blue Relaxed-Fit Authentic Denim Jeans",
+        sourceShop: "Original Denim Depot, Station Road",
+        category: "Fashion & Clothing",
+        price: 0,
+        mrp: 0,
+        rating: 4.8,
+        reviews: 53,
+        badge: "Evergreen Classic",
+        image: "https://images.unsplash.com/photo-1582552938357-32b906df40cb?w=700&q=85",
+        description: "Timeless light sky blue indigo-dyed authentic denim crafted from 12.5 oz durable cotton with brass rivets, 5-pocket legacy styling, and comfortable straight-leg cut.",
+        inStock: true,
+        isPriceEditable: true
       }
     ];
 
@@ -2056,8 +2207,8 @@
       document.getElementById("prodTitleInput").value = prod.title;
       document.getElementById("prodSourceInput").value = prod.sourceShop || "Local Partner";
       document.getElementById("prodCategoryInput").value = prod.category;
-      document.getElementById("prodPriceInput").value = prod.price;
-      document.getElementById("prodMrpInput").value = prod.mrp;
+      document.getElementById("prodPriceInput").value = prod.price > 0 ? prod.price : "";
+      document.getElementById("prodMrpInput").value = prod.mrp > 0 ? prod.mrp : "";
       document.getElementById("prodBadgeInput").value = prod.badge || "";
       document.getElementById("prodImageInput").value = prod.image;
       document.getElementById("prodDescInput").value = prod.description || "";
@@ -2095,8 +2246,10 @@
       const title = document.getElementById("prodTitleInput").value.trim();
       const sourceShop = document.getElementById("prodSourceInput").value.trim();
       const category = document.getElementById("prodCategoryInput").value;
-      const price = parseFloat(document.getElementById("prodPriceInput").value);
-      const mrp = parseFloat(document.getElementById("prodMrpInput").value);
+      const priceVal = document.getElementById("prodPriceInput").value.trim();
+      const mrpVal = document.getElementById("prodMrpInput").value.trim();
+      const price = priceVal !== "" ? (parseFloat(priceVal) || 0) : 0;
+      const mrp = mrpVal !== "" ? (parseFloat(mrpVal) || 0) : 0;
       const badge = document.getElementById("prodBadgeInput").value.trim();
       const image = document.getElementById("prodImageInput").value.trim();
       const desc = document.getElementById("prodDescInput").value.trim();
@@ -2166,6 +2319,12 @@
 
     function setPresetImg(type) {
       const presets = {
+        cargo: "assets/products/cargo_jeans_grey.jpg",
+        trackpant: "assets/products/green_trackpant_stripes.jpg",
+        boxed_shirts: "assets/products/sparky_boxed_shirts.jpg",
+        floral_shirt: "assets/products/blue_floral_shirt.jpg",
+        jeans: "https://images.unsplash.com/photo-1541099649105-f69ad21f3246?w=700&q=85",
+        tshirt: "https://images.unsplash.com/photo-1521572267360-ee0c2909d518?w=700&q=85",
         ghee: "https://images.unsplash.com/photo-1628088062854-d1870b4553da?w=500&q=80",
         headphones: "https://images.unsplash.com/photo-1505740420928-5e560c06d30e?w=500&q=80",
         sweets: "https://images.unsplash.com/photo-1599785209707-a456fc1337bb?w=500&q=80",
@@ -2336,31 +2495,50 @@
 
                 <!-- Price Row -->
                 <div class="flex items-baseline gap-2 mb-4">
-                  <span class="text-base font-black text-gold-400 font-mono">₹${product.price}</span>
-                  ${product.mrp > product.price ? `
-                    <span class="text-xs text-slate-500 line-through font-mono">₹${product.mrp}</span>
-                  ` : ''}
+                  ${product.price && product.price > 0 ? `
+                    <span class="text-base font-black text-gold-400 font-mono">₹${product.price}</span>
+                    ${product.mrp > product.price ? `
+                      <span class="text-xs text-slate-500 line-through font-mono">₹${product.mrp}</span>
+                    ` : ''}
+                  ` : `
+                    <span class="text-[11px] font-bold text-gold-400 bg-gold-500/15 border border-gold-500/40 px-2.5 py-0.5 rounded-md flex items-center gap-1.5 shadow-sm">
+                      <i class="fa-solid fa-pen-to-square text-[10px]"></i> Price: Editable by Owner
+                    </span>
+                  `}
                 </div>
               </div>
 
               <!-- Customer Action Buttons -->
               <div class="space-y-2 pt-2 border-t border-navy-800">
-                <div class="grid grid-cols-2 gap-2">
-                  <button 
-                    onclick="addToCart(${product.id})" 
-                    class="py-2 px-2.5 rounded-xl bg-navy-800 hover:bg-navy-750 text-slate-200 text-xs font-semibold flex items-center justify-center gap-1.5 transition-colors border border-navy-700"
-                  >
-                    <i class="fa-solid fa-cart-plus text-gold-400 text-[11px]"></i>
-                    <span>Add to Cart</span>
-                  </button>
-                  <button 
-                    onclick="openBuyNowModal(${product.id})" 
-                    class="py-2 px-2.5 rounded-xl bg-gradient-to-r from-gold-500 to-accent-orange text-navy-950 font-bold text-xs hover:from-gold-400 hover:to-accent-glow shadow-glow-orange transition-all flex items-center justify-center gap-1.5"
-                  >
-                    <i class="fa-solid fa-bolt text-xs"></i>
-                    <span>Buy Now</span>
-                  </button>
-                </div>
+                ${product.price && product.price > 0 ? `
+                  <div class="grid grid-cols-2 gap-2">
+                    <button 
+                      onclick="addToCart(${product.id})" 
+                      class="py-2 px-2.5 rounded-xl bg-navy-800 hover:bg-navy-750 text-slate-200 text-xs font-semibold flex items-center justify-center gap-1.5 transition-colors border border-navy-700"
+                    >
+                      <i class="fa-solid fa-cart-plus text-gold-400 text-[11px]"></i>
+                      <span>Add to Cart</span>
+                    </button>
+                    <button 
+                      onclick="openBuyNowModal(${product.id})" 
+                      class="py-2 px-2.5 rounded-xl bg-gradient-to-r from-gold-500 to-accent-orange text-navy-950 font-bold text-xs hover:from-gold-400 hover:to-accent-glow shadow-glow-orange transition-all flex items-center justify-center gap-1.5"
+                    >
+                      <i class="fa-solid fa-bolt text-xs"></i>
+                      <span>Buy Now</span>
+                    </button>
+                  </div>
+                ` : `
+                  <div>
+                    <button 
+                      onclick="openEditProductModal(${product.id})" 
+                      class="w-full py-2 px-3 rounded-xl bg-gradient-to-r from-gold-500/20 to-accent-orange/20 hover:from-gold-500/30 hover:to-accent-orange/30 border border-gold-500/40 text-gold-300 font-bold text-xs transition-all flex items-center justify-center gap-2 shadow-sm"
+                      title="Set Price & MRP in Admin Panel"
+                    >
+                      <i class="fa-solid fa-pen-to-square text-gold-400"></i>
+                      <span>Set Custom Price (Owner)</span>
+                    </button>
+                  </div>
+                `}
 
                 <!-- Admin Action Buttons (Visible ONLY to Owner) -->
                 ${isAdmin ? `
@@ -2394,6 +2572,11 @@
     function addToCart(productId) {
       const prod = products.find(p => p.id === productId);
       if (!prod) return;
+
+      if (!prod.price || prod.price <= 0) {
+        showToast("Price Pending", "Please wait for the owner to set the price for this item.");
+        return;
+      }
 
       const existing = cart.find(c => c.productId === productId);
       if (existing) {
@@ -2510,6 +2693,11 @@
     function openBuyNowModal(productId) {
       const prod = products.find(p => p.id === productId);
       if (!prod) return;
+
+      if (!prod.price || prod.price <= 0) {
+        showToast("Price Pending", "Please wait for the owner to set the price for this item.");
+        return;
+      }
 
       directCheckoutProduct = {
         id: prod.id,
