@@ -660,6 +660,31 @@ fun OrderCard(
                             lineHeight = 13.sp
                         )
                     }
+
+                    Spacer(modifier = Modifier.height(6.dp))
+                    val context = androidx.compose.ui.platform.LocalContext.current
+                    OutlinedButton(
+                        onClick = {
+                            val mapUri = android.net.Uri.parse("https://www.google.com/maps/dir/?api=1&destination=" + java.net.URLEncoder.encode(order.shippingAddress, "UTF-8"))
+                            val mapIntent = android.content.Intent(android.content.Intent.ACTION_VIEW, mapUri)
+                            try {
+                                context.startActivity(mapIntent)
+                            } catch (e: Exception) {
+                                // Fallback
+                            }
+                        },
+                        colors = ButtonDefaults.outlinedButtonColors(
+                            containerColor = Color(0xFFEFF6FF),
+                            contentColor = Color(0xFF1D4ED8)
+                        ),
+                        border = androidx.compose.foundation.BorderStroke(1.dp, Color(0xFF93C5FD)),
+                        shape = RoundedCornerShape(8.dp),
+                        modifier = Modifier.fillMaxWidth().height(36.dp)
+                    ) {
+                        Icon(Icons.Default.LocalShipping, contentDescription = null, modifier = Modifier.size(14.dp), tint = Color(0xFF1D4ED8))
+                        Spacer(modifier = Modifier.width(6.dp))
+                        Text("🗺️ Navigate to Customer Location (Google Maps)", fontSize = 10.sp, fontWeight = FontWeight.Bold)
+                    }
                 }
             }
 

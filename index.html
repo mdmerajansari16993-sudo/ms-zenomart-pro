@@ -3805,6 +3805,7 @@
         deliveryWindow: selectedDeliveryOption === "VIP" ? "60–90 Mins" : "2–3 Days",
         total: grandTotal,
         customer: { name, phone, address, landmark, pincode, notes },
+        googleMapsUrl: getGoogleMapsNavigationUrl({ customer: { address, landmark, pincode } }),
         paymentMethod: paymentMethodLabel,
         paymentStatus: paymentStatusLabel
       };
@@ -3844,6 +3845,30 @@
       }, 600);
     }
 
+    // --------------------------------------------------------
+    // Universal Google Maps Turn-by-Turn Doorstep Navigation
+    // --------------------------------------------------------
+    function getGoogleMapsNavigationUrl(order) {
+      if (!order || !order.customer) return "https://www.google.com/maps";
+      if (order.googleMapsUrl && typeof order.googleMapsUrl === "string" && order.googleMapsUrl.startsWith("https://www.google.com/maps/dir/")) {
+        return order.googleMapsUrl;
+      }
+      const parts = [];
+      if (order.customer.address) parts.push(order.customer.address.trim());
+      if (order.customer.landmark) parts.push(order.customer.landmark.trim());
+      if (order.customer.pincode) parts.push(order.customer.pincode.trim());
+      const destination = parts.filter(Boolean).join(", ");
+      if (!destination) return "https://www.google.com/maps";
+      return `https://www.google.com/maps/dir/?api=1&destination=${encodeURIComponent(destination)}`;
+    }
+
+    function openCustomerGoogleMaps(orderId) {
+      const order = orders.find(o => o.orderId === orderId);
+      if (!order) return;
+      const url = getGoogleMapsNavigationUrl(order);
+      window.open(url, "_blank");
+    }
+
     function formatWhatsAppOrderMessage(order) {
       const itemsText = order.items.map(i => 
         `• ${i.title} (x${i.quantity}) — ₹${i.price * i.quantity} [Source: ${i.sourceShop}]`
@@ -3851,6 +3876,7 @@
 
       const isLocked = order.isPaymentLocked === true;
       const isVip = order.deliveryOption === "VIP";
+      const mapsNavUrl = getGoogleMapsNavigationUrl(order);
 
       return `🛍️ *NEW HYPERLOCAL ORDER: #${order.orderId}*
 🏬 *Store:* MS ZenoMart Hyperlocal Dropshipping
@@ -3869,6 +3895,10 @@ ${isLocked ? `⚠️ *OWNER AIRTEL BANK NOTICE:* Check your Airtel Payments Bank
 • Complete Delivery Address: ${order.customer.address}
 ${order.customer.landmark ? `• Landmark: ${order.customer.landmark}\n` : ''}• City & PIN Code: ${order.customer.pincode}
 ${order.customer.notes ? `• Special Delivery Note: ${order.customer.notes}\n` : ''}
+🗺️ *CUSTOMER LOCATION (Google Maps Navigation):*
+👉 *Navigate to Customer Location (Google Maps):*
+${mapsNavUrl}
+
 🛒 *ORDERED ITEMS (Local Shop Sourced):*
 ${itemsText}
 
@@ -4483,13 +4513,38 @@ _Sent automatically from MS ZenoMart Web Application_`;
               </div>
             </div>
 
-            <!-- Delivery Address Card -->
-            <div class="text-[11px] text-slate-300 bg-navy-950 border border-navy-800/80 rounded-2xl p-3 mb-4">
-              <div class="flex items-start gap-2">
-                <i class="fa-solid fa-location-dot text-accent-orange mt-0.5"></i>
-                <div>
-                  <p class="font-bold text-white">${order.customer.name} <span class="font-normal text-slate-400">(${order.customer.phone})</span></p>
-                  <p class="text-slate-300">${order.customer.address}${order.customer.landmark ? ', ' + order.customer.landmark : ''} - ${order.customer.pincode}</p>
+            <!-- Delivery Address Card with Direct Turn-by-Turn Google Maps Navigation -->
+            <div class="text-[11px] text-slate-300 bg-navy-950 border border-navy-800/80 rounded-2xl p-4 mb-4 shadow-inner">
+              <div class="flex flex-col md:flex-row md:items-center justify-between gap-3">
+                <div class="flex items-start gap-3">
+                  <div class="w-9 h-9 rounded-xl bg-accent-orange/15 text-accent-orange flex items-center justify-center shrink-0 mt-0.5 text-base border border-accent-orange/20">
+                    <i class="fa-solid fa-location-dot"></i>
+                  </div>
+                  <div>
+                    <div class="flex items-center gap-2 flex-wrap">
+                      <p class="font-bold text-white text-xs sm:text-sm">${order.customer.name}</p>
+                      <a href="tel:${order.customer.phone}" class="text-blue-400 hover:underline text-[11px] inline-flex items-center gap-1 font-mono">
+                        <i class="fa-solid fa-phone text-[9px]"></i>${order.customer.phone}
+                      </a>
+                    </div>
+                    <p class="text-slate-300 mt-1 leading-relaxed text-xs">
+                      ${order.customer.address}${order.customer.landmark ? ', <span class="text-gold-400 font-semibold">Landmark: ' + order.customer.landmark + '</span>' : ''} • PIN: <span class="font-mono text-white font-bold">${order.customer.pincode}</span>
+                    </p>
+                    ${order.customer.notes ? `<p class="text-[10px] text-amber-300/90 mt-1 italic"><i class="fa-regular fa-note-sticky mr-1"></i>Delivery Note: ${order.customer.notes}</p>` : ''}
+                  </div>
+                </div>
+
+                <!-- Prominent Turn-by-Turn Google Maps Navigation Button -->
+                <div class="shrink-0 mt-2 md:mt-0">
+                  <a 
+                    href="${getGoogleMapsNavigationUrl(order)}" 
+                    target="_blank" 
+                    rel="noopener noreferrer"
+                    class="w-full md:w-auto inline-flex items-center justify-center gap-2 px-4 py-2.5 rounded-xl bg-gradient-to-r from-blue-600 via-indigo-600 to-blue-700 hover:from-blue-500 hover:to-indigo-500 text-white font-bold text-xs transition-all shadow-lg shadow-blue-600/30 active:scale-95 border border-blue-400/40"
+                  >
+                    <i class="fa-solid fa-map-location-dot text-sm text-blue-200"></i>
+                    <span>🗺️ Navigate to Customer Location (Google Maps)</span>
+                  </a>
                 </div>
               </div>
             </div>
@@ -4508,7 +4563,7 @@ _Sent automatically from MS ZenoMart Web Application_`;
                 `}
               </div>
 
-              <div class="flex items-center gap-2">
+              <div class="flex items-center gap-2 flex-wrap">
                 ${canCancel ? `
                   <button 
                     onclick="requestOrderCancellation('${order.orderId}')" 
@@ -4527,6 +4582,17 @@ _Sent automatically from MS ZenoMart Web Application_`;
                   </button>
                 `}
 
+                <a 
+                  href="${getGoogleMapsNavigationUrl(order)}" 
+                  target="_blank" 
+                  rel="noopener noreferrer" 
+                  class="px-3.5 py-2 rounded-xl bg-blue-600/20 hover:bg-blue-600/30 border border-blue-500/40 text-blue-300 font-bold text-xs transition-all flex items-center gap-1.5"
+                  title="Open Google Maps Navigation Route"
+                >
+                  <i class="fa-solid fa-map-location-dot"></i>
+                  <span>Maps Route</span>
+                </a>
+
                 <button 
                   onclick="trackOrderWhatsApp('${order.orderId}')" 
                   class="px-4 py-2 rounded-xl bg-gradient-to-r from-emerald-600 to-teal-600 hover:from-emerald-500 hover:to-teal-500 text-white font-bold text-xs transition-all shadow-md flex items-center gap-1.5"
@@ -4544,6 +4610,11 @@ _Sent automatically from MS ZenoMart Web Application_`;
 
     function renderOrdersList() {
       renderMainOrdersSection();
+      const modalList = document.getElementById("ordersListContainer");
+      const mainList = document.getElementById("mainOrdersListContainer");
+      if (modalList && mainList && modalList !== mainList) {
+        modalList.innerHTML = mainList.innerHTML;
+      }
     }
 
     function updateOrderTimers() {
@@ -4653,9 +4724,13 @@ Please check your Airtel Payments Bank account (7979864406-i40c@axl) for this cr
       const order = orders.find(o => o.orderId === orderId);
       if (!order) return;
 
+      const mapsNavUrl = getGoogleMapsNavigationUrl(order);
+
       const msg = `👋 *ORDER STATUS INQUIRY: #${order.orderId}*
 👤 *Customer:* ${order.customer.name}
-📍 *Address:* ${order.customer.address}
+📞 *Phone:* ${order.customer.phone}
+📍 *Delivery Address:* ${order.customer.address}${order.customer.landmark ? ', ' + order.customer.landmark : ''} - ${order.customer.pincode}
+🗺️ *Google Maps Navigation:* ${mapsNavUrl}
 
 Please share the live delivery executive tracking and hyperlocal shop dispatch status.`;
 

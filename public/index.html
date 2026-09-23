@@ -974,6 +974,82 @@
       </div>
     </div>
 
+    <!-- ======================================================== -->
+    <!-- DELIVERY SPEED SELECTION: REGULAR vs ⚡ VIP FAST DELIVERY -->
+    <!-- ======================================================== -->
+    <div class="bg-navy-950 border border-navy-800 rounded-2xl p-3.5 mb-4 text-xs">
+      <div class="flex items-center justify-between mb-2.5">
+        <label class="block text-slate-200 font-bold text-xs flex items-center gap-1.5">
+          <i class="fa-solid fa-truck-fast text-gold-400"></i>
+          <span>Choose Delivery Speed</span>
+        </label>
+        <span id="deliverySpeedBadge" class="text-[10px] font-bold text-emerald-400 bg-emerald-500/10 px-2.5 py-0.5 rounded-full border border-emerald-500/30">
+          Regular Delivery (2–3 Days)
+        </span>
+      </div>
+
+      <div class="grid grid-cols-1 sm:grid-cols-2 gap-2.5">
+        <!-- Option A: Regular Delivery (2-3 Days) - Standard / Free -->
+        <div 
+          id="deliveryOptionRegularCard" 
+          onclick="selectDeliverySpeed('REGULAR')" 
+          class="cursor-pointer p-3 rounded-xl border-2 transition-all relative bg-navy-900 border-gold-500 ring-2 ring-gold-500/20 shadow-md flex flex-col justify-between"
+        >
+          <div class="flex items-start justify-between gap-2">
+            <div class="flex items-start gap-2">
+              <input type="radio" name="deliverySpeedRadio" id="radioRegularDelivery" checked class="mt-0.5 accent-gold-500 cursor-pointer" />
+              <div>
+                <div class="font-bold text-white text-xs flex items-center gap-1.5 flex-wrap">
+                  <span>Regular Delivery</span>
+                  <span class="text-[9px] bg-emerald-500/20 text-emerald-400 px-1.5 py-0.2 rounded font-black">FREE</span>
+                </div>
+                <p class="text-[10px] text-slate-400 mt-0.5">2–3 Days Standard Delivery</p>
+              </div>
+            </div>
+            <span class="font-mono font-bold text-emerald-400 text-xs shrink-0">₹0</span>
+          </div>
+          <div class="mt-2 pt-2 border-t border-navy-800/80 text-[10px] text-slate-400 flex items-center gap-1">
+            <i class="fa-solid fa-calendar-days text-gold-400 text-[10px]"></i>
+            <span>Local hub partner dispatch</span>
+          </div>
+        </div>
+
+        <!-- Option B: ⚡ VIP Fast Delivery (60-90 Mins) - +₹50 Extra -->
+        <div 
+          id="deliveryOptionVipCard" 
+          onclick="selectDeliverySpeed('VIP')" 
+          class="cursor-pointer p-3 rounded-xl border-2 transition-all relative bg-navy-900 border-navy-800 hover:border-amber-400/60 shadow-sm flex flex-col justify-between"
+        >
+          <div class="flex items-start justify-between gap-2">
+            <div class="flex items-start gap-2">
+              <input type="radio" name="deliverySpeedRadio" id="radioVipDelivery" class="mt-0.5 accent-amber-400 cursor-pointer" />
+              <div>
+                <div class="font-bold text-amber-300 text-xs flex items-center gap-1.5 flex-wrap">
+                  <span>⚡ VIP Fast Delivery</span>
+                  <span class="text-[9px] bg-gradient-to-r from-amber-500 to-accent-orange text-navy-950 font-black px-1.5 py-0.2 rounded shadow-sm">60-90 MINS</span>
+                </div>
+                <p class="text-[10px] text-slate-400 mt-0.5">Priority express rider dispatch</p>
+              </div>
+            </div>
+            <span class="font-mono font-black text-amber-400 text-xs shrink-0">+₹50</span>
+          </div>
+          <div class="mt-2 pt-2 border-t border-navy-800/80 text-[10px] text-amber-300 font-semibold flex items-center gap-1">
+            <i class="fa-solid fa-bolt-lightning text-amber-400 text-[10px]"></i>
+            <span>Guaranteed 60–90 Mins Delivery</span>
+          </div>
+        </div>
+      </div>
+
+      <!-- Live Speed Explanation Bar -->
+      <div id="deliverySpeedNotice" class="mt-2.5 p-2 rounded-xl bg-navy-900/90 border border-navy-800 text-[10px] text-slate-300 flex items-center justify-between">
+        <span class="flex items-center gap-1.5">
+          <i class="fa-solid fa-clock text-gold-400"></i>
+          <span id="deliverySpeedNoticeText">Standard Delivery: Estimated arrival in 2–3 Days (Free).</span>
+        </span>
+        <span id="deliverySpeedPriceTag" class="text-emerald-400 font-bold font-mono">₹0 Fee</span>
+      </div>
+    </div>
+
     <!-- Checkout Form with Address Memorization -->
     <form onsubmit="handlePlaceOrderSubmit(event)" class="space-y-3 text-xs">
       
@@ -2018,6 +2094,8 @@
     let directCheckoutProduct = null; // Used for "Buy Now" flow
     let activeMainView = "store"; // "store" or "orders"
     let selectedPaymentMethod = "COD"; // "COD", "QR", "UPI_APPS"
+    let selectedDeliveryOption = "REGULAR"; // "REGULAR" (2-3 Days, Free) or "VIP" (60-90 Mins, +₹50)
+    let currentCheckoutItems = [];
     let productCardActiveImg = {}; // productId -> active image index
     let activeDetailProductId = null;
     let activeDetailImgIdx = 0;
@@ -3402,26 +3480,114 @@
       if (mode === "COD") {
         if (codBtn) codBtn.className = activeCodClass;
         if (panelCod) panelCod.classList.remove("hidden");
-        if (submitBtnText) submitBtnText.innerText = "Place Order (Cash on Delivery)";
       } else if (mode === "QR") {
         if (qrBtn) qrBtn.className = activeQrClass;
         if (panelQr) panelQr.classList.remove("hidden");
-        if (submitBtnText) submitBtnText.innerText = "Place Order (QR Scan & Pay)";
         updateQrCodeDisplay();
       } else if (mode === "UPI_APPS") {
         if (upiAppsBtn) upiAppsBtn.className = activeUpiClass;
         if (panelUpiApps) panelUpiApps.classList.remove("hidden");
-        if (submitBtnText) submitBtnText.innerText = "1-Click UPI Pay & Place Order";
       }
+      updateCheckoutTotalsDisplay();
     }
 
-    function getCheckoutTotal() {
-      const items = directCheckoutProduct ? [directCheckoutProduct] : cart;
+    function getCheckoutItemsSubtotal() {
+      const items = directCheckoutProduct ? [directCheckoutProduct] : (currentCheckoutItems.length > 0 ? currentCheckoutItems : cart);
       return items.reduce((sum, item) => {
         const price = parseFloat(item.price) || 0;
         const qty = Math.max(1, parseInt(item.quantity) || 1);
         return sum + (price * qty);
       }, 0);
+    }
+
+    function getCheckoutDeliveryFee() {
+      return selectedDeliveryOption === "VIP" ? 50 : 0;
+    }
+
+    function getCheckoutTotal() {
+      return getCheckoutItemsSubtotal() + getCheckoutDeliveryFee();
+    }
+
+    function selectDeliverySpeed(mode) {
+      selectedDeliveryOption = mode === "VIP" ? "VIP" : "REGULAR";
+
+      const regularCard = document.getElementById("deliveryOptionRegularCard");
+      const vipCard = document.getElementById("deliveryOptionVipCard");
+      const radioRegular = document.getElementById("radioRegularDelivery");
+      const radioVip = document.getElementById("radioVipDelivery");
+      const speedBadge = document.getElementById("deliverySpeedBadge");
+      const noticeText = document.getElementById("deliverySpeedNoticeText");
+      const priceTag = document.getElementById("deliverySpeedPriceTag");
+
+      if (selectedDeliveryOption === "VIP") {
+        if (regularCard) regularCard.className = "cursor-pointer p-3 rounded-xl border-2 transition-all relative bg-navy-900 border-navy-800 hover:border-slate-500 shadow-sm flex flex-col justify-between";
+        if (vipCard) vipCard.className = "cursor-pointer p-3 rounded-xl border-2 transition-all relative bg-navy-900 border-amber-400 ring-2 ring-amber-400/30 shadow-lg shadow-amber-500/10 flex flex-col justify-between";
+        if (radioRegular) radioRegular.checked = false;
+        if (radioVip) radioVip.checked = true;
+        if (speedBadge) {
+          speedBadge.innerText = "⚡ VIP Fast Delivery (60–90 Mins)";
+          speedBadge.className = "text-[10px] font-bold text-amber-300 bg-amber-500/15 px-2.5 py-0.5 rounded-full border border-amber-500/30";
+        }
+        if (noticeText) noticeText.innerText = "⚡ VIP Express Active: Priority rider assigned. Guaranteed doorstep arrival in 60–90 minutes!";
+        if (priceTag) {
+          priceTag.innerText = "+₹50 Fee";
+          priceTag.className = "text-amber-400 font-bold font-mono";
+        }
+      } else {
+        if (regularCard) regularCard.className = "cursor-pointer p-3 rounded-xl border-2 transition-all relative bg-navy-900 border-gold-500 ring-2 ring-gold-500/20 shadow-md flex flex-col justify-between";
+        if (vipCard) vipCard.className = "cursor-pointer p-3 rounded-xl border-2 transition-all relative bg-navy-900 border-navy-800 hover:border-amber-400/60 shadow-sm flex flex-col justify-between";
+        if (radioRegular) radioRegular.checked = true;
+        if (radioVip) radioVip.checked = false;
+        if (speedBadge) {
+          speedBadge.innerText = "Regular Delivery (2–3 Days)";
+          speedBadge.className = "text-[10px] font-bold text-emerald-400 bg-emerald-500/10 px-2.5 py-0.5 rounded-full border border-emerald-500/30";
+        }
+        if (noticeText) noticeText.innerText = "Standard Delivery: Estimated arrival in 2–3 Days (Free).";
+        if (priceTag) {
+          priceTag.innerText = "₹0 Fee";
+          priceTag.className = "text-emerald-400 font-bold font-mono";
+        }
+      }
+
+      updateCheckoutTotalsDisplay();
+    }
+
+    function updateCheckoutTotalsDisplay() {
+      const subtotal = getCheckoutItemsSubtotal();
+      const deliveryFee = getCheckoutDeliveryFee();
+      const grandTotal = subtotal + deliveryFee;
+
+      const totalEl = document.getElementById("checkoutTotalAmount");
+      if (totalEl) {
+        if (deliveryFee > 0) {
+          totalEl.innerHTML = `₹${grandTotal} <span class="text-[10px] text-amber-300 font-normal ml-1.5">(₹${subtotal} items + ₹50 VIP delivery)</span>`;
+        } else {
+          totalEl.innerHTML = `₹${grandTotal} <span class="text-[10px] text-emerald-400 font-normal ml-1.5">(Free standard delivery)</span>`;
+        }
+      }
+
+      const qrAmountLabel = document.getElementById("qrPayableAmountLabel");
+      if (qrAmountLabel) qrAmountLabel.innerText = `₹${grandTotal}`;
+
+      const phonePePayLabel = document.getElementById("phonePePayLabel");
+      const gPayPayLabel = document.getElementById("gPayPayLabel");
+      const paytmPayLabel = document.getElementById("paytmPayLabel");
+      if (phonePePayLabel) phonePePayLabel.innerText = `Pay ₹${grandTotal}`;
+      if (gPayPayLabel) gPayPayLabel.innerText = `Pay ₹${grandTotal}`;
+      if (paytmPayLabel) paytmPayLabel.innerText = `Pay ₹${grandTotal}`;
+
+      const submitBtnText = document.getElementById("checkoutSubmitBtnText");
+      if (submitBtnText) {
+        if (selectedPaymentMethod === "COD") {
+          submitBtnText.innerText = `Place Order (Cash on Delivery) • ₹${grandTotal}`;
+        } else if (selectedPaymentMethod === "QR") {
+          submitBtnText.innerText = `Place Order (QR Scan & Pay) • ₹${grandTotal}`;
+        } else if (selectedPaymentMethod === "UPI_APPS") {
+          submitBtnText.innerText = `1-Click UPI Pay • ₹${grandTotal}`;
+        }
+      }
+
+      updateQrCodeDisplay();
     }
 
     function updateQrCodeDisplay() {
@@ -3476,13 +3642,11 @@
       const backdrop = document.getElementById("checkoutModalBackdrop");
       const listEl = document.getElementById("checkoutItemsList");
       const countEl = document.getElementById("checkoutItemsCount");
-      const totalEl = document.getElementById("checkoutTotalAmount");
 
+      currentCheckoutItems = [...items];
       const totalQuantity = items.reduce((sum, i) => sum + i.quantity, 0);
-      const grandTotal = items.reduce((sum, i) => sum + (i.price * i.quantity), 0);
 
       countEl.innerText = `${totalQuantity} Item${totalQuantity === 1 ? '' : 's'}`;
-      totalEl.innerText = `₹${grandTotal}`;
 
       listEl.innerHTML = items.map(item => `
         <div class="flex items-center justify-between text-[11px] py-1">
@@ -3497,17 +3661,11 @@
       // Auto-populate Address Memory Feature from localStorage
       loadSavedAddressToForm();
 
-      // Update UPI App Button Labels with exact payable amount
-      const phonePePayLabel = document.getElementById("phonePePayLabel");
-      const gPayPayLabel = document.getElementById("gPayPayLabel");
-      const paytmPayLabel = document.getElementById("paytmPayLabel");
-      if (phonePePayLabel) phonePePayLabel.innerText = `Pay ₹${grandTotal}`;
-      if (gPayPayLabel) gPayPayLabel.innerText = `Pay ₹${grandTotal}`;
-      if (paytmPayLabel) paytmPayLabel.innerText = `Pay ₹${grandTotal}`;
+      // Reset delivery speed selection to Regular by default and update totals
+      selectDeliverySpeed("REGULAR");
 
       // Reset payment option to default (COD) and refresh QR
       selectPaymentOption("COD");
-      updateQrCodeDisplay();
 
       // Reset any previous boundary error banner
       const boundaryErr = document.getElementById("deliveryBoundaryError");
@@ -3594,13 +3752,15 @@
       }
 
       // Determine items list
-      const itemsToOrder = directCheckoutProduct ? [directCheckoutProduct] : [...cart];
+      const itemsToOrder = directCheckoutProduct ? [directCheckoutProduct] : (currentCheckoutItems.length > 0 ? [...currentCheckoutItems] : [...cart]);
       if (itemsToOrder.length === 0) {
         showToast("Error", "No items to order.");
         return;
       }
 
-      const grandTotal = itemsToOrder.reduce((sum, i) => sum + (i.price * i.quantity), 0);
+      const itemsSubtotal = itemsToOrder.reduce((sum, i) => sum + (i.price * i.quantity), 0);
+      const deliveryFee = selectedDeliveryOption === "VIP" ? 50 : 0;
+      const grandTotal = itemsSubtotal + deliveryFee;
       const orderId = "ZM-" + Math.floor(100000 + Math.random() * 900000);
       const orderTime = Date.now();
       const cancelExpiry = orderTime + (90 * 60 * 1000); // 90 minutes = 1.5 hours
@@ -3638,8 +3798,14 @@
         paymentVerification: isUpi ? "AWAITING_AIRTEL_BANK_CREDIT" : "COD_VERIFIED",
         utr: utrNumber || null,
         items: itemsToOrder,
+        itemsSubtotal: itemsSubtotal,
+        deliveryOption: selectedDeliveryOption,
+        deliveryFee: deliveryFee,
+        deliverySpeedLabel: selectedDeliveryOption === "VIP" ? "⚡ VIP Fast Delivery (60–90 Mins)" : "Regular Delivery (2–3 Days)",
+        deliveryWindow: selectedDeliveryOption === "VIP" ? "60–90 Mins" : "2–3 Days",
         total: grandTotal,
         customer: { name, phone, address, landmark, pincode, notes },
+        googleMapsUrl: getGoogleMapsNavigationUrl({ customer: { address, landmark, pincode } }),
         paymentMethod: paymentMethodLabel,
         paymentStatus: paymentStatusLabel
       };
@@ -3679,17 +3845,44 @@
       }, 600);
     }
 
+    // --------------------------------------------------------
+    // Universal Google Maps Turn-by-Turn Doorstep Navigation
+    // --------------------------------------------------------
+    function getGoogleMapsNavigationUrl(order) {
+      if (!order || !order.customer) return "https://www.google.com/maps";
+      if (order.googleMapsUrl && typeof order.googleMapsUrl === "string" && order.googleMapsUrl.startsWith("https://www.google.com/maps/dir/")) {
+        return order.googleMapsUrl;
+      }
+      const parts = [];
+      if (order.customer.address) parts.push(order.customer.address.trim());
+      if (order.customer.landmark) parts.push(order.customer.landmark.trim());
+      if (order.customer.pincode) parts.push(order.customer.pincode.trim());
+      const destination = parts.filter(Boolean).join(", ");
+      if (!destination) return "https://www.google.com/maps";
+      return `https://www.google.com/maps/dir/?api=1&destination=${encodeURIComponent(destination)}`;
+    }
+
+    function openCustomerGoogleMaps(orderId) {
+      const order = orders.find(o => o.orderId === orderId);
+      if (!order) return;
+      const url = getGoogleMapsNavigationUrl(order);
+      window.open(url, "_blank");
+    }
+
     function formatWhatsAppOrderMessage(order) {
       const itemsText = order.items.map(i => 
         `• ${i.title} (x${i.quantity}) — ₹${i.price * i.quantity} [Source: ${i.sourceShop}]`
       ).join("\n");
 
       const isLocked = order.isPaymentLocked === true;
+      const isVip = order.deliveryOption === "VIP";
+      const mapsNavUrl = getGoogleMapsNavigationUrl(order);
 
       return `🛍️ *NEW HYPERLOCAL ORDER: #${order.orderId}*
 🏬 *Store:* MS ZenoMart Hyperlocal Dropshipping
 📍 *DELIVERY BOUNDARY:* Local Service Area (Raghunathpur, Jiyakhada, Rahbat, Deoghar, Ghormora)
 ⏰ *Ordered At:* ${new Date(order.orderTime).toLocaleTimeString()}
+🚀 *DELIVERY SPEED:* ${isVip ? "⚡ VIP Fast Delivery (60–90 Mins) [+₹50]" : "Regular Delivery (2–3 Days) [Free Standard]"}
 🔒 *ORDER LOCK STATUS:* ${isLocked ? 'LOCKED (Strict Anti-Fraud: Awaiting Airtel Bank Credit)' : 'UNLOCKED (COD Doorstep Verified)'}
 
 💳 *PAYMENT METHOD:* ${order.paymentMethod || 'Cash on Delivery (COD)'}
@@ -3702,11 +3895,15 @@ ${isLocked ? `⚠️ *OWNER AIRTEL BANK NOTICE:* Check your Airtel Payments Bank
 • Complete Delivery Address: ${order.customer.address}
 ${order.customer.landmark ? `• Landmark: ${order.customer.landmark}\n` : ''}• City & PIN Code: ${order.customer.pincode}
 ${order.customer.notes ? `• Special Delivery Note: ${order.customer.notes}\n` : ''}
+🗺️ *CUSTOMER LOCATION (Google Maps Navigation):*
+👉 *Navigate to Customer Location (Google Maps):*
+${mapsNavUrl}
+
 🛒 *ORDERED ITEMS (Local Shop Sourced):*
 ${itemsText}
 
-💰 *PAYABLE AMOUNT:* ₹${order.total} (Free Delivery)
-⚡ *Fulfillment:* Handpicked from nearest verified local store
+💰 *PAYABLE AMOUNT:* ₹${order.total} (${order.deliveryFee > 0 ? "Includes ₹50 VIP Fast Delivery" : "Free Delivery"})
+⚡ *Fulfillment:* ${isVip ? "Express Priority Rider direct from nearest partner shop" : "Handpicked from nearest verified local store"}
 
 _Sent automatically from MS ZenoMart Web Application_`;
     }
@@ -3859,14 +4056,55 @@ _Sent automatically from MS ZenoMart Web Application_`;
       }
     }
 
-    function getDeliveryStage(order) {
+    function getMultiDayTimelineStage(order) {
       if (order.status === "CANCELLED") return 0;
-      const elapsed = Date.now() - order.orderTime;
-      const totalWindow = 90 * 60 * 1000; // 90 mins
-      if (elapsed < 15 * 60 * 1000) return 1; // Order Placed
-      if (elapsed < 45 * 60 * 1000) return 2; // Sourced from Local Partner Shop
-      if (elapsed < totalWindow) return 3;    // Out for Hyperlocal Delivery
-      return 4;                               // Delivered / At Doorstep
+      if (order.isPaymentLocked === true || order.status === "LOCKED_PAYMENT_PENDING") return 0;
+      if (order.status === "DELIVERED") return 3;
+
+      // Allow owner or simulation override
+      if (typeof order.deliveryStageOverride === "number") {
+        return order.deliveryStageOverride;
+      }
+
+      if (order.status === "OUT_FOR_DELIVERY") return 2;
+
+      // VIP Fast Delivery (60-90 Mins Total Window)
+      if (order.deliveryOption === "VIP") {
+        const elapsedMinutes = (Date.now() - (order.orderTime || Date.now())) / (60 * 1000);
+        if (elapsedMinutes < 25) return 1;
+        if (elapsedMinutes < 60) return 2;
+        return 3;
+      }
+
+      // Regular Multi-Day Timeline (Day 1 -> Day 2 -> Day 3)
+      // Day 1: Order Processed & Dispatched
+      // Day 2: Out for Local Delivery (after 18 hours or next calendar day)
+      // Day 3: Delivered (after 42 hours or 2nd day)
+      const elapsedHours = (Date.now() - (order.orderTime || Date.now())) / (60 * 60 * 1000);
+      if (elapsedHours < 18) {
+        return 1;
+      } else if (elapsedHours < 42) {
+        return 2;
+      } else {
+        return 3;
+      }
+    }
+
+    function setOrderDeliveryStage(orderId, stage) {
+      const order = orders.find(o => o.orderId === orderId);
+      if (!order) return;
+      order.deliveryStageOverride = stage;
+      if (stage >= 3) {
+        order.status = "DELIVERED";
+      } else if (stage === 2) {
+        order.status = "OUT_FOR_DELIVERY";
+      } else if (stage === 1) {
+        order.status = "CONFIRMED";
+      }
+      saveOrdersToStorage();
+      renderMainOrdersSection();
+      const label = stage === 3 ? "Day 3 (Delivered)" : stage === 2 ? "Day 2 (Out for Delivery)" : "Day 1 (Dispatched)";
+      showToast("Progress Updated", `Order #${orderId} moved to: ${label}`);
     }
 
     function renderMainOrdersSection() {
@@ -3895,7 +4133,14 @@ _Sent automatically from MS ZenoMart Web Application_`;
         const isCancelled = order.status === "CANCELLED";
         const isLocked = order.isPaymentLocked === true || order.status === "LOCKED_PAYMENT_PENDING";
         const canCancel = !isCancelled && order.status !== "DELIVERED";
-        const stage = isLocked ? 0 : getDeliveryStage(order);
+        const currentStage = isLocked ? 0 : getMultiDayTimelineStage(order);
+        const isVipOrder = order.deliveryOption === "VIP";
+
+        const orderTime = order.orderTime || Date.now();
+        const orderDateObj = new Date(orderTime);
+        const day1DateStr = orderDateObj.toLocaleDateString("en-IN", { weekday: "short", day: "numeric", month: "short" });
+        const day2DateStr = new Date(orderTime + 24 * 60 * 60 * 1000).toLocaleDateString("en-IN", { weekday: "short", day: "numeric", month: "short" });
+        const day3DateStr = new Date(orderTime + 48 * 60 * 60 * 1000).toLocaleDateString("en-IN", { weekday: "short", day: "numeric", month: "short" });
 
         let timerDisplay = "";
         if (isCancelled) {
@@ -3907,13 +4152,20 @@ _Sent automatically from MS ZenoMart Web Application_`;
               <span>Payment Locked</span>
             </div>
           `;
-        } else if (order.status === "DELIVERED") {
+        } else if (order.status === "DELIVERED" || currentStage >= 3) {
           timerDisplay = `<span class="text-emerald-400 font-bold text-xs"><i class="fa-solid fa-circle-check mr-1"></i> Delivered</span>`;
+        } else if (currentStage === 2) {
+          timerDisplay = `
+            <div class="inline-flex items-center gap-1.5 px-3 py-1 rounded-xl bg-emerald-500/10 border border-emerald-500/30 text-emerald-400 font-bold text-xs">
+              <i class="fa-solid fa-truck-fast mr-0.5"></i>
+              <span>Out for Delivery</span>
+            </div>
+          `;
         } else {
           timerDisplay = `
             <div class="inline-flex items-center gap-1.5 px-3 py-1 rounded-xl bg-gold-500/10 border border-gold-500/30 text-gold-400 font-bold text-xs">
-              <i class="fa-solid fa-clock mr-0.5"></i>
-              <span>Processing Order</span>
+              <i class="fa-solid fa-box mr-0.5"></i>
+              <span>${isVipOrder ? "VIP Priority Dispatch" : "Day 1 Dispatched"}</span>
             </div>
           `;
         }
@@ -4025,108 +4277,213 @@ _Sent automatically from MS ZenoMart Web Application_`;
               </div>
             ` : ''}
 
-            <!-- Amazon / Flipkart 4-Step Interactive Visual Delivery Timeline -->
+            <!-- Flipkart / Amazon Style Multi-Day Progress Timeline -->
             ${isLocked ? `
-              <div class="mb-6 bg-navy-950/70 border border-amber-500/20 rounded-2xl p-4 sm:p-5 opacity-80">
-                <div class="flex items-center justify-between mb-3">
+              <div class="mb-6 bg-navy-950/80 border border-amber-500/25 rounded-2xl p-4 sm:p-5">
+                <div class="flex items-center justify-between mb-2 border-b border-navy-800 pb-2">
                   <span class="text-xs font-bold text-amber-400 flex items-center gap-1.5">
                     <i class="fa-solid fa-lock"></i> Sourcing & Dispatch Locked
                   </span>
-                  <span class="text-[11px] text-slate-400 font-semibold">Awaiting Airtel Bank Confirmation</span>
+                  <span class="text-[11px] text-amber-300 font-semibold bg-amber-500/10 px-2.5 py-0.5 rounded-full border border-amber-500/30">
+                    Awaiting Airtel Bank Credit
+                  </span>
                 </div>
-
-                <div class="relative grid grid-cols-4 gap-2 text-center">
-                  <!-- Step 1: Payment Verification -->
-                  <div class="flex flex-col items-center">
-                    <div class="w-8 h-8 sm:w-10 sm:h-10 rounded-full flex items-center justify-center text-xs sm:text-sm font-black mb-1.5 bg-amber-500/20 text-amber-400 ring-4 ring-amber-500/20">
-                      <i class="fa-solid fa-lock"></i>
-                    </div>
-                    <span class="text-[10px] sm:text-xs font-bold text-amber-400">Payment Lock</span>
-                    <span class="text-[9px] text-slate-400 hidden sm:inline">Pending Bank Credit</span>
-                  </div>
-
-                  <!-- Step 2: Sourced -->
-                  <div class="flex flex-col items-center">
-                    <div class="w-8 h-8 sm:w-10 sm:h-10 rounded-full flex items-center justify-center text-xs sm:text-sm font-black mb-1.5 bg-navy-850 text-slate-600">
-                      <i class="fa-solid fa-lock text-[10px]"></i>
-                    </div>
-                    <span class="text-[10px] sm:text-xs font-bold text-slate-600">Partner Shop</span>
-                    <span class="text-[9px] text-slate-600 hidden sm:inline">Locked</span>
-                  </div>
-
-                  <!-- Step 3: Out for Delivery -->
-                  <div class="flex flex-col items-center">
-                    <div class="w-8 h-8 sm:w-10 sm:h-10 rounded-full flex items-center justify-center text-xs sm:text-sm font-black mb-1.5 bg-navy-850 text-slate-600">
-                      <i class="fa-solid fa-lock text-[10px]"></i>
-                    </div>
-                    <span class="text-[10px] sm:text-xs font-bold text-slate-600">Out for Delivery</span>
-                    <span class="text-[9px] text-slate-600 hidden sm:inline">Locked</span>
-                  </div>
-
-                  <!-- Step 4: Delivered -->
-                  <div class="flex flex-col items-center">
-                    <div class="w-8 h-8 sm:w-10 sm:h-10 rounded-full flex items-center justify-center text-xs sm:text-sm font-black mb-1.5 bg-navy-850 text-slate-600">
-                      <i class="fa-solid fa-lock text-[10px]"></i>
-                    </div>
-                    <span class="text-[10px] sm:text-xs font-bold text-slate-600">Delivered</span>
-                    <span class="text-[9px] text-slate-600 hidden sm:inline">Locked</span>
-                  </div>
+                <div class="text-[11px] text-slate-400 leading-relaxed">
+                  Timeline will activate automatically once owner confirms receipt of ₹${order.total} in Airtel Payments Bank.
                 </div>
               </div>
             ` : !isCancelled ? `
-              <div class="mb-6 bg-navy-950/70 border border-navy-800/70 rounded-2xl p-4 sm:p-5">
-                <div class="flex items-center justify-between mb-3">
-                  <span class="text-xs font-bold text-slate-300 flex items-center gap-1.5">
-                    <i class="fa-solid fa-truck-ramp-box text-gold-400"></i> Live Delivery Progress
-                  </span>
-                  <span class="text-[11px] text-emerald-400 font-semibold">⚡ Estimated Delivery: 60–90 mins</span>
-                </div>
-
-                <div class="relative grid grid-cols-4 gap-2 text-center">
-                  <!-- Step 1: Placed -->
-                  <div class="flex flex-col items-center">
-                    <div class="w-8 h-8 sm:w-10 sm:h-10 rounded-full flex items-center justify-center text-xs sm:text-sm font-black mb-1.5 ${
-                      stage >= 1 ? 'bg-accent-green text-navy-950 ring-4 ring-accent-green/20' : 'bg-navy-850 text-slate-500'
-                    }">
-                      <i class="fa-solid fa-clipboard-check"></i>
+              <div class="mb-6 bg-navy-950/80 border border-navy-800 rounded-2xl p-4 sm:p-5 shadow-inner">
+                <!-- Header with delivery speed badge -->
+                <div class="flex flex-wrap items-center justify-between gap-2 mb-4 pb-3 border-b border-navy-800/80">
+                  <div class="flex items-center gap-2.5">
+                    <div class="w-8 h-8 rounded-xl ${isVipOrder ? 'bg-amber-500/20 text-amber-400' : 'bg-emerald-500/20 text-emerald-400'} flex items-center justify-center text-sm shrink-0">
+                      <i class="fa-solid ${isVipOrder ? 'fa-bolt-lightning' : 'fa-truck-fast'}"></i>
                     </div>
-                    <span class="text-[10px] sm:text-xs font-bold ${stage >= 1 ? 'text-white' : 'text-slate-500'}">Order Placed</span>
-                    <span class="text-[9px] text-slate-400 hidden sm:inline">Confirmed</span>
+                    <div>
+                      <div class="flex items-center gap-2 flex-wrap">
+                        <h4 class="text-xs sm:text-sm font-black text-white">Flipkart / Amazon Multi-Day Delivery Tracker</h4>
+                        ${isVipOrder ? `
+                          <span class="text-[9px] bg-gradient-to-r from-amber-500 to-accent-orange text-navy-950 font-black px-2 py-0.5 rounded-full shadow-sm">
+                            ⚡ VIP FAST DELIVERY (60–90 MINS)
+                          </span>
+                        ` : `
+                          <span class="text-[9px] bg-emerald-500/15 text-emerald-400 border border-emerald-500/30 font-bold px-2 py-0.5 rounded-full">
+                            Regular 2–3 Days Delivery
+                          </span>
+                        `}
+                      </div>
+                      <p class="text-[10px] text-slate-400 mt-0.5">
+                        ${isVipOrder ? 'Priority express rider dispatched direct to your doorstep' : 'Step-by-step milestone progress across local partner hubs'}
+                      </p>
+                    </div>
                   </div>
 
-                  <!-- Step 2: Sourced -->
-                  <div class="flex flex-col items-center">
-                    <div class="w-8 h-8 sm:w-10 sm:h-10 rounded-full flex items-center justify-center text-xs sm:text-sm font-black mb-1.5 ${
-                      stage >= 2 ? 'bg-accent-green text-navy-950 ring-4 ring-accent-green/20' : 'bg-navy-850 text-slate-500'
-                    }">
-                      <i class="fa-solid fa-shop"></i>
-                    </div>
-                    <span class="text-[10px] sm:text-xs font-bold ${stage >= 2 ? 'text-white' : 'text-slate-500'}">Partner Shop</span>
-                    <span class="text-[9px] text-slate-400 hidden sm:inline">Sourced</span>
-                  </div>
-
-                  <!-- Step 3: Out for Delivery -->
-                  <div class="flex flex-col items-center">
-                    <div class="w-8 h-8 sm:w-10 sm:h-10 rounded-full flex items-center justify-center text-xs sm:text-sm font-black mb-1.5 ${
-                      stage >= 3 ? 'bg-accent-green text-navy-950 ring-4 ring-accent-green/20 animate-pulse' : 'bg-navy-850 text-slate-500'
-                    }">
-                      <i class="fa-solid fa-motorcycle"></i>
-                    </div>
-                    <span class="text-[10px] sm:text-xs font-bold ${stage >= 3 ? 'text-white' : 'text-slate-500'}">Out for Delivery</span>
-                    <span class="text-[9px] text-slate-400 hidden sm:inline">Rider Assigned</span>
-                  </div>
-
-                  <!-- Step 4: Delivered -->
-                  <div class="flex flex-col items-center">
-                    <div class="w-8 h-8 sm:w-10 sm:h-10 rounded-full flex items-center justify-center text-xs sm:text-sm font-black mb-1.5 ${
-                      stage >= 4 ? 'bg-emerald-500 text-navy-950 ring-4 ring-emerald-500/20' : 'bg-navy-850 text-slate-500'
-                    }">
-                      <i class="fa-solid fa-house-chimney"></i>
-                    </div>
-                    <span class="text-[10px] sm:text-xs font-bold ${stage >= 4 ? 'text-white' : 'text-slate-500'}">Delivered</span>
-                    <span class="text-[9px] text-slate-400 hidden sm:inline">Doorstep</span>
+                  <!-- Live Sequential Status Tag -->
+                  <div>
+                    ${currentStage >= 3 ? `
+                      <span class="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-emerald-500 text-navy-950 font-black text-[11px] shadow-lg shadow-emerald-500/30">
+                        <i class="fa-solid fa-circle-check"></i>
+                        <span>Delivered at Doorstep</span>
+                      </span>
+                    ` : currentStage === 2 ? `
+                      <span class="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-emerald-500/15 border border-emerald-500/40 text-emerald-400 font-bold text-[11px]">
+                        <span class="w-2 h-2 rounded-full bg-emerald-400 animate-ping"></span>
+                        <span>${isVipOrder ? 'Out for VIP Express Delivery' : 'Day 2: Out for Local Delivery'}</span>
+                      </span>
+                    ` : `
+                      <span class="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-emerald-500/15 border border-emerald-500/40 text-emerald-400 font-bold text-[11px]">
+                        <span class="w-2 h-2 rounded-full bg-emerald-400"></span>
+                        <span>${isVipOrder ? 'VIP Dispatched from Local Hub' : 'Day 1: Order Processed & Dispatched'}</span>
+                      </span>
+                    `}
                   </div>
                 </div>
+
+                <!-- Multi-Step Connected Horizontal Timeline (Turn Green Sequentially) -->
+                <div class="relative px-2 sm:px-6 pt-3 pb-2">
+                  <!-- Connecting Line Track -->
+                  <div class="absolute top-[32px] sm:top-[36px] left-10 right-10 sm:left-20 sm:right-20 h-1.5 bg-navy-850 rounded-full z-0 overflow-hidden">
+                    <!-- Progressive Green Fill that grows as stages advance -->
+                    <div 
+                      class="h-full bg-gradient-to-r from-emerald-500 via-teal-400 to-emerald-400 transition-all duration-700 rounded-full"
+                      style="width: ${currentStage >= 3 ? '100%' : currentStage === 2 ? '50%' : '10%'};"
+                    ></div>
+                  </div>
+
+                  <!-- 3 Visual Day Steps -->
+                  <div class="relative z-10 grid grid-cols-3 gap-2 text-center">
+                    
+                    <!-- DAY 1: Order Processed & Dispatched -->
+                    <div class="flex flex-col items-center">
+                      <div class="w-9 h-9 sm:w-11 sm:h-11 rounded-full flex items-center justify-center text-xs sm:text-sm font-black mb-2 transition-all ${
+                        currentStage >= 1 
+                          ? 'bg-emerald-500 text-navy-950 font-black shadow-lg shadow-emerald-500/40 ring-4 ring-emerald-500/25' 
+                          : 'bg-navy-850 text-slate-500 border-2 border-navy-700'
+                      }">
+                        <i class="fa-solid ${currentStage >= 1 ? 'fa-check text-xs sm:text-sm' : 'fa-box'}"></i>
+                      </div>
+                      <div class="font-mono text-[11px] sm:text-xs font-black ${currentStage >= 1 ? 'text-emerald-400' : 'text-slate-500'}">
+                        ${isVipOrder ? 'Min 1–25' : 'Day 1'}
+                      </div>
+                      <div class="text-[10px] sm:text-[11px] font-bold mt-0.5 leading-snug ${currentStage >= 1 ? 'text-white' : 'text-slate-400'}">
+                        ${isVipOrder ? 'VIP Dispatched' : 'Order Processed & Dispatched'}
+                      </div>
+                      <div class="text-[9px] text-slate-400 mt-0.5 hidden sm:block">
+                        ${isVipOrder ? 'Packed instantly at verified partner hub' : 'Handpicked & dispatched from local partner hub'}
+                      </div>
+                      <div class="mt-1">
+                        <span class="text-[9px] font-bold text-emerald-400 bg-emerald-500/10 border border-emerald-500/25 px-2 py-0.5 rounded-full inline-flex items-center gap-1">
+                          <i class="fa-solid fa-check text-[8px]"></i> ${day1DateStr}
+                        </span>
+                      </div>
+                    </div>
+
+                    <!-- DAY 2: Out for Local Delivery -->
+                    <div class="flex flex-col items-center">
+                      <div class="w-9 h-9 sm:w-11 sm:h-11 rounded-full flex items-center justify-center text-xs sm:text-sm font-black mb-2 transition-all ${
+                        currentStage >= 2 
+                          ? 'bg-emerald-500 text-navy-950 font-black shadow-lg shadow-emerald-500/40 ring-4 ring-emerald-500/25' 
+                          : currentStage === 1
+                          ? 'bg-emerald-500/20 text-emerald-400 border-2 border-emerald-500/50 animate-pulse ring-4 ring-emerald-500/20'
+                          : 'bg-navy-850 text-slate-500 border-2 border-navy-700'
+                      }">
+                        <i class="fa-solid ${currentStage >= 2 ? 'fa-check text-xs sm:text-sm' : 'fa-truck-fast'}"></i>
+                      </div>
+                      <div class="font-mono text-[11px] sm:text-xs font-black ${currentStage >= 2 ? 'text-emerald-400' : currentStage === 1 ? 'text-slate-300' : 'text-slate-500'}">
+                        ${isVipOrder ? 'Min 25–60' : 'Day 2'}
+                      </div>
+                      <div class="text-[10px] sm:text-[11px] font-bold mt-0.5 leading-snug ${currentStage >= 2 ? 'text-white' : currentStage === 1 ? 'text-slate-300' : 'text-slate-400'}">
+                        ${isVipOrder ? 'Express Rider En Route' : 'Out for Local Delivery'}
+                      </div>
+                      <div class="text-[9px] text-slate-400 mt-0.5 hidden sm:block">
+                        ${isVipOrder ? 'Rider heading to your address' : 'Delivery agent in your zone'}
+                      </div>
+                      <div class="mt-1">
+                        ${currentStage >= 2 ? `
+                          <span class="text-[9px] font-bold text-emerald-400 bg-emerald-500/10 border border-emerald-500/25 px-2 py-0.5 rounded-full inline-flex items-center gap-1">
+                            <i class="fa-solid fa-check text-[8px]"></i> Completed
+                          </span>
+                        ` : currentStage === 1 ? `
+                          <span class="text-[9px] font-bold text-amber-300 bg-amber-500/10 border border-amber-500/25 px-2 py-0.5 rounded-full inline-flex items-center gap-1">
+                            <span class="w-1.5 h-1.5 rounded-full bg-amber-400 animate-ping"></span> ${isVipOrder ? 'In Transit' : day2DateStr}
+                          </span>
+                        ` : `
+                          <span class="text-[9px] text-slate-500 bg-navy-900 px-2 py-0.5 rounded-full">
+                            ${day2DateStr}
+                          </span>
+                        `}
+                      </div>
+                    </div>
+
+                    <!-- DAY 3: Delivered (Final Step Highlighted) -->
+                    <div class="flex flex-col items-center">
+                      <div class="w-9 h-9 sm:w-11 sm:h-11 rounded-full flex items-center justify-center text-xs sm:text-sm font-black mb-2 transition-all ${
+                        currentStage >= 3 
+                          ? 'bg-emerald-500 text-navy-950 font-black shadow-xl shadow-emerald-500/50 ring-4 ring-emerald-500/35 scale-110' 
+                          : currentStage === 2
+                          ? 'bg-emerald-500/20 text-emerald-400 border-2 border-emerald-500/50 animate-pulse'
+                          : 'bg-navy-850 text-slate-500 border-2 border-navy-700'
+                      }">
+                        <i class="fa-solid ${currentStage >= 3 ? 'fa-house-chimney-check' : 'fa-house-chimney'}"></i>
+                      </div>
+                      <div class="font-mono text-[11px] sm:text-xs font-black ${currentStage >= 3 ? 'text-emerald-400' : 'text-slate-500'}">
+                        ${isVipOrder ? 'Min 60–90' : 'Day 3'}
+                      </div>
+                      <div class="text-[10px] sm:text-[11px] font-bold mt-0.5 leading-snug ${currentStage >= 3 ? 'text-emerald-300' : 'text-slate-400'}">
+                        ${isVipOrder ? 'VIP Delivered' : 'Delivered'}
+                      </div>
+                      <div class="text-[9px] text-slate-400 mt-0.5 hidden sm:block">
+                        Safely handed over at doorstep
+                      </div>
+                      <div class="mt-1">
+                        ${currentStage >= 3 ? `
+                          <span class="text-[9px] font-black text-navy-950 bg-emerald-400 px-2.5 py-0.5 rounded-full shadow-md inline-flex items-center gap-1">
+                            <i class="fa-solid fa-star text-[8px]"></i> Delivered
+                          </span>
+                        ` : `
+                          <span class="text-[9px] text-slate-500 bg-navy-900 px-2 py-0.5 rounded-full">
+                            ${isVipOrder ? 'Within 90 Mins' : day3DateStr}
+                          </span>
+                        `}
+                      </div>
+                    </div>
+
+                  </div>
+                </div>
+
+                <!-- Store Owner Stage Progression Simulator / Controls (visible when logged in as owner) -->
+                ${isAdminLoggedIn() ? `
+                  <div class="mt-4 pt-3 border-t border-navy-800/80 flex flex-wrap items-center justify-between gap-2 bg-navy-900/70 p-2.5 rounded-xl text-xs">
+                    <div class="flex items-center gap-1.5 text-slate-300">
+                      <i class="fa-solid fa-sliders text-gold-400"></i>
+                      <span class="font-bold text-[11px]">Owner Timeline Progression Controls:</span>
+                    </div>
+                    <div class="flex items-center gap-1.5 flex-wrap">
+                      <button 
+                        type="button" 
+                        onclick="setOrderDeliveryStage('${order.orderId}', 1)" 
+                        class="px-2.5 py-1 rounded-lg text-[10px] font-bold transition-all ${currentStage === 1 ? 'bg-emerald-500 text-navy-950 font-black' : 'bg-navy-950 text-slate-300 hover:text-white border border-navy-700'}"
+                      >
+                        Day 1: Dispatched
+                      </button>
+                      <button 
+                        type="button" 
+                        onclick="setOrderDeliveryStage('${order.orderId}', 2)" 
+                        class="px-2.5 py-1 rounded-lg text-[10px] font-bold transition-all ${currentStage === 2 ? 'bg-emerald-500 text-navy-950 font-black' : 'bg-navy-950 text-slate-300 hover:text-white border border-navy-700'}"
+                      >
+                        Day 2: Out for Delivery
+                      </button>
+                      <button 
+                        type="button" 
+                        onclick="setOrderDeliveryStage('${order.orderId}', 3)" 
+                        class="px-2.5 py-1 rounded-lg text-[10px] font-bold transition-all ${currentStage >= 3 ? 'bg-emerald-500 text-navy-950 font-black' : 'bg-navy-950 text-slate-300 hover:text-white border border-navy-700'}"
+                      >
+                        Day 3: Delivered
+                      </button>
+                    </div>
+                  </div>
+                ` : ''}
               </div>
             ` : `
               <div class="mb-4 bg-red-500/10 border border-red-500/30 rounded-2xl p-3 text-red-300 text-xs flex items-center gap-2">
@@ -4156,13 +4513,38 @@ _Sent automatically from MS ZenoMart Web Application_`;
               </div>
             </div>
 
-            <!-- Delivery Address Card -->
-            <div class="text-[11px] text-slate-300 bg-navy-950 border border-navy-800/80 rounded-2xl p-3 mb-4">
-              <div class="flex items-start gap-2">
-                <i class="fa-solid fa-location-dot text-accent-orange mt-0.5"></i>
-                <div>
-                  <p class="font-bold text-white">${order.customer.name} <span class="font-normal text-slate-400">(${order.customer.phone})</span></p>
-                  <p class="text-slate-300">${order.customer.address}${order.customer.landmark ? ', ' + order.customer.landmark : ''} - ${order.customer.pincode}</p>
+            <!-- Delivery Address Card with Direct Turn-by-Turn Google Maps Navigation -->
+            <div class="text-[11px] text-slate-300 bg-navy-950 border border-navy-800/80 rounded-2xl p-4 mb-4 shadow-inner">
+              <div class="flex flex-col md:flex-row md:items-center justify-between gap-3">
+                <div class="flex items-start gap-3">
+                  <div class="w-9 h-9 rounded-xl bg-accent-orange/15 text-accent-orange flex items-center justify-center shrink-0 mt-0.5 text-base border border-accent-orange/20">
+                    <i class="fa-solid fa-location-dot"></i>
+                  </div>
+                  <div>
+                    <div class="flex items-center gap-2 flex-wrap">
+                      <p class="font-bold text-white text-xs sm:text-sm">${order.customer.name}</p>
+                      <a href="tel:${order.customer.phone}" class="text-blue-400 hover:underline text-[11px] inline-flex items-center gap-1 font-mono">
+                        <i class="fa-solid fa-phone text-[9px]"></i>${order.customer.phone}
+                      </a>
+                    </div>
+                    <p class="text-slate-300 mt-1 leading-relaxed text-xs">
+                      ${order.customer.address}${order.customer.landmark ? ', <span class="text-gold-400 font-semibold">Landmark: ' + order.customer.landmark + '</span>' : ''} • PIN: <span class="font-mono text-white font-bold">${order.customer.pincode}</span>
+                    </p>
+                    ${order.customer.notes ? `<p class="text-[10px] text-amber-300/90 mt-1 italic"><i class="fa-regular fa-note-sticky mr-1"></i>Delivery Note: ${order.customer.notes}</p>` : ''}
+                  </div>
+                </div>
+
+                <!-- Prominent Turn-by-Turn Google Maps Navigation Button -->
+                <div class="shrink-0 mt-2 md:mt-0">
+                  <a 
+                    href="${getGoogleMapsNavigationUrl(order)}" 
+                    target="_blank" 
+                    rel="noopener noreferrer"
+                    class="w-full md:w-auto inline-flex items-center justify-center gap-2 px-4 py-2.5 rounded-xl bg-gradient-to-r from-blue-600 via-indigo-600 to-blue-700 hover:from-blue-500 hover:to-indigo-500 text-white font-bold text-xs transition-all shadow-lg shadow-blue-600/30 active:scale-95 border border-blue-400/40"
+                  >
+                    <i class="fa-solid fa-map-location-dot text-sm text-blue-200"></i>
+                    <span>🗺️ Navigate to Customer Location (Google Maps)</span>
+                  </a>
                 </div>
               </div>
             </div>
@@ -4172,10 +4554,16 @@ _Sent automatically from MS ZenoMart Web Application_`;
               <div>
                 <span class="text-xs text-slate-400">Grand Total: </span>
                 <span class="text-sm sm:text-base font-mono font-black text-gold-400">₹${order.total}</span>
-                <span class="text-[10px] text-emerald-400 font-semibold ml-2">(Free Delivery)</span>
+                ${order.deliveryFee > 0 ? `
+                  <span class="text-[10px] text-amber-300 font-bold ml-2 bg-amber-500/10 border border-amber-500/30 px-2.5 py-0.5 rounded-full inline-flex items-center gap-1">
+                    <i class="fa-solid fa-bolt text-[9px]"></i> VIP Fast Delivery (+₹50)
+                  </span>
+                ` : `
+                  <span class="text-[10px] text-emerald-400 font-semibold ml-2">(Free Standard Delivery)</span>
+                `}
               </div>
 
-              <div class="flex items-center gap-2">
+              <div class="flex items-center gap-2 flex-wrap">
                 ${canCancel ? `
                   <button 
                     onclick="requestOrderCancellation('${order.orderId}')" 
@@ -4194,6 +4582,17 @@ _Sent automatically from MS ZenoMart Web Application_`;
                   </button>
                 `}
 
+                <a 
+                  href="${getGoogleMapsNavigationUrl(order)}" 
+                  target="_blank" 
+                  rel="noopener noreferrer" 
+                  class="px-3.5 py-2 rounded-xl bg-blue-600/20 hover:bg-blue-600/30 border border-blue-500/40 text-blue-300 font-bold text-xs transition-all flex items-center gap-1.5"
+                  title="Open Google Maps Navigation Route"
+                >
+                  <i class="fa-solid fa-map-location-dot"></i>
+                  <span>Maps Route</span>
+                </a>
+
                 <button 
                   onclick="trackOrderWhatsApp('${order.orderId}')" 
                   class="px-4 py-2 rounded-xl bg-gradient-to-r from-emerald-600 to-teal-600 hover:from-emerald-500 hover:to-teal-500 text-white font-bold text-xs transition-all shadow-md flex items-center gap-1.5"
@@ -4211,6 +4610,11 @@ _Sent automatically from MS ZenoMart Web Application_`;
 
     function renderOrdersList() {
       renderMainOrdersSection();
+      const modalList = document.getElementById("ordersListContainer");
+      const mainList = document.getElementById("mainOrdersListContainer");
+      if (modalList && mainList && modalList !== mainList) {
+        modalList.innerHTML = mainList.innerHTML;
+      }
     }
 
     function updateOrderTimers() {
@@ -4320,9 +4724,13 @@ Please check your Airtel Payments Bank account (7979864406-i40c@axl) for this cr
       const order = orders.find(o => o.orderId === orderId);
       if (!order) return;
 
+      const mapsNavUrl = getGoogleMapsNavigationUrl(order);
+
       const msg = `👋 *ORDER STATUS INQUIRY: #${order.orderId}*
 👤 *Customer:* ${order.customer.name}
-📍 *Address:* ${order.customer.address}
+📞 *Phone:* ${order.customer.phone}
+📍 *Delivery Address:* ${order.customer.address}${order.customer.landmark ? ', ' + order.customer.landmark : ''} - ${order.customer.pincode}
+🗺️ *Google Maps Navigation:* ${mapsNavUrl}
 
 Please share the live delivery executive tracking and hyperlocal shop dispatch status.`;
 
