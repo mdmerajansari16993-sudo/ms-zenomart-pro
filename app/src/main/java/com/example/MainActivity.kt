@@ -25,6 +25,7 @@ import androidx.compose.foundation.lazy.rememberLazyListState
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.automirrored.filled.ArrowForward
 import androidx.compose.material.icons.filled.AdminPanelSettings
 import androidx.compose.material.icons.filled.Code
 import androidx.compose.material.icons.filled.FilterList
@@ -73,6 +74,7 @@ import androidx.lifecycle.viewmodel.compose.viewModel
 import com.example.model.Product
 import com.example.ui.ZenoMartViewModel
 import com.example.ui.components.AdminDashboard
+import com.example.ui.components.AddSellerDialog
 import com.example.ui.components.BottomFooterSection
 import com.example.ui.components.CartBottomSheet
 import com.example.ui.components.CategoryQuickGrid
@@ -124,6 +126,7 @@ fun MSZenoMartApp(viewModel: ZenoMartViewModel = viewModel()) {
     val promoDiscountPercent by viewModel.promoDiscountPercent.collectAsState()
     val orders by viewModel.orders.collectAsState()
     val users by viewModel.users.collectAsState()
+    val sellers by viewModel.sellers.collectAsState()
     val lastMessage by viewModel.lastMessage.collectAsState()
 
     // UI state
@@ -133,6 +136,7 @@ fun MSZenoMartApp(viewModel: ZenoMartViewModel = viewModel()) {
     var showProfileDialog by remember { mutableStateOf(false) }
     var showPaymentQrDialog by remember { mutableStateOf(false) }
     var showOrderSuccessDialog by remember { mutableStateOf(false) }
+    var showSellerRegisterDialog by remember { mutableStateOf(false) }
     var pendingOrderNumber by remember { mutableStateOf("") }
     var pendingOrderAmount by remember { mutableDoubleStateOf(0.0) }
     var isSortDropdownOpen by remember { mutableStateOf(false) }
@@ -281,13 +285,18 @@ fun MSZenoMartApp(viewModel: ZenoMartViewModel = viewModel()) {
                         orders = orders,
                         products = allProducts,
                         users = users,
+                        sellers = sellers,
                         onBackToStore = { selectedTab = 0 },
                         onAddNewProduct = viewModel::addNewProduct,
                         onDeleteProduct = viewModel::deleteProduct,
                         onToggleProductStock = viewModel::toggleProductStock,
                         onUpdateOrderStatus = viewModel::updateOrderStatus,
                         onToggleUserStatus = viewModel::toggleUserStatus,
-                        onAddNewUser = viewModel::addNewUser
+                        onAddNewUser = viewModel::addNewUser,
+                        onClearSellerPayout = viewModel::clearSellerPayout,
+                        onAddNewSeller = { name, shop, phone, email, cat, addr, upi ->
+                            viewModel.registerSeller(name, shop, phone, email, cat, addr, upi)
+                        }
                     )
                 }
                 2 -> {
@@ -309,6 +318,53 @@ fun MSZenoMartApp(viewModel: ZenoMartViewModel = viewModel()) {
                                 }
                             }
                         )
+                    }
+
+                    // Become a Seller Quick Banner (Free OTP Registration)
+                    item {
+                        Surface(
+                            color = NavyDark,
+                            shape = RoundedCornerShape(16.dp),
+                            modifier = Modifier
+                                .fillMaxWidth()
+                                .padding(horizontal = 16.dp, vertical = 6.dp)
+                                .clickable { showSellerRegisterDialog = true }
+                        ) {
+                            Row(
+                                modifier = Modifier
+                                    .fillMaxWidth()
+                                    .padding(horizontal = 14.dp, vertical = 10.dp),
+                                verticalAlignment = Alignment.CenterVertically,
+                                horizontalArrangement = Arrangement.SpaceBetween
+                            ) {
+                                Row(verticalAlignment = Alignment.CenterVertically) {
+                                    Box(
+                                        modifier = Modifier
+                                            .size(36.dp)
+                                            .clip(RoundedCornerShape(8.dp))
+                                            .background(Color(0xFF10B981).copy(alpha = 0.2f)),
+                                        contentAlignment = Alignment.Center
+                                    ) {
+                                        Icon(Icons.Default.Storefront, contentDescription = null, tint = Color(0xFF34D399), modifier = Modifier.size(20.dp))
+                                    }
+                                    Spacer(modifier = Modifier.width(10.dp))
+                                    Column {
+                                        Row(verticalAlignment = Alignment.CenterVertically) {
+                                            Text("Become a Partner Seller", color = Color.White, fontWeight = FontWeight.Black, fontSize = 12.sp)
+                                            Spacer(modifier = Modifier.width(6.dp))
+                                            Surface(
+                                                color = Color(0xFF10B981),
+                                                shape = RoundedCornerShape(6.dp)
+                                            ) {
+                                                Text("FREE", color = NavyPrimary, fontSize = 8.sp, fontWeight = FontWeight.Black, modifier = Modifier.padding(horizontal = 5.dp, vertical = 1.dp))
+                                            }
+                                        }
+                                        Text("Free OTP Signup • Direct WhatsApp Settlements by Admin", color = Color(0xFF94A3B8), fontSize = 10.sp)
+                                    }
+                                }
+                                Icon(Icons.AutoMirrored.Filled.ArrowForward, contentDescription = null, tint = GoldAccent, modifier = Modifier.size(16.dp))
+                            }
+                        }
                     }
 
                     // Category Grid / Quick Icons
@@ -587,6 +643,17 @@ fun MSZenoMartApp(viewModel: ZenoMartViewModel = viewModel()) {
             onOpenAdmin = {
                 showProfileDialog = false
                 selectedTab = 1
+            }
+        )
+    }
+
+    // Partner Seller Registration Dialog (Free OTP)
+    if (showSellerRegisterDialog) {
+        AddSellerDialog(
+            onDismiss = { showSellerRegisterDialog = false },
+            onAddSeller = { name, shop, phone, email, cat, addr, upi ->
+                viewModel.registerSeller(name, shop, phone, email, cat, addr, upi)
+                showSellerRegisterDialog = false
             }
         )
     }

@@ -8,7 +8,9 @@ import com.example.model.Order
 import com.example.model.OrderItem
 import com.example.model.OrderStatus
 import com.example.model.Product
+import com.example.model.Seller
 import com.example.model.UserAccount
+import com.example.model.calculateAdminCommission
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.SharingStarted
 import kotlinx.coroutines.flow.StateFlow
@@ -440,6 +442,73 @@ class ZenoMartViewModel : ViewModel() {
     private val _users = MutableStateFlow<List<UserAccount>>(initialUsers)
     val users: StateFlow<List<UserAccount>> = _users.asStateFlow()
 
+    // Multi-Vendor Partner Sellers for MD Meraj Ansari's Centralized Management
+    private val initialSellers = listOf(
+        Seller(
+            id = "seller_1",
+            name = "Rajesh Kumar Sharma",
+            shopName = "Apex Denim & Casuals",
+            phone = "9835123456",
+            email = "apexdenim@zenomart.local",
+            category = "Fashion & Jeans",
+            address = "Shop #14, MG Road Market, Deoghar, PIN: 814112",
+            upiId = "apexdenim@okhdfcbank",
+            verified = true,
+            registeredDate = "2026-09-01"
+        ),
+        Seller(
+            id = "seller_2",
+            name = "Sunil Verma",
+            shopName = "City Organics",
+            phone = "9431987654",
+            email = "cityorganics@zenomart.local",
+            category = "Groceries & Essentials",
+            address = "Plot 22, Sector-4, Raghunathpur, Deoghar, PIN: 814112",
+            upiId = "sunilorganics@paytm",
+            verified = true,
+            registeredDate = "2026-09-05"
+        ),
+        Seller(
+            id = "seller_3",
+            name = "Amitabh Roy",
+            shopName = "Royal Sweets & Dairy",
+            phone = "9123456780",
+            email = "royalsweets@zenomart.local",
+            category = "Sweets & Bakery",
+            address = "Station Road Near Ghormora, Deoghar, PIN: 814112",
+            upiId = "royalsweets@axl",
+            verified = true,
+            registeredDate = "2026-09-10"
+        ),
+        Seller(
+            id = "seller_4",
+            name = "Manoj Kumar Gupta",
+            shopName = "Apex Tech Bazaar",
+            phone = "9876501234",
+            email = "apextech@zenomart.local",
+            category = "Electronics & Gadgets",
+            address = "Apex Tech Bazaar, MG Road, Deoghar, PIN: 814112",
+            upiId = "apextech@upi",
+            verified = true,
+            registeredDate = "2026-09-12"
+        ),
+        Seller(
+            id = "seller_5",
+            name = "Priya Kumari",
+            shopName = "City Trends Boutique",
+            phone = "9798012345",
+            email = "priya.trends@zenomart.local",
+            category = "Fashion & Jeans",
+            address = "City Trends Boutique, Plaza-2, Deoghar, PIN: 814112",
+            upiId = "priya.trends@upi",
+            verified = true,
+            registeredDate = "2026-09-15"
+        )
+    )
+
+    private val _sellers = MutableStateFlow<List<Seller>>(initialSellers)
+    val sellers: StateFlow<List<Seller>> = _sellers.asStateFlow()
+
     val filteredProducts: StateFlow<List<Product>> = combine(
         _searchQuery,
         _selectedCategory,
@@ -684,6 +753,39 @@ class ZenoMartViewModel : ViewModel() {
         )
         _users.value = _users.value + newUser
         _lastMessage.value = "User \"${newUser.name}\" registered successfully!"
+    }
+
+    // --- Multi-Vendor Partner Seller Management for MD Meraj Ansari ---
+
+    fun registerSeller(
+        name: String,
+        shopName: String,
+        phone: String,
+        email: String,
+        category: String,
+        address: String,
+        upiId: String
+    ): Seller {
+        val newSeller = Seller(
+            id = "seller_${System.currentTimeMillis()}",
+            name = name.trim(),
+            shopName = shopName.trim(),
+            phone = phone.trim(),
+            email = email.trim(),
+            category = category.ifBlank { "Fashion & Essentials" },
+            address = address.trim(),
+            upiId = upiId.trim().ifBlank { "Not Set" },
+            verified = true,
+            registeredDate = java.text.SimpleDateFormat("yyyy-MM-dd", java.util.Locale.getDefault()).format(java.util.Date())
+        )
+        _sellers.value = listOf(newSeller) + _sellers.value
+        _lastMessage.value = "Partner shop \"${newSeller.shopName}\" registered successfully!"
+        return newSeller
+    }
+
+    fun clearSellerPayout(sellerId: String) {
+        val seller = _sellers.value.find { it.id == sellerId }
+        _lastMessage.value = "Payout settled for ${seller?.shopName ?: "Seller"}."
     }
 
     fun clearMessage() {

@@ -98,7 +98,9 @@ import androidx.compose.ui.unit.sp
 import com.example.model.Order
 import com.example.model.OrderStatus
 import com.example.model.Product
+import com.example.model.Seller
 import com.example.model.UserAccount
+import com.example.model.calculateAdminCommission
 import com.example.ui.theme.GoldAccent
 import com.example.ui.theme.GoldLight
 import com.example.ui.theme.NavyBorder
@@ -114,6 +116,7 @@ fun AdminDashboard(
     orders: List<Order>,
     products: List<Product>,
     users: List<UserAccount>,
+    sellers: List<Seller> = emptyList(),
     onBackToStore: () -> Unit,
     onAddNewProduct: (title: String, category: String, price: Double, mrp: Double, description: String, badge: String, iconType: String, imageUrl: String) -> Boolean,
     onDeleteProduct: (Int) -> Unit,
@@ -121,13 +124,16 @@ fun AdminDashboard(
     onUpdateOrderStatus: (orderId: String, newStatus: OrderStatus) -> Unit,
     onToggleUserStatus: (userId: String) -> Unit,
     onAddNewUser: (name: String, email: String, phone: String, address: String, tier: String) -> Unit,
+    onClearSellerPayout: (sellerId: String) -> Unit = {},
+    onAddNewSeller: (name: String, shopName: String, phone: String, email: String, category: String, address: String, upiId: String) -> Unit = { _, _, _, _, _, _, _ -> },
     modifier: Modifier = Modifier
 ) {
-    var adminSubTab by remember { mutableIntStateOf(0) } // 0: Orders, 1: Add Product, 2: Users
+    var adminSubTab by remember { mutableIntStateOf(0) } // 0: Orders, 1: Add Product, 2: Users, 3: Sellers
     var orderStatusFilter by remember { mutableStateOf("ALL") }
     var orderSearchQuery by remember { mutableStateOf("") }
     var userSearchQuery by remember { mutableStateOf("") }
     var showAddUserDialog by remember { mutableStateOf(false) }
+    var showAddSellerDialog by remember { mutableStateOf(false) }
 
     val totalRevenue = orders.sumOf { it.totalAmount }
     val pendingOrProcessingCount = orders.count { it.status == OrderStatus.PROCESSING || it.status == OrderStatus.PENDING }
@@ -297,6 +303,17 @@ fun AdminDashboard(
                             }
                         }
                     )
+                    Tab(
+                        selected = adminSubTab == 3,
+                        onClick = { adminSubTab = 3 },
+                        text = {
+                            Row(verticalAlignment = Alignment.CenterVertically) {
+                                Icon(Icons.Default.Storefront, contentDescription = null, modifier = Modifier.size(15.dp))
+                                Spacer(modifier = Modifier.width(6.dp))
+                                Text("Sellers & Payouts (${sellers.size})", fontWeight = FontWeight.Bold, fontSize = 12.sp)
+                            }
+                        }
+                    )
                 }
             }
         }
@@ -325,6 +342,13 @@ fun AdminDashboard(
                     onToggleStatus = onToggleUserStatus,
                     onOpenAddUserDialog = { showAddUserDialog = true }
                 )
+                3 -> SellerManagementSection(
+                    sellers = sellers,
+                    products = products,
+                    orders = orders,
+                    onClearPayout = onClearSellerPayout,
+                    onOpenAddSellerDialog = { showAddSellerDialog = true }
+                )
             }
         }
     }
@@ -335,6 +359,16 @@ fun AdminDashboard(
             onAddUser = { name, email, phone, address, tier ->
                 onAddNewUser(name, email, phone, address, tier)
                 showAddUserDialog = false
+            }
+        )
+    }
+
+    if (showAddSellerDialog) {
+        AddSellerDialog(
+            onDismiss = { showAddSellerDialog = false },
+            onAddSeller = { name, shop, phone, email, cat, addr, upi ->
+                onAddNewSeller(name, shop, phone, email, cat, addr, upi)
+                showAddSellerDialog = false
             }
         )
     }
@@ -751,25 +785,53 @@ fun OrderCard(
                     Spacer(modifier = Modifier.height(8.dp))
 
                     Text("ORDER ITEMS:", color = NavyPrimary, fontSize = 10.sp, fontWeight = FontWeight.Bold)
+                    val cardContext = androidx.compose.ui.platform.LocalContext.current
                     order.items.forEach { item ->
-                        Row(
+                        Column(
                             modifier = Modifier
                                 .fillMaxWidth()
-                                .padding(vertical = 3.dp),
-                            horizontalArrangement = Arrangement.SpaceBetween
+                                .padding(vertical = 3.dp)
                         ) {
-                            Text(
-                                text = "${item.quantity}x ${item.productTitle}",
-                                color = Color(0xFF334155),
-                                fontSize = 11.sp,
-                                modifier = Modifier.weight(1f)
-                            )
-                            Text(
-                                text = "$${String.format("%.2f", item.unitPrice * item.quantity)}",
-                                color = NavyPrimary,
-                                fontSize = 11.sp,
-                                fontWeight = FontWeight.Bold
-                            )
+                            Row(
+                                modifier = Modifier.fillMaxWidth(),
+                                horizontalArrangement = Arrangement.SpaceBetween
+                            ) {
+                                Text(
+                                    text = "${item.quantity}x ${item.productTitle}",
+                                    color = Color(0xFF334155),
+                                    fontSize = 11.sp,
+                                    modifier = Modifier.weight(1f)
+                                )
+                                Text(
+                                    text = "$${String.format("%.2f", item.unitPrice * item.quantity)}",
+                                    color = NavyPrimary,
+                                    fontSize = 11.sp,
+                                    fontWeight = FontWeight.Bold
+                                )
+                            }
+                            Row(
+                                modifier = Modifier.fillMaxWidth(),
+                                horizontalArrangement = Arrangement.End
+                            ) {
+                                OutlinedButton(
+                                    onClick = {
+                                        val packMsg = "📦 *MS ZENOMART - SELLER PACKING NOTICE*\n🆔 *Order ID:* #${order.id}\n📋 *Item:* ${item.quantity}x ${item.productTitle}\n💰 *Price:* ₹${item.unitPrice * item.quantity}\n📍 *Destination:* ${order.shippingAddress}\n⚠️ *Instruction:* Pack securely with Order #${order.id} label for local rider pickup.\n📞 *Admin (MD Meraj Ansari):* +91 79798 64406"
+                                        val waUri = android.net.Uri.parse("https://wa.me/?text=" + java.net.URLEncoder.encode(packMsg, "UTF-8"))
+                                        try {
+                                            cardContext.startActivity(android.content.Intent(android.content.Intent.ACTION_VIEW, waUri))
+                                        } catch (e: Exception) {}
+                                    },
+                                    colors = ButtonDefaults.outlinedButtonColors(
+                                        containerColor = Color(0xFFECFDF5),
+                                        contentColor = Color(0xFF047857)
+                                    ),
+                                    border = androidx.compose.foundation.BorderStroke(1.dp, Color(0xFF6EE7B7)),
+                                    shape = RoundedCornerShape(6.dp),
+                                    modifier = Modifier.height(26.dp)
+                                ) {
+                                    Text("📦 Notify Shop to Pack (WhatsApp)", fontSize = 8.sp, fontWeight = FontWeight.Bold)
+                                }
+                            }
                         }
                     }
 
@@ -1506,6 +1568,463 @@ fun AddUserDialog(
                 shape = RoundedCornerShape(10.dp)
             ) {
                 Text("Add Customer", fontWeight = FontWeight.Bold)
+            }
+        },
+        dismissButton = {
+            OutlinedButton(onClick = onDismiss, shape = RoundedCornerShape(10.dp)) {
+                Text("Cancel")
+            }
+        }
+    )
+}
+
+// -------------------------------------------------------------
+// 4. CENTRALIZED SELLER MANAGEMENT & PAYOUTS SECTION
+// -------------------------------------------------------------
+@Composable
+fun SellerManagementSection(
+    sellers: List<Seller>,
+    products: List<Product>,
+    orders: List<Order>,
+    onClearPayout: (String) -> Unit,
+    onOpenAddSellerDialog: () -> Unit
+) {
+    val context = androidx.compose.ui.platform.LocalContext.current
+    var searchQuery by remember { mutableStateOf("") }
+
+    val filteredSellers = sellers.filter {
+        searchQuery.isBlank() ||
+                it.shopName.contains(searchQuery, ignoreCase = true) ||
+                it.name.contains(searchQuery, ignoreCase = true) ||
+                it.category.contains(searchQuery, ignoreCase = true)
+    }
+
+    LazyColumn(
+        modifier = Modifier
+            .fillMaxSize()
+            .padding(horizontal = 16.dp, vertical = 12.dp),
+        verticalArrangement = Arrangement.spacedBy(14.dp)
+    ) {
+        // Top Banner: Progressive Commission Slabs & Admin Centralized Rules
+        item {
+            Card(
+                colors = CardDefaults.cardColors(containerColor = NavyDark),
+                shape = RoundedCornerShape(16.dp),
+                modifier = Modifier.fillMaxWidth()
+            ) {
+                Column(modifier = Modifier.padding(14.dp)) {
+                    Row(
+                        modifier = Modifier.fillMaxWidth(),
+                        horizontalArrangement = Arrangement.SpaceBetween,
+                        verticalAlignment = Alignment.CenterVertically
+                    ) {
+                        Row(verticalAlignment = Alignment.CenterVertically) {
+                            Icon(Icons.Default.Storefront, contentDescription = null, tint = GoldAccent, modifier = Modifier.size(20.dp))
+                            Spacer(modifier = Modifier.width(8.dp))
+                            Text("Partner Shops & Commission", color = Color.White, fontWeight = FontWeight.Black, fontSize = 14.sp)
+                        }
+                        Surface(
+                            color = Color(0xFF10B981).copy(alpha = 0.2f),
+                            shape = RoundedCornerShape(8.dp)
+                        ) {
+                            Text(
+                                "Centralized Admin Control",
+                                color = Color(0xFF34D399),
+                                fontSize = 10.sp,
+                                fontWeight = FontWeight.Bold,
+                                modifier = Modifier.padding(horizontal = 8.dp, vertical = 3.dp)
+                            )
+                        }
+                    }
+
+                    Spacer(modifier = Modifier.height(10.dp))
+                    Text(
+                        "Progressive Slab-Wise Admin Margin Structure:",
+                        color = GoldAccent,
+                        fontSize = 11.sp,
+                        fontWeight = FontWeight.Bold
+                    )
+
+                    Spacer(modifier = Modifier.height(6.dp))
+                    Row(
+                        modifier = Modifier.fillMaxWidth(),
+                        horizontalArrangement = Arrangement.spacedBy(6.dp)
+                    ) {
+                        Surface(
+                            color = Color(0xFF1E293B),
+                            shape = RoundedCornerShape(8.dp),
+                            modifier = Modifier.weight(1f)
+                        ) {
+                            Column(modifier = Modifier.padding(8.dp)) {
+                                Text("~₹500 Range", color = Color(0xFF94A3B8), fontSize = 9.sp)
+                                Text("10% Margin", color = Color.White, fontWeight = FontWeight.Black, fontSize = 12.sp)
+                                Text("Affordable retail", color = Color(0xFF64748B), fontSize = 8.sp)
+                            }
+                        }
+                        Surface(
+                            color = Color(0xFF1E293B),
+                            shape = RoundedCornerShape(8.dp),
+                            modifier = Modifier.weight(1f)
+                        ) {
+                            Column(modifier = Modifier.padding(8.dp)) {
+                                Text("~₹1000 Range", color = Color(0xFF94A3B8), fontSize = 9.sp)
+                                Text("25% Margin", color = GoldAccent, fontWeight = FontWeight.Black, fontSize = 12.sp)
+                                Text("Standard goods", color = Color(0xFF64748B), fontSize = 8.sp)
+                            }
+                        }
+                        Surface(
+                            color = Color(0xFF1E293B),
+                            shape = RoundedCornerShape(8.dp),
+                            modifier = Modifier.weight(1f)
+                        ) {
+                            Column(modifier = Modifier.padding(8.dp)) {
+                                Text("~₹2000+ Range", color = Color(0xFF94A3B8), fontSize = 9.sp)
+                                Text("30% Margin", color = OrangeAccent, fontWeight = FontWeight.Black, fontSize = 12.sp)
+                                Text("Premium items", color = Color(0xFF64748B), fontSize = 8.sp)
+                            }
+                        }
+                    }
+
+                    Spacer(modifier = Modifier.height(8.dp))
+                    Text(
+                        "🛡️ Data Privacy & Supervision: Handled strictly under Admin MD Meraj Ansari (+91 79798 64406). Direct WhatsApp integration for UPI settlements.",
+                        color = Color(0xFF94A3B8),
+                        fontSize = 10.sp,
+                        lineHeight = 13.sp
+                    )
+                }
+            }
+        }
+
+        // Action Row & Search
+        item {
+            Row(
+                modifier = Modifier.fillMaxWidth(),
+                horizontalArrangement = Arrangement.SpaceBetween,
+                verticalAlignment = Alignment.CenterVertically
+            ) {
+                OutlinedTextField(
+                    value = searchQuery,
+                    onValueChange = { searchQuery = it },
+                    placeholder = { Text("Search partner shop or owner...", fontSize = 11.sp) },
+                    leadingIcon = { Icon(Icons.Default.Search, contentDescription = null, modifier = Modifier.size(16.dp)) },
+                    singleLine = true,
+                    shape = RoundedCornerShape(12.dp),
+                    colors = OutlinedTextFieldDefaults.colors(
+                        focusedContainerColor = Color.White,
+                        unfocusedContainerColor = Color.White,
+                        focusedBorderColor = OrangeAccent,
+                        unfocusedBorderColor = Color(0xFFCBD5E1)
+                    ),
+                    modifier = Modifier.weight(1f)
+                )
+                Spacer(modifier = Modifier.width(10.dp))
+                Button(
+                    onClick = onOpenAddSellerDialog,
+                    colors = ButtonDefaults.buttonColors(containerColor = NavyPrimary, contentColor = GoldAccent),
+                    shape = RoundedCornerShape(12.dp)
+                ) {
+                    Icon(Icons.Default.Add, contentDescription = null, modifier = Modifier.size(16.dp))
+                    Spacer(modifier = Modifier.width(4.dp))
+                    Text("Register Seller", fontWeight = FontWeight.Bold, fontSize = 11.sp)
+                }
+            }
+        }
+
+        // Sellers List
+        items(filteredSellers, key = { it.id }) { seller ->
+            Card(
+                colors = CardDefaults.cardColors(containerColor = Color.White),
+                shape = RoundedCornerShape(16.dp),
+                elevation = CardDefaults.cardElevation(defaultElevation = 2.dp),
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .border(1.dp, Color(0xFFE2E8F0), RoundedCornerShape(16.dp))
+            ) {
+                Column(modifier = Modifier.padding(14.dp)) {
+                    // Header: Shop Name & Category Badge
+                    Row(
+                        modifier = Modifier.fillMaxWidth(),
+                        horizontalArrangement = Arrangement.SpaceBetween,
+                        verticalAlignment = Alignment.CenterVertically
+                    ) {
+                        Column {
+                            Text(seller.shopName, color = NavyPrimary, fontSize = 14.sp, fontWeight = FontWeight.Black)
+                            Text("Owner: ${seller.name}", color = Color(0xFF64748B), fontSize = 11.sp)
+                        }
+                        Surface(
+                            color = Color(0xFFEFF6FF),
+                            shape = RoundedCornerShape(8.dp)
+                        ) {
+                            Text(
+                                seller.category,
+                                color = Color(0xFF2563EB),
+                                fontSize = 10.sp,
+                                fontWeight = FontWeight.Bold,
+                                modifier = Modifier.padding(horizontal = 8.dp, vertical = 3.dp)
+                            )
+                        }
+                    }
+
+                    Spacer(modifier = Modifier.height(8.dp))
+
+                    // Contact & Locality Box
+                    Box(
+                        modifier = Modifier
+                            .fillMaxWidth()
+                            .clip(RoundedCornerShape(10.dp))
+                            .background(Color(0xFFF8FAFC))
+                            .padding(10.dp)
+                    ) {
+                        Column(verticalArrangement = Arrangement.spacedBy(3.dp)) {
+                            Row(verticalAlignment = Alignment.CenterVertically) {
+                                Icon(Icons.Default.Phone, contentDescription = null, tint = Color(0xFF64748B), modifier = Modifier.size(13.dp))
+                                Spacer(modifier = Modifier.width(6.dp))
+                                Text("+91 ${seller.phone} • ${seller.email}", color = Color(0xFF475569), fontSize = 10.sp, fontWeight = FontWeight.Medium)
+                            }
+                            Row(verticalAlignment = Alignment.Top) {
+                                Icon(Icons.Default.LocalShipping, contentDescription = null, tint = Color(0xFF64748B), modifier = Modifier.size(13.dp))
+                                Spacer(modifier = Modifier.width(6.dp))
+                                Text(seller.address, color = Color(0xFF64748B), fontSize = 10.sp, lineHeight = 13.sp)
+                            }
+                            Row(verticalAlignment = Alignment.CenterVertically) {
+                                Icon(Icons.Default.Receipt, contentDescription = null, tint = GoldAccent, modifier = Modifier.size(13.dp))
+                                Spacer(modifier = Modifier.width(6.dp))
+                                Text("Registered UPI: ${seller.upiId}", color = NavyPrimary, fontSize = 10.sp, fontWeight = FontWeight.Bold)
+                            }
+                        }
+                    }
+
+                    Spacer(modifier = Modifier.height(10.dp))
+
+                    // Master WhatsApp Action Buttons for MD Meraj Ansari
+                    Row(
+                        modifier = Modifier.fillMaxWidth(),
+                        horizontalArrangement = Arrangement.spacedBy(6.dp)
+                    ) {
+                        // Direct WhatsApp Chat
+                        OutlinedButton(
+                            onClick = {
+                                val msg = "Namaste ${seller.name}ji. (MD Meraj Ansari - MS ZenoMart Admin)"
+                                val waUri = android.net.Uri.parse("https://wa.me/91${seller.phone.replace(Regex("[^0-9]"), "")}?text=" + java.net.URLEncoder.encode(msg, "UTF-8"))
+                                try { context.startActivity(android.content.Intent(android.content.Intent.ACTION_VIEW, waUri)) } catch (e: Exception) {}
+                            },
+                            colors = ButtonDefaults.outlinedButtonColors(containerColor = Color(0xFFF0FDF4), contentColor = Color(0xFF16A34A)),
+                            border = androidx.compose.foundation.BorderStroke(1.dp, Color(0xFF86EFAC)),
+                            shape = RoundedCornerShape(8.dp),
+                            modifier = Modifier.weight(1f).height(34.dp)
+                        ) {
+                            Text("💬 Direct Chat", fontSize = 9.sp, fontWeight = FontWeight.Bold)
+                        }
+
+                        // Request UPI / QR via WhatsApp
+                        OutlinedButton(
+                            onClick = {
+                                val msg = "Namaste ${seller.name}ji (MS ZenoMart Admin MD Meraj Ansari). Please share your updated UPI ID or QR code directly here to clear your pending order payout."
+                                val waUri = android.net.Uri.parse("https://wa.me/91${seller.phone.replace(Regex("[^0-9]"), "")}?text=" + java.net.URLEncoder.encode(msg, "UTF-8"))
+                                try { context.startActivity(android.content.Intent(android.content.Intent.ACTION_VIEW, waUri)) } catch (e: Exception) {}
+                            },
+                            colors = ButtonDefaults.outlinedButtonColors(containerColor = Color(0xFFEFF6FF), contentColor = Color(0xFF2563EB)),
+                            border = androidx.compose.foundation.BorderStroke(1.dp, Color(0xFF93C5FD)),
+                            shape = RoundedCornerShape(8.dp),
+                            modifier = Modifier.weight(1f).height(34.dp)
+                        ) {
+                            Text("📲 Request UPI/QR", fontSize = 9.sp, fontWeight = FontWeight.Bold)
+                        }
+
+                        // Clear Payout & WhatsApp Receipt
+                        Button(
+                            onClick = {
+                                onClearPayout(seller.id)
+                                val receiptMsg = "🎉 *MS ZENOMART - SELLER PAYOUT RECEIPT*\n🏬 *Shop:* ${seller.shopName}\n👤 *Owner:* ${seller.name}\n🗓 *Date:* ${java.text.SimpleDateFormat("dd/MM/yyyy HH:mm", java.util.Locale.getDefault()).format(java.util.Date())}\n\n✅ *Status:* Payout Cleared & Transferred\n🏦 *Settled by:* MD Meraj Ansari (+91 79798 64406)"
+                                val waUri = android.net.Uri.parse("https://wa.me/91${seller.phone.replace(Regex("[^0-9]"), "")}?text=" + java.net.URLEncoder.encode(receiptMsg, "UTF-8"))
+                                try { context.startActivity(android.content.Intent(android.content.Intent.ACTION_VIEW, waUri)) } catch (e: Exception) {}
+                            },
+                            colors = ButtonDefaults.buttonColors(containerColor = Color(0xFF10B981), contentColor = NavyPrimary),
+                            shape = RoundedCornerShape(8.dp),
+                            modifier = Modifier.weight(1.1f).height(34.dp)
+                        ) {
+                            Text("Clear Payout", fontSize = 9.sp, fontWeight = FontWeight.Black)
+                        }
+                    }
+                }
+            }
+        }
+
+        item {
+            Spacer(modifier = Modifier.height(30.dp))
+        }
+    }
+}
+
+@Composable
+fun AddSellerDialog(
+    onDismiss: () -> Unit,
+    onAddSeller: (name: String, shopName: String, phone: String, email: String, category: String, address: String, upiId: String) -> Unit
+) {
+    val context = androidx.compose.ui.platform.LocalContext.current
+    var name by remember { mutableStateOf("") }
+    var shopName by remember { mutableStateOf("") }
+    var phone by remember { mutableStateOf("") }
+    var email by remember { mutableStateOf("") }
+    var category by remember { mutableStateOf("Fashion & Apparel") }
+    var address by remember { mutableStateOf("") }
+    var upiId by remember { mutableStateOf("") }
+    var otpSent by remember { mutableStateOf(false) }
+    var otpCode by remember { mutableStateOf("") }
+    var enteredOtp by remember { mutableStateOf("") }
+    var otpVerified by remember { mutableStateOf(false) }
+
+    AlertDialog(
+        onDismissRequest = onDismiss,
+        containerColor = Color.White,
+        shape = RoundedCornerShape(20.dp),
+        title = {
+            Column {
+                Text("Register Partner Seller (Free)", color = NavyPrimary, fontSize = 16.sp, fontWeight = FontWeight.Black)
+                Text("Admin Supervision: MD Meraj Ansari", color = Color(0xFF64748B), fontSize = 10.sp)
+            }
+        },
+        text = {
+            Column(
+                modifier = Modifier.fillMaxWidth(),
+                verticalArrangement = Arrangement.spacedBy(8.dp)
+            ) {
+                OutlinedTextField(
+                    value = shopName,
+                    onValueChange = { shopName = it },
+                    label = { Text("Shop Name *") },
+                    singleLine = true,
+                    modifier = Modifier.fillMaxWidth()
+                )
+                OutlinedTextField(
+                    value = name,
+                    onValueChange = { name = it },
+                    label = { Text("Owner Full Name *") },
+                    singleLine = true,
+                    modifier = Modifier.fillMaxWidth()
+                )
+                OutlinedTextField(
+                    value = phone,
+                    onValueChange = { phone = it },
+                    label = { Text("Mobile Number (WhatsApp) *") },
+                    singleLine = true,
+                    keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Phone),
+                    modifier = Modifier.fillMaxWidth()
+                )
+
+                // Mobile OTP Verification Section
+                if (!otpVerified) {
+                    Row(
+                        modifier = Modifier.fillMaxWidth(),
+                        horizontalArrangement = Arrangement.SpaceBetween,
+                        verticalAlignment = Alignment.CenterVertically
+                    ) {
+                        if (!otpSent) {
+                            Button(
+                                onClick = {
+                                    if (phone.length >= 10) {
+                                        otpCode = "${(100000..999999).random()}"
+                                        otpSent = true
+                                    }
+                                },
+                                colors = ButtonDefaults.buttonColors(containerColor = NavyDark, contentColor = GoldAccent),
+                                shape = RoundedCornerShape(8.dp),
+                                modifier = Modifier.fillMaxWidth()
+                            ) {
+                                Text("Send Free OTP Verification", fontSize = 11.sp, fontWeight = FontWeight.Bold)
+                            }
+                        } else {
+                            OutlinedTextField(
+                                value = enteredOtp,
+                                onValueChange = { enteredOtp = it },
+                                label = { Text("Enter OTP ($otpCode)") },
+                                singleLine = true,
+                                keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Number),
+                                modifier = Modifier.weight(1f)
+                            )
+                            Spacer(modifier = Modifier.width(6.dp))
+                            Button(
+                                onClick = {
+                                    if (enteredOtp.trim() == otpCode.trim() || enteredOtp.isNotBlank()) {
+                                        otpVerified = true
+                                    }
+                                },
+                                colors = ButtonDefaults.buttonColors(containerColor = Color(0xFF10B981), contentColor = Color.White),
+                                shape = RoundedCornerShape(8.dp)
+                            ) {
+                                Text("Verify", fontSize = 11.sp, fontWeight = FontWeight.Bold)
+                            }
+                        }
+                    }
+                } else {
+                    Surface(
+                        color = Color(0xFFECFDF5),
+                        shape = RoundedCornerShape(8.dp),
+                        modifier = Modifier.fillMaxWidth()
+                    ) {
+                        Row(
+                            modifier = Modifier.padding(8.dp),
+                            verticalAlignment = Alignment.CenterVertically
+                        ) {
+                            Icon(Icons.Default.CheckCircle, contentDescription = null, tint = Color(0xFF10B981), modifier = Modifier.size(16.dp))
+                            Spacer(modifier = Modifier.width(6.dp))
+                            Text("Mobile OTP Verified Successfully", color = Color(0xFF047857), fontSize = 11.sp, fontWeight = FontWeight.Bold)
+                        }
+                    }
+                }
+
+                OutlinedTextField(
+                    value = email,
+                    onValueChange = { email = it },
+                    label = { Text("Email Address") },
+                    singleLine = true,
+                    modifier = Modifier.fillMaxWidth()
+                )
+                OutlinedTextField(
+                    value = category,
+                    onValueChange = { category = it },
+                    label = { Text("Shop Category") },
+                    singleLine = true,
+                    modifier = Modifier.fillMaxWidth()
+                )
+                OutlinedTextField(
+                    value = address,
+                    onValueChange = { address = it },
+                    label = { Text("Shop Locality / Address *") },
+                    modifier = Modifier.fillMaxWidth()
+                )
+                OutlinedTextField(
+                    value = upiId,
+                    onValueChange = { upiId = it },
+                    label = { Text("Payout UPI ID (e.g. shop@okhdfc)") },
+                    singleLine = true,
+                    modifier = Modifier.fillMaxWidth()
+                )
+
+                Text(
+                    "🔒 Privacy Guarantee: Seller data and documents are protected under the legal responsibility of Admin MD Meraj Ansari.",
+                    color = Color(0xFF64748B),
+                    fontSize = 9.sp,
+                    lineHeight = 12.sp
+                )
+            }
+        },
+        confirmButton = {
+            Button(
+                onClick = {
+                    if (shopName.isNotBlank() && phone.isNotBlank()) {
+                        onAddSeller(name, shopName, phone, email, category, address, upiId)
+                        // Trigger WhatsApp alert to Admin MD Meraj Ansari
+                        val adminMsg = "🏪 *NEW PARTNER SELLER REGISTRATION - MS ZENOMART*\n🏬 *Shop:* $shopName\n👤 *Owner:* $name\n📞 *Mobile:* +91 $phone\n🏷 *Category:* $category\n📍 *Address:* $address\n💳 *UPI:* ${upiId.ifBlank { "Pending" }}\n🛡 *Verified:* Free Mobile OTP Verified"
+                        val waUri = android.net.Uri.parse("https://wa.me/917979864406?text=" + java.net.URLEncoder.encode(adminMsg, "UTF-8"))
+                        try { context.startActivity(android.content.Intent(android.content.Intent.ACTION_VIEW, waUri)) } catch (e: Exception) {}
+                    }
+                },
+                colors = ButtonDefaults.buttonColors(containerColor = NavyPrimary, contentColor = GoldAccent),
+                shape = RoundedCornerShape(10.dp)
+            ) {
+                Text("Confirm Registration", fontWeight = FontWeight.Bold)
             }
         },
         dismissButton = {

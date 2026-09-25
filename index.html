@@ -216,6 +216,18 @@
             <span id="ordersCountBadge" class="bg-accent-orange text-white text-[10px] font-black w-4 h-4 rounded-full flex items-center justify-center">0</span>
           </button>
 
+          <!-- Become a Seller Button -->
+          <button 
+            id="headerSellerBtn"
+            onclick="handleSellerBtnClick()" 
+            class="px-2.5 sm:px-3 py-2 rounded-xl bg-gradient-to-r from-emerald-600/30 to-teal-600/30 hover:from-emerald-600/50 hover:to-teal-600/50 text-emerald-300 border border-emerald-500/40 text-xs font-bold flex items-center gap-1.5 transition-all shadow-sm active:scale-95"
+            title="Register as a Partner Seller on MS ZenoMart"
+          >
+            <i class="fa-solid fa-shop text-emerald-400"></i>
+            <span class="hidden md:inline" id="headerSellerBtnLabel">Become a Seller</span>
+            <span class="bg-emerald-500 text-navy-950 text-[9px] font-black px-1.5 py-0.2 rounded-full">FREE</span>
+          </button>
+
           <!-- Cart Button -->
           <button 
             onclick="openCartDrawer()" 
@@ -295,6 +307,9 @@
         <span>Logged in as Store Owner: <strong class="underline">mdmerajansari16993@gmail.com</strong></span>
       </div>
       <div class="flex items-center gap-2">
+        <button onclick="openAdminSellerModal()" class="bg-navy-950 hover:bg-navy-900 text-emerald-300 border border-emerald-500/50 px-3 py-1 rounded-lg text-xs font-black flex items-center gap-1.5 transition-all shadow-sm">
+          <i class="fa-solid fa-users-gear text-emerald-400"></i> Manage Sellers & Payouts
+        </button>
         <button onclick="openAddProductModal()" class="bg-navy-950 hover:bg-navy-900 text-white px-3 py-1 rounded-lg text-xs font-black flex items-center gap-1 transition-all">
           <i class="fa-solid fa-plus text-gold-400"></i> Add New Product
         </button>
@@ -310,7 +325,7 @@
   <!-- ======================================================== -->
   <main class="flex-1 max-w-7xl w-full mx-auto px-4 sm:px-6 lg:px-8 py-5 pb-24 md:pb-8">
     
-    <!-- Top View Switcher (Storefront vs My Orders) -->
+    <!-- Top View Switcher (Storefront vs My Orders vs Seller Hub) -->
     <div class="flex items-center justify-between flex-wrap gap-3 mb-5">
       <div class="flex items-center gap-1.5 bg-navy-900/90 p-1.5 rounded-2xl border border-navy-800 shadow-lg">
         <button 
@@ -329,6 +344,15 @@
           <i class="fa-solid fa-truck-fast text-accent-orange"></i>
           <span>My Orders & Tracking</span>
           <span id="tabOrdersBadge" class="bg-accent-orange text-white text-[10px] font-black px-1.5 py-0.2 rounded-full">0</span>
+        </button>
+        <button 
+          id="tabSellerBtn" 
+          onclick="handleSellerBtnClick()" 
+          class="px-3.5 py-2 rounded-xl text-xs font-bold flex items-center gap-1.5 transition-all text-emerald-400 hover:text-emerald-300 hover:bg-navy-800/60"
+        >
+          <i class="fa-solid fa-shop"></i>
+          <span>Seller Hub</span>
+          <span class="bg-emerald-500 text-navy-950 text-[9px] font-black px-1.5 py-0.2 rounded-full">FREE</span>
         </button>
       </div>
 
@@ -832,9 +856,13 @@
             id="prodPriceInput" 
             step="1" 
             min="0" 
+            oninput="updateProductCommissionPreview(this.value)"
             placeholder="e.g. 250" 
             class="w-full bg-navy-950 border border-navy-700 rounded-xl px-3 py-2 text-white placeholder-slate-500 focus:outline-none focus:border-gold-500 font-bold text-gold-400"
           />
+          <div id="productPriceCommissionPreview" class="text-[10px] text-emerald-400 font-semibold mt-1">
+            Admin: 10% (₹25) • Seller: ₹225
+          </div>
         </div>
         <div>
           <label class="block text-slate-300 font-semibold mb-1">Original MRP (₹)</label>
@@ -920,6 +948,440 @@
         </button>
       </div>
     </form>
+  </div>
+
+  <!-- ======================================================== -->
+  <!-- MODAL 2B: BECOME A SELLER / FREE REGISTRATION MODAL       -->
+  <!-- ======================================================== -->
+  <div id="sellerRegisterModalBackdrop" onclick="closeSellerRegisterModal()" class="fixed inset-0 bg-navy-950/85 backdrop-blur-md z-50 transition-opacity duration-300 opacity-0 pointer-events-none"></div>
+  <div id="sellerRegisterModal" class="fixed top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-11/12 max-w-lg z-50 bg-navy-900 border border-emerald-500/50 rounded-3xl p-6 sm:p-7 shadow-2xl max-h-[92vh] overflow-y-auto opacity-0 pointer-events-none transition-all duration-300">
+    
+    <!-- Modal Header -->
+    <div class="flex items-center justify-between mb-4 border-b border-navy-800 pb-3">
+      <div class="flex items-center gap-2.5">
+        <div class="w-10 h-10 rounded-2xl bg-emerald-500/20 text-emerald-400 flex items-center justify-center text-lg border border-emerald-500/30">
+          <i class="fa-solid fa-shop"></i>
+        </div>
+        <div>
+          <div class="flex items-center gap-2">
+            <h3 class="text-sm font-bold text-white">Join MS ZenoMart Partner Network</h3>
+            <span class="bg-emerald-500 text-navy-950 text-[9px] font-black px-2 py-0.5 rounded-full">100% FREE</span>
+          </div>
+          <p class="text-[10px] text-slate-400">Sell to thousands of local customers in Deoghar & surrounding zones</p>
+        </div>
+      </div>
+      <button onclick="closeSellerRegisterModal()" class="text-slate-400 hover:text-white text-base">
+        <i class="fa-solid fa-xmark"></i>
+      </button>
+    </div>
+
+    <!-- Strict Legal & Data Privacy Guarantee Banner -->
+    <div class="bg-gradient-to-r from-emerald-950/80 via-navy-950 to-emerald-950/80 border border-emerald-500/40 rounded-2xl p-3.5 mb-4 text-xs">
+      <div class="flex items-start gap-2.5">
+        <div class="w-7 h-7 rounded-lg bg-emerald-500/20 text-emerald-400 flex items-center justify-center shrink-0 mt-0.5">
+          <i class="fa-solid fa-shield-halved text-sm"></i>
+        </div>
+        <div>
+          <p class="font-bold text-emerald-300 text-xs flex items-center gap-1.5">
+            <span>Admin Data Privacy & Fiduciary Guarantee</span>
+            <span class="text-[9px] bg-emerald-500/20 text-emerald-400 px-1.5 py-0.2 rounded font-mono">100% SECURE</span>
+          </p>
+          <p class="text-[10px] text-slate-300 mt-1 leading-relaxed">
+            All seller registration documents, contact details, shop address, and banking/UPI data are strictly protected and kept confidential under the direct personal supervision and legal fiduciary responsibility of Admin <strong class="text-white">MD Meraj Ansari</strong>. Zero public exposure.
+          </p>
+        </div>
+      </div>
+    </div>
+
+    <!-- Seller Registration Form -->
+    <form id="sellerRegisterForm" onsubmit="handleSellerRegisterSubmit(event)" class="space-y-3 text-xs">
+      
+      <div class="grid grid-cols-1 sm:grid-cols-2 gap-3">
+        <div>
+          <label class="block text-slate-300 font-semibold mb-1">Seller Full Name *</label>
+          <input 
+            type="text" 
+            id="sellerRegName" 
+            required 
+            placeholder="e.g. Rajesh Kumar Sharma" 
+            class="w-full bg-navy-950 border border-navy-700 rounded-xl px-3 py-2 text-white placeholder-slate-500 focus:outline-none focus:border-emerald-500"
+          />
+        </div>
+        <div>
+          <label class="block text-slate-300 font-semibold mb-1">Shop / Business Name *</label>
+          <input 
+            type="text" 
+            id="sellerRegShop" 
+            required 
+            placeholder="e.g. Apex Denim & Casuals" 
+            class="w-full bg-navy-950 border border-navy-700 rounded-xl px-3 py-2 text-white placeholder-slate-500 focus:outline-none focus:border-emerald-500 font-bold text-emerald-400"
+          />
+        </div>
+      </div>
+
+      <div class="grid grid-cols-1 sm:grid-cols-2 gap-3">
+        <div>
+          <label class="block text-slate-300 font-semibold mb-1">WhatsApp Mobile Number *</label>
+          <div class="relative">
+            <span class="absolute left-3 top-1/2 -translate-y-1/2 text-slate-400 text-xs font-mono">+91</span>
+            <input 
+              type="tel" 
+              id="sellerRegPhone" 
+              required 
+              maxlength="10"
+              placeholder="10-digit number" 
+              class="w-full bg-navy-950 border border-navy-700 rounded-xl pl-10 pr-3 py-2 text-white placeholder-slate-500 focus:outline-none focus:border-emerald-500 font-mono"
+            />
+          </div>
+          <span class="text-[9px] text-slate-400 mt-0.5 block">Used for order packaging alerts</span>
+        </div>
+        <div>
+          <label class="block text-slate-300 font-semibold mb-1">Email Address *</label>
+          <input 
+            type="email" 
+            id="sellerRegEmail" 
+            required 
+            placeholder="e.g. apexdenim@gmail.com" 
+            class="w-full bg-navy-950 border border-navy-700 rounded-xl px-3 py-2 text-white placeholder-slate-500 focus:outline-none focus:border-emerald-500"
+          />
+        </div>
+      </div>
+
+      <div class="grid grid-cols-1 sm:grid-cols-2 gap-3">
+        <div>
+          <label class="block text-slate-300 font-semibold mb-1">Shop Category *</label>
+          <select 
+            id="sellerRegCategory" 
+            class="w-full bg-navy-950 border border-navy-700 rounded-xl px-3 py-2 text-white focus:outline-none focus:border-emerald-500 text-xs"
+          >
+            <option value="Fashion & Jeans">Fashion & Jeans</option>
+            <option value="Groceries & Essentials">Groceries & Essentials</option>
+            <option value="Electronics & Gadgets">Electronics & Gadgets</option>
+            <option value="Sweets & Bakery">Sweets & Bakery</option>
+            <option value="Footwear & Shoes">Footwear & Shoes</option>
+            <option value="Daily Home Goods">Daily Home Goods</option>
+            <option value="Branded Wallets & Leather">Branded Wallets & Leather</option>
+          </select>
+        </div>
+        <div>
+          <label class="block text-slate-300 font-semibold mb-1">Payout UPI ID (PhonePe/GPay)</label>
+          <input 
+            type="text" 
+            id="sellerRegUpi" 
+            placeholder="e.g. shopname@okhdfcbank" 
+            class="w-full bg-navy-950 border border-navy-700 rounded-xl px-3 py-2 text-white placeholder-slate-500 focus:outline-none focus:border-emerald-500 font-mono"
+          />
+        </div>
+      </div>
+
+      <div>
+        <label class="block text-slate-300 font-semibold mb-1">Shop Address & Locality / Village *</label>
+        <textarea 
+          id="sellerRegAddress" 
+          rows="2" 
+          required 
+          placeholder="Shop #, Market name, Road, Village/Sector, Deoghar, PIN: 814112" 
+          class="w-full bg-navy-950 border border-navy-700 rounded-xl px-3 py-2 text-white placeholder-slate-500 focus:outline-none focus:border-emerald-500"
+        ></textarea>
+      </div>
+
+      <!-- FREE Mobile/Email OTP Verification Box -->
+      <div class="bg-navy-950 border border-emerald-500/30 rounded-2xl p-3.5">
+        <div class="flex items-center justify-between mb-2">
+          <span class="font-bold text-white text-xs flex items-center gap-1.5">
+            <i class="fa-solid fa-key text-gold-400"></i>
+            <span>Free OTP Mobile / Email Verification</span>
+          </span>
+          <button 
+            type="button" 
+            id="sellerSendOtpBtn"
+            onclick="sendSellerOtpCode()" 
+            class="px-2.5 py-1 rounded-lg bg-emerald-500/20 hover:bg-emerald-500/30 text-emerald-300 border border-emerald-500/40 text-[10px] font-bold transition-all"
+          >
+            Send OTP Code
+          </button>
+        </div>
+        
+        <!-- Live OTP Dispatch Toast / Display -->
+        <div id="sellerOtpAlertBox" class="hidden mb-2.5 p-2 rounded-xl bg-emerald-500/15 border border-emerald-500/40 text-[11px] text-emerald-300 flex items-center justify-between">
+          <span><i class="fa-solid fa-mobile-screen-button mr-1"></i> OTP sent to your number: <strong id="sellerOtpCodeDisplay" class="font-mono text-white tracking-widest text-xs bg-navy-950 px-2 py-0.5 rounded"></strong></span>
+          <span class="text-[9px] text-slate-400">Valid 10 mins</span>
+        </div>
+
+        <div class="flex items-center gap-2">
+          <input 
+            type="text" 
+            id="sellerOtpInput" 
+            maxlength="6" 
+            placeholder="Enter 6-digit OTP code" 
+            class="flex-1 bg-navy-900 border border-navy-700 rounded-xl px-3 py-2 text-white placeholder-slate-500 font-mono text-center tracking-widest focus:outline-none focus:border-emerald-500 text-xs"
+          />
+          <span class="text-[10px] text-slate-400 shrink-0">Click 'Send OTP' above</span>
+        </div>
+      </div>
+
+      <!-- Action Buttons -->
+      <div class="flex items-center gap-3 pt-3 border-t border-navy-800">
+        <button 
+          type="button" 
+          onclick="closeSellerRegisterModal()" 
+          class="w-1/3 py-2.5 rounded-xl bg-navy-800 hover:bg-navy-700 text-slate-300 font-bold transition-colors"
+        >
+          Cancel
+        </button>
+        <button 
+          type="submit" 
+          class="w-2/3 py-2.5 rounded-xl bg-gradient-to-r from-emerald-500 to-teal-500 text-navy-950 font-black hover:from-emerald-400 hover:to-teal-400 shadow-lg shadow-emerald-500/20 transition-all flex items-center justify-center gap-2"
+        >
+          <i class="fa-solid fa-circle-check"></i>
+          <span>Verify OTP & Register (Free)</span>
+        </button>
+      </div>
+
+      <div class="text-center pt-1 text-[11px] text-slate-400">
+        Already registered? 
+        <button type="button" onclick="closeSellerRegisterModal(); openSellerDashboardModal();" class="text-emerald-400 hover:underline font-bold">
+          Open Seller Portal
+        </button>
+      </div>
+    </form>
+  </div>
+
+  <!-- ======================================================== -->
+  <!-- MODAL 2C: SELLER DASHBOARD & PRODUCT PORTAL              -->
+  <!-- ======================================================== -->
+  <div id="sellerDashboardModalBackdrop" onclick="closeSellerDashboardModal()" class="fixed inset-0 bg-navy-950/85 backdrop-blur-md z-50 transition-opacity duration-300 opacity-0 pointer-events-none"></div>
+  <div id="sellerDashboardModal" class="fixed top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-11/12 max-w-2xl z-50 bg-navy-900 border border-emerald-500/40 rounded-3xl p-5 sm:p-6 shadow-2xl max-h-[92vh] overflow-y-auto opacity-0 pointer-events-none transition-all duration-300">
+    
+    <!-- Dashboard Header -->
+    <div class="flex flex-wrap items-center justify-between gap-3 mb-4 border-b border-navy-800 pb-3">
+      <div class="flex items-center gap-2.5">
+        <div class="w-10 h-10 rounded-2xl bg-gradient-to-br from-emerald-500/20 to-teal-500/20 text-emerald-400 flex items-center justify-center text-lg border border-emerald-500/40">
+          <i class="fa-solid fa-store"></i>
+        </div>
+        <div>
+          <div class="flex items-center gap-2 flex-wrap">
+            <h3 class="text-sm sm:text-base font-black text-white" id="sellerDashShopName">Partner Shop Portal</h3>
+            <span class="text-[9px] bg-emerald-500/20 border border-emerald-500/40 text-emerald-300 px-2 py-0.5 rounded-full font-bold inline-flex items-center gap-1">
+              <i class="fa-solid fa-circle-check text-[8px]"></i> Verified Partner Shop
+            </span>
+          </div>
+          <p class="text-[11px] text-slate-400" id="sellerDashOwnerName">Supervised by Admin MD Meraj Ansari</p>
+        </div>
+      </div>
+
+      <div class="flex items-center gap-2">
+        <button 
+          onclick="openSellerAddProductModal()" 
+          class="px-3 py-1.5 rounded-xl bg-gradient-to-r from-emerald-500 to-teal-500 text-navy-950 font-black text-xs hover:from-emerald-400 transition-all shadow-md flex items-center gap-1.5"
+        >
+          <i class="fa-solid fa-plus"></i> Add Product
+        </button>
+        <button onclick="closeSellerDashboardModal()" class="text-slate-400 hover:text-white text-base p-1">
+          <i class="fa-solid fa-xmark"></i>
+        </button>
+      </div>
+    </div>
+
+    <!-- Progressive Commission & Payout Policy Banner -->
+    <div class="bg-navy-950 border border-gold-500/30 rounded-2xl p-3 mb-4 text-xs">
+      <div class="flex items-center justify-between flex-wrap gap-2 text-[11px]">
+        <div class="flex items-center gap-2 text-slate-300">
+          <i class="fa-solid fa-chart-line text-gold-400"></i>
+          <span class="font-bold text-white">Dynamic Commission Slabs:</span>
+          <span>~₹500: <strong class="text-gold-400">10%</strong></span>
+          <span>• ~₹1000: <strong class="text-gold-400">25%</strong></span>
+          <span>• ~₹2000+: <strong class="text-gold-400">30%</strong></span>
+        </div>
+        <span class="text-[10px] text-emerald-400 font-semibold">All customer orders flow to Admin first</span>
+      </div>
+    </div>
+
+    <!-- Live Performance KPIs -->
+    <div class="grid grid-cols-2 sm:grid-cols-4 gap-2.5 mb-5 text-center">
+      <div class="bg-navy-950 border border-navy-800 rounded-2xl p-3">
+        <span class="text-[10px] text-slate-400 uppercase font-bold block">My Listed Items</span>
+        <span class="text-base sm:text-lg font-black text-white" id="sellerDashProductCount">0</span>
+      </div>
+      <div class="bg-navy-950 border border-navy-800 rounded-2xl p-3">
+        <span class="text-[10px] text-slate-400 uppercase font-bold block">Orders Received</span>
+        <span class="text-base sm:text-lg font-black text-accent-orange" id="sellerDashOrderCount">0</span>
+      </div>
+      <div class="bg-navy-950 border border-navy-800 rounded-2xl p-3">
+        <span class="text-[10px] text-slate-400 uppercase font-bold block">Gross Sales</span>
+        <span class="text-base sm:text-lg font-mono font-black text-gold-400" id="sellerDashGrossSales">₹0</span>
+      </div>
+      <div class="bg-navy-950 border border-navy-800 rounded-2xl p-3">
+        <span class="text-[10px] text-slate-400 uppercase font-bold block">Net Payout Due</span>
+        <span class="text-base sm:text-lg font-mono font-black text-emerald-400" id="sellerDashNetPayout">₹0</span>
+      </div>
+    </div>
+
+    <!-- Dashboard Sub-Tabs -->
+    <div class="flex items-center gap-2 mb-4 border-b border-navy-800 pb-2">
+      <button 
+        id="sellerTabBtnProducts" 
+        onclick="switchSellerDashboardTab('products')" 
+        class="px-3.5 py-1.5 rounded-xl text-xs font-bold transition-all bg-emerald-500 text-navy-950"
+      >
+        <i class="fa-solid fa-boxes-stacked mr-1"></i> My Products
+      </button>
+      <button 
+        id="sellerTabBtnOrders" 
+        onclick="switchSellerDashboardTab('orders')" 
+        class="px-3.5 py-1.5 rounded-xl text-xs font-bold transition-all text-slate-400 hover:text-white"
+      >
+        <i class="fa-solid fa-truck-ramp-box mr-1"></i> Packing Orders
+      </button>
+      <button 
+        id="sellerTabBtnPayouts" 
+        onclick="switchSellerDashboardTab('payouts')" 
+        class="px-3.5 py-1.5 rounded-xl text-xs font-bold transition-all text-slate-400 hover:text-white"
+      >
+        <i class="fa-solid fa-wallet mr-1"></i> Payout & Settlement
+      </button>
+    </div>
+
+    <!-- Tab 1: My Listed Products -->
+    <div id="sellerSectionProducts" class="space-y-3">
+      <div id="sellerProductsList" class="space-y-2 max-h-72 overflow-y-auto pr-1">
+        <!-- Injected dynamically -->
+      </div>
+    </div>
+
+    <!-- Tab 2: Orders to Pack for Pickup -->
+    <div id="sellerSectionOrders" class="hidden space-y-3">
+      <div id="sellerOrdersList" class="space-y-3 max-h-72 overflow-y-auto pr-1">
+        <!-- Injected dynamically -->
+      </div>
+    </div>
+
+    <!-- Tab 3: Payouts & Settlement -->
+    <div id="sellerSectionPayouts" class="hidden space-y-3">
+      <div class="bg-navy-950 border border-navy-800 rounded-2xl p-4 text-xs">
+        <h4 class="font-bold text-white mb-2 flex items-center gap-1.5">
+          <i class="fa-solid fa-building-columns text-emerald-400"></i>
+          <span>Direct Settlement by Admin MD Meraj Ansari</span>
+        </h4>
+        <p class="text-slate-300 leading-relaxed text-[11px] mb-3">
+          Customer payments are securely collected via the Admin UPI QR Code or Cash on Delivery. After progressive commission deduction (10% / 25% / 30%), your net seller payout is transferred directly to your registered UPI ID/Bank account upon order fulfillment.
+        </p>
+        <div class="flex flex-wrap items-center justify-between gap-3 pt-3 border-t border-navy-800">
+          <div>
+            <span class="text-slate-400 text-[10px] block">Registered Payout UPI ID:</span>
+            <span class="text-white font-mono font-bold text-xs" id="sellerDashUpiDisplay">Not set</span>
+          </div>
+          <button 
+            type="button" 
+            onclick="requestSellerPayoutWhatsApp()" 
+            class="px-4 py-2 rounded-xl bg-gradient-to-r from-emerald-600 to-teal-600 hover:from-emerald-500 text-white font-bold text-xs transition-all shadow-md flex items-center gap-1.5"
+          >
+            <i class="fa-brands fa-whatsapp text-sm"></i>
+            <span>Request Payout Settlement on WhatsApp</span>
+          </button>
+        </div>
+      </div>
+    </div>
+
+    <!-- Quick Footer Actions -->
+    <div class="mt-5 pt-3 border-t border-navy-800 flex items-center justify-between flex-wrap gap-2 text-xs">
+      <button 
+        onclick="openAdminChatFromSeller()" 
+        class="text-emerald-400 hover:underline flex items-center gap-1 text-[11px]"
+      >
+        <i class="fa-brands fa-whatsapp"></i> Chat with Admin MD Meraj Ansari
+      </button>
+      <button 
+        onclick="sellerLogout()" 
+        class="text-slate-400 hover:text-red-400 text-[11px]"
+      >
+        Switch / Sign Out of Seller Account
+      </button>
+    </div>
+  </div>
+
+  <!-- ======================================================== -->
+  <!-- MODAL 2D: CENTRALIZED ADMIN SELLER MANAGEMENT & PAYOUTS   -->
+  <!-- ======================================================== -->
+  <div id="adminSellerModalBackdrop" onclick="closeAdminSellerModal()" class="fixed inset-0 bg-navy-950/85 backdrop-blur-md z-50 transition-opacity duration-300 opacity-0 pointer-events-none"></div>
+  <div id="adminSellerModal" class="fixed top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-11/12 max-w-3xl z-50 bg-navy-900 border border-gold-500/50 rounded-3xl p-5 sm:p-6 shadow-2xl max-h-[92vh] overflow-y-auto opacity-0 pointer-events-none transition-all duration-300">
+    
+    <!-- Modal Header -->
+    <div class="flex items-center justify-between mb-4 border-b border-navy-800 pb-3">
+      <div class="flex items-center gap-2.5">
+        <div class="w-10 h-10 rounded-2xl bg-gold-500/20 text-gold-400 flex items-center justify-center text-lg border border-gold-500/40">
+          <i class="fa-solid fa-users-gear"></i>
+        </div>
+        <div>
+          <div class="flex items-center gap-2">
+            <h3 class="text-sm sm:text-base font-black text-white">Centralized WhatsApp Seller Management & Payouts</h3>
+            <span class="bg-navy-950 text-gold-400 border border-gold-500/40 text-[9px] font-black px-2 py-0.5 rounded uppercase">Owner Console</span>
+          </div>
+          <p class="text-[11px] text-slate-400">Direct WhatsApp seller chat, UPI ID/QR requests, and progressive commission settlements</p>
+        </div>
+      </div>
+      <button onclick="closeAdminSellerModal()" class="text-slate-400 hover:text-white text-base p-1">
+        <i class="fa-solid fa-xmark"></i>
+      </button>
+    </div>
+
+    <!-- Admin Overview KPIs -->
+    <div class="grid grid-cols-2 sm:grid-cols-4 gap-2.5 mb-4 text-center">
+      <div class="bg-navy-950 border border-navy-800 rounded-2xl p-3">
+        <span class="text-[10px] text-slate-400 uppercase font-bold block">Registered Sellers</span>
+        <span class="text-base sm:text-lg font-black text-emerald-400" id="adminTotalSellersCount">0</span>
+      </div>
+      <div class="bg-navy-950 border border-navy-800 rounded-2xl p-3">
+        <span class="text-[10px] text-slate-400 uppercase font-bold block">Partner Products</span>
+        <span class="text-base sm:text-lg font-black text-white" id="adminTotalSellerProductsCount">0</span>
+      </div>
+      <div class="bg-navy-950 border border-navy-800 rounded-2xl p-3">
+        <span class="text-[10px] text-slate-400 uppercase font-bold block">Admin Margin Earned</span>
+        <span class="text-base sm:text-lg font-mono font-black text-gold-400" id="adminTotalCommissionEarned">₹0</span>
+      </div>
+      <div class="bg-navy-950 border border-navy-800 rounded-2xl p-3">
+        <span class="text-[10px] text-slate-400 uppercase font-bold block">Total Seller Payouts</span>
+        <span class="text-base sm:text-lg font-mono font-black text-blue-400" id="adminTotalSellerPayouts">₹0</span>
+      </div>
+    </div>
+
+    <!-- Progressive Commission Slab Rule Card -->
+    <div class="bg-navy-950/90 border border-gold-500/30 rounded-2xl p-3 mb-4 text-xs">
+      <div class="flex items-center justify-between flex-wrap gap-2 text-[11px]">
+        <div class="font-bold text-white flex items-center gap-1.5">
+          <i class="fa-solid fa-scale-balanced text-gold-400"></i>
+          <span>Progressive Admin Commission Rule:</span>
+        </div>
+        <div class="flex items-center gap-3 text-slate-300">
+          <span class="bg-navy-900 px-2 py-0.5 rounded border border-navy-700">~₹500: <strong class="text-gold-400">10% Margin</strong></span>
+          <span class="bg-navy-900 px-2 py-0.5 rounded border border-navy-700">~₹1000: <strong class="text-gold-400">25% Margin</strong></span>
+          <span class="bg-navy-900 px-2 py-0.5 rounded border border-navy-700">~₹2000+: <strong class="text-gold-400">30% Margin</strong></span>
+        </div>
+      </div>
+    </div>
+
+    <!-- Registered Sellers List Container -->
+    <div class="space-y-3 mb-4">
+      <div class="flex items-center justify-between">
+        <h4 class="text-xs font-bold text-slate-300 uppercase tracking-wider">All Registered Partner Shops</h4>
+        <span class="text-[10px] text-slate-400">Direct WhatsApp communication & instant payout clearance</span>
+      </div>
+      <div id="adminSellersListContainer" class="space-y-3 max-h-80 overflow-y-auto pr-1">
+        <!-- Injected dynamically -->
+      </div>
+    </div>
+
+    <!-- Modal Footer -->
+    <div class="pt-3 border-t border-navy-800 flex items-center justify-between">
+      <span class="text-[11px] text-slate-400">Master Owner Phone: <strong class="text-white font-mono">+91 79798 64406</strong></span>
+      <button 
+        type="button" 
+        onclick="closeAdminSellerModal()" 
+        class="px-4 py-2 rounded-xl bg-navy-800 hover:bg-navy-700 text-slate-300 font-bold text-xs transition-colors"
+      >
+        Close
+      </button>
+    </div>
   </div>
 
   <!-- ======================================================== -->
@@ -1575,6 +2037,14 @@
       <span id="bottomNavOrdersBadge" class="absolute -top-1 right-1 bg-accent-orange text-white text-[9px] font-black w-4 h-4 rounded-full flex items-center justify-center">0</span>
     </button>
     <button 
+      id="bottomNavSeller"
+      onclick="handleSellerBtnClick()" 
+      class="flex flex-col items-center gap-0.5 text-slate-400 hover:text-emerald-400 text-[10px] font-bold transition-colors"
+    >
+      <i class="fa-solid fa-shop text-base text-emerald-400"></i>
+      <span>Sell</span>
+    </button>
+    <button 
       onclick="openCartDrawer()" 
       class="relative flex flex-col items-center gap-0.5 text-slate-400 hover:text-white text-[10px] font-bold transition-colors"
     >
@@ -2100,6 +2570,134 @@
     let activeDetailProductId = null;
     let activeDetailImgIdx = 0;
 
+    // --------------------------------------------------------
+    // Multi-Vendor Partner Sellers Configuration & State
+    // --------------------------------------------------------
+    const INITIAL_SELLERS = [
+      {
+        id: "seller_1",
+        name: "Rajesh Kumar Sharma",
+        shopName: "Apex Denim & Casuals",
+        phone: "9835123456",
+        email: "apexdenim@zenomart.local",
+        category: "Fashion & Jeans",
+        address: "Shop #14, MG Road Market, Deoghar, PIN: 814112",
+        pincode: "814112",
+        verified: true,
+        registeredDate: "2026-09-01",
+        upiId: "apexdenim@okhdfcbank"
+      },
+      {
+        id: "seller_2",
+        name: "Sunil Verma",
+        shopName: "City Organics",
+        phone: "9431987654",
+        email: "cityorganics@zenomart.local",
+        category: "Groceries & Essentials",
+        address: "Plot 22, Sector-4, Raghunathpur, Deoghar, PIN: 814112",
+        pincode: "814112",
+        verified: true,
+        registeredDate: "2026-09-05",
+        upiId: "sunilorganics@paytm"
+      },
+      {
+        id: "seller_3",
+        name: "Amitabh Roy",
+        shopName: "Royal Sweets & Dairy",
+        phone: "9123456780",
+        email: "royalsweets@zenomart.local",
+        category: "Sweets & Bakery",
+        address: "Station Road Near Ghormora, Deoghar, PIN: 814112",
+        pincode: "814112",
+        verified: true,
+        registeredDate: "2026-09-10",
+        upiId: "royalsweets@axl"
+      },
+      {
+        id: "seller_4",
+        name: "Manoj Kumar Gupta",
+        shopName: "Apex Tech Bazaar",
+        phone: "9876501234",
+        email: "apextech@zenomart.local",
+        category: "Electronics & Gadgets",
+        address: "Apex Tech Bazaar, MG Road, Deoghar, PIN: 814112",
+        pincode: "814112",
+        verified: true,
+        registeredDate: "2026-09-12",
+        upiId: "apextech@upi"
+      },
+      {
+        id: "seller_5",
+        name: "Priya Kumari",
+        shopName: "City Trends Boutique",
+        phone: "9798012345",
+        email: "priya.trends@zenomart.local",
+        category: "Fashion & Jeans",
+        address: "City Trends Boutique, Plaza-2, Deoghar, PIN: 814112",
+        pincode: "814112",
+        verified: true,
+        registeredDate: "2026-09-15",
+        upiId: "priya.trends@upi"
+      }
+    ];
+
+    let sellers = [];
+    let activeSellerId = null;
+    let pendingSellerOtp = null;
+    let activeSellerDashTab = "products";
+
+    // --------------------------------------------------------
+    // Progressive Slab-Wise Commission & Dynamic Pricing Logic
+    // Slabs:
+    // • Around ₹500 (below ₹800): Admin Margin = 10%
+    // • Around ₹1000 (₹800 to ₹1999): Admin Margin = 25%
+    // • Around ₹2000+ (₹2000 and above): Admin Margin = 30%
+    // --------------------------------------------------------
+    function getAdminCommission(price) {
+      const p = Math.max(0, parseFloat(price) || 0);
+      let rate = 10;
+      let slabName = "Tier 1 (~₹500 @ 10%)";
+
+      if (p >= 2000) {
+        rate = 30;
+        slabName = "Tier 3 (₹2000+ @ 30%)";
+      } else if (p >= 800) {
+        rate = 25;
+        slabName = "Tier 2 (~₹1000 @ 25%)";
+      } else {
+        rate = 10;
+        slabName = "Tier 1 (~₹500 @ 10%)";
+      }
+
+      const adminMargin = Math.round((p * rate) / 100);
+      const sellerPayout = Math.max(0, p - adminMargin);
+
+      return {
+        rate,
+        slabName,
+        adminMargin,
+        sellerPayout
+      };
+    }
+
+    function findSellerForProduct(product) {
+      if (!product) return null;
+      if (product.sellerId) {
+        const s = sellers.find(x => x.id === product.sellerId);
+        if (s) return s;
+      }
+      if (product.sellerPhone) {
+        const s = sellers.find(x => x.phone === product.sellerPhone);
+        if (s) return s;
+      }
+      if (product.sourceShop) {
+        const lowerShop = product.sourceShop.toLowerCase();
+        const s = sellers.find(x => lowerShop.includes(x.shopName.toLowerCase()) || x.shopName.toLowerCase().includes(lowerShop));
+        if (s) return s;
+      }
+      return null;
+    }
+
     // Secured Merchant Details (Zero Plaintext Leakage: Hidden from Public UI, Handled Internally)
     const SECURE_STORE_VPA = "7979864406-i40c@axl"; // Handled strictly for intent/QR, NEVER printed or visible on UI
     const DISPLAY_MASKED_VPA = "merchant.zenomart@icici";
@@ -2233,12 +2831,14 @@
       loadProductsFromStorage();
       loadCartFromStorage();
       loadOrdersFromStorage();
+      loadSellersFromStorage();
       renderCategoryFilters();
       renderProducts();
       renderMainOrdersSection();
       updateCartUI();
       updateOrdersCountBadge();
       checkAdminSession();
+      checkSellerSession();
       loadSavedDeliveryLocation();
 
       // Auto-hide boundary error when valid address is typed
@@ -2496,16 +3096,27 @@
       modal.classList.remove("opacity-100", "pointer-events-auto");
     }
 
+    function updateProductCommissionPreview(price) {
+      const el = document.getElementById("productPriceCommissionPreview");
+      if (!el) return;
+      const slab = getAdminCommission(price);
+      el.innerHTML = `Admin: <strong class="text-gold-400">${slab.rate}% (₹${slab.adminMargin})</strong> • Seller: <strong class="text-emerald-400">₹${slab.sellerPayout}</strong> <span class="text-slate-400 text-[9px]">(${slab.slabName})</span>`;
+    }
+
     function handleProductFormSubmit(e) {
       e.preventDefault();
-      if (!isAdminLoggedIn()) {
-        showToast("Access Denied", "Only authenticated admin can alter catalog.");
+      const isAdmin = isAdminLoggedIn();
+      const activeSeller = activeSellerId ? sellers.find(s => s.id === activeSellerId) : null;
+
+      if (!isAdmin && !activeSeller) {
+        showToast("Access Denied", "Admin or registered partner seller credentials required.");
         return;
       }
 
       const editId = document.getElementById("editProductId").value;
       const title = document.getElementById("prodTitleInput").value.trim();
-      const sourceShop = document.getElementById("prodSourceInput").value.trim();
+      let sourceShop = document.getElementById("prodSourceInput").value.trim();
+      if (!sourceShop && activeSeller) sourceShop = activeSeller.shopName;
       const category = document.getElementById("prodCategoryInput").value;
       const priceVal = document.getElementById("prodPriceInput").value.trim();
       const mrpVal = document.getElementById("prodMrpInput").value.trim();
@@ -2524,7 +3135,7 @@
           products[idx] = {
             ...products[idx],
             title,
-            sourceShop,
+            sourceShop: sourceShop || products[idx].sourceShop,
             category,
             price,
             mrp,
@@ -2542,13 +3153,15 @@
         const newProd = {
           id: newId,
           title,
-          sourceShop,
+          sourceShop: sourceShop || (activeSeller ? activeSeller.shopName : "MS ZenoMart Partner"),
+          sellerId: activeSeller ? activeSeller.id : undefined,
+          sellerPhone: activeSeller ? activeSeller.phone : undefined,
           category,
           price,
           mrp,
           rating: 5.0,
           reviews: 1,
-          badge: badge || "New",
+          badge: badge || (activeSeller ? "Partner Shop" : "New"),
           image,
           images: [image],
           description: desc,
@@ -2562,6 +3175,9 @@
       closeProductModal();
       renderCategoryFilters();
       renderProducts();
+      if (activeSeller) {
+        renderSellerDashboard(activeSeller);
+      }
     }
 
     function deleteProduct(productId) {
@@ -3501,7 +4117,17 @@
     }
 
     function getCheckoutDeliveryFee() {
-      return selectedDeliveryOption === "VIP" ? 50 : 0;
+      const subtotal = getCheckoutItemsSubtotal();
+      if (selectedDeliveryOption === "VIP") {
+        return 50; // VIP Fast Express (60–90 Mins)
+      }
+      // Dynamic Delivery Charge Rule:
+      // Orders between ₹100 and ₹1000: Standard delivery charge ₹40
+      // Orders above ₹1000: 100% FREE Delivery
+      if (subtotal > 1000) {
+        return 0; // FREE Delivery
+      }
+      return 40; // Standard Delivery
     }
 
     function getCheckoutTotal() {
@@ -3518,6 +4144,7 @@
       const speedBadge = document.getElementById("deliverySpeedBadge");
       const noticeText = document.getElementById("deliverySpeedNoticeText");
       const priceTag = document.getElementById("deliverySpeedPriceTag");
+      const subtotal = getCheckoutItemsSubtotal();
 
       if (selectedDeliveryOption === "VIP") {
         if (regularCard) regularCard.className = "cursor-pointer p-3 rounded-xl border-2 transition-all relative bg-navy-900 border-navy-800 hover:border-slate-500 shadow-sm flex flex-col justify-between";
@@ -3538,14 +4165,28 @@
         if (vipCard) vipCard.className = "cursor-pointer p-3 rounded-xl border-2 transition-all relative bg-navy-900 border-navy-800 hover:border-amber-400/60 shadow-sm flex flex-col justify-between";
         if (radioRegular) radioRegular.checked = true;
         if (radioVip) radioVip.checked = false;
-        if (speedBadge) {
-          speedBadge.innerText = "Regular Delivery (2–3 Days)";
-          speedBadge.className = "text-[10px] font-bold text-emerald-400 bg-emerald-500/10 px-2.5 py-0.5 rounded-full border border-emerald-500/30";
-        }
-        if (noticeText) noticeText.innerText = "Standard Delivery: Estimated arrival in 2–3 Days (Free).";
-        if (priceTag) {
-          priceTag.innerText = "₹0 Fee";
-          priceTag.className = "text-emerald-400 font-bold font-mono";
+        
+        if (subtotal > 1000) {
+          if (speedBadge) {
+            speedBadge.innerText = "Regular Delivery (2–3 Days) • FREE";
+            speedBadge.className = "text-[10px] font-bold text-emerald-400 bg-emerald-500/10 px-2.5 py-0.5 rounded-full border border-emerald-500/30";
+          }
+          if (noticeText) noticeText.innerText = "🎉 FREE Delivery Unlocked! Order value is above ₹1,000.";
+          if (priceTag) {
+            priceTag.innerText = "FREE (₹0)";
+            priceTag.className = "text-emerald-400 font-bold font-mono";
+          }
+        } else {
+          const diff = Math.max(1, 1001 - subtotal);
+          if (speedBadge) {
+            speedBadge.innerText = "Regular Delivery (2–3 Days)";
+            speedBadge.className = "text-[10px] font-bold text-slate-300 bg-navy-900 px-2.5 py-0.5 rounded-full border border-navy-700";
+          }
+          if (noticeText) noticeText.innerText = `Standard Delivery: ₹40 (Add ₹${diff} more for FREE Delivery!)`;
+          if (priceTag) {
+            priceTag.innerText = "₹40 Fee";
+            priceTag.className = "text-gold-400 font-bold font-mono";
+          }
         }
       }
 
@@ -3559,10 +4200,12 @@
 
       const totalEl = document.getElementById("checkoutTotalAmount");
       if (totalEl) {
-        if (deliveryFee > 0) {
-          totalEl.innerHTML = `₹${grandTotal} <span class="text-[10px] text-amber-300 font-normal ml-1.5">(₹${subtotal} items + ₹50 VIP delivery)</span>`;
+        if (deliveryFee === 0) {
+          totalEl.innerHTML = `₹${grandTotal} <span class="text-[10px] text-emerald-400 font-bold ml-1.5">(🎉 FREE Delivery • Order > ₹1000)</span>`;
+        } else if (selectedDeliveryOption === "VIP") {
+          totalEl.innerHTML = `₹${grandTotal} <span class="text-[10px] text-amber-300 font-normal ml-1.5">(₹${subtotal} items + ₹50 VIP express)</span>`;
         } else {
-          totalEl.innerHTML = `₹${grandTotal} <span class="text-[10px] text-emerald-400 font-normal ml-1.5">(Free standard delivery)</span>`;
+          totalEl.innerHTML = `₹${grandTotal} <span class="text-[10px] text-slate-300 font-normal ml-1.5">(₹${subtotal} items + ₹40 Standard delivery)</span>`;
         }
       }
 
@@ -3759,7 +4402,7 @@
       }
 
       const itemsSubtotal = itemsToOrder.reduce((sum, i) => sum + (i.price * i.quantity), 0);
-      const deliveryFee = selectedDeliveryOption === "VIP" ? 50 : 0;
+      const deliveryFee = getCheckoutDeliveryFee();
       const grandTotal = itemsSubtotal + deliveryFee;
       const orderId = "ZM-" + Math.floor(100000 + Math.random() * 900000);
       const orderTime = Date.now();
@@ -3788,6 +4431,15 @@
         ? "Pending (Doorstep Collection)" 
         : "Locked: Awaiting Owner's Airtel Bank Confirmation";
 
+      // Check for partner sellers involved in this order (Smart Dual WhatsApp Notification)
+      const sellerAlerts = [];
+      itemsToOrder.forEach(item => {
+        const s = findSellerForProduct(item);
+        if (s && !sellerAlerts.some(a => a.sellerId === s.id)) {
+          sellerAlerts.push({ sellerId: s.id, shopName: s.shopName, phone: s.phone, sellerName: s.name });
+        }
+      });
+
       // Build New Order Record (STRICT PAYMENT LOCKING: Locked until Airtel Bank Credit Confirmation)
       const newOrder = {
         orderId,
@@ -3801,13 +4453,16 @@
         itemsSubtotal: itemsSubtotal,
         deliveryOption: selectedDeliveryOption,
         deliveryFee: deliveryFee,
-        deliverySpeedLabel: selectedDeliveryOption === "VIP" ? "⚡ VIP Fast Delivery (60–90 Mins)" : "Regular Delivery (2–3 Days)",
+        deliverySpeedLabel: selectedDeliveryOption === "VIP" 
+          ? "⚡ VIP Fast Delivery (60–90 Mins)" 
+          : (deliveryFee === 0 ? "Regular Delivery (2–3 Days) [FREE]" : "Regular Delivery (2–3 Days) [+₹40]"),
         deliveryWindow: selectedDeliveryOption === "VIP" ? "60–90 Mins" : "2–3 Days",
         total: grandTotal,
         customer: { name, phone, address, landmark, pincode, notes },
         googleMapsUrl: getGoogleMapsNavigationUrl({ customer: { address, landmark, pincode } }),
         paymentMethod: paymentMethodLabel,
-        paymentStatus: paymentStatusLabel
+        paymentStatus: paymentStatusLabel,
+        sellerAlerts: sellerAlerts
       };
 
       orders.unshift(newOrder);
@@ -3836,8 +4491,15 @@
         showToast("Order Placed!", `Order #${orderId} confirmed successfully.`);
       }
       
-      // Open WhatsApp in new window/tab
+      // Open WhatsApp in new window/tab for Admin (Mandatory)
       window.open(waUrl, "_blank");
+
+      // Dual WhatsApp: If partner seller items are included, show seller packing alert notice
+      if (sellerAlerts.length > 0) {
+        setTimeout(() => {
+          showToast("Seller Packing Notice", `Order includes items from ${sellerAlerts.map(s => s.shopName).join(', ')}. Notify shops directly from Orders.`);
+        }, 1200);
+      }
 
       // Open orders tracker
       setTimeout(() => {
@@ -3902,10 +4564,103 @@ ${mapsNavUrl}
 🛒 *ORDERED ITEMS (Local Shop Sourced):*
 ${itemsText}
 
-💰 *PAYABLE AMOUNT:* ₹${order.total} (${order.deliveryFee > 0 ? "Includes ₹50 VIP Fast Delivery" : "Free Delivery"})
+💰 *PAYABLE AMOUNT:* ₹${order.total} (Items: ₹${order.itemsSubtotal} | Delivery: ${order.deliveryFee === 0 ? "100% FREE [Order > ₹1000]" : (order.deliveryOption === "VIP" ? "₹50 VIP Express" : "₹40 Standard")})
 ⚡ *Fulfillment:* ${isVip ? "Express Priority Rider direct from nearest partner shop" : "Handpicked from nearest verified local store"}
 
 _Sent automatically from MS ZenoMart Web Application_`;
+    }
+
+    // --------------------------------------------------------
+    // Smart Dual WhatsApp: Automated Partner Shop Packing Notification
+    // --------------------------------------------------------
+    function formatSellerPackingWhatsApp(seller, order, itemsForSeller) {
+      const itemsText = itemsForSeller.map((i, idx) => 
+        `${idx + 1}. *${i.title}*\n   • Quantity to Pack: *${i.quantity}*\n   • Unit Price: ₹${i.price} (Subtotal: ₹${i.price * i.quantity})\n   • Variant/Size: ${i.variant || i.selectedSize || 'Standard'}\n   • Partner Shop: ${seller.shopName}`
+      ).join("\n\n");
+
+      return `📦 *MS ZENOMART - SELLER PACKING & DISPATCH NOTICE*
+🏬 *Partner Shop:* ${seller.shopName}
+👤 *Shop Owner / Contact:* ${seller.name} (${seller.phone})
+🆔 *Order ID:* #${order.orderId}
+⏰ *Order Placed Time:* ${new Date(order.orderTime).toLocaleTimeString([], {hour: '2-digit', minute:'2-digit'})}
+🚀 *Delivery Priority:* ${order.deliveryOption === 'VIP' ? '⚡ VIP Fast Delivery (60–90 Mins)' : 'Regular Delivery (2–3 Days)'}
+
+📋 *ITEMS TO PACK IMMEDIATELY FOR PICKUP:*
+${itemsText}
+
+⚠️ *PACKING INSTRUCTIONS FOR PARTNER SHOP:*
+1. Inspect items carefully and pack in clean, secure MS ZenoMart packaging.
+2. Clearly write *Order #${order.orderId}* on top of the packet.
+3. An MS ZenoMart local delivery rider is dispatched to your shop for parcel pickup.
+4. Payout: Handled directly by Admin MD Meraj Ansari to your registered UPI ID/Bank account upon delivery.
+
+📞 *Admin Support (MD Meraj Ansari):* +91 79798 64406`;
+    }
+
+    function sendPackingAlertToSeller(orderId, sellerPhoneOrId) {
+      const order = orders.find(o => o.orderId === orderId);
+      if (!order) {
+        showToast("Error", "Order not found.");
+        return;
+      }
+      
+      let targetSeller = sellers.find(s => s.phone === sellerPhoneOrId || s.id === sellerPhoneOrId);
+      let itemsForSeller = [];
+
+      if (targetSeller) {
+        itemsForSeller = order.items.filter(item => {
+          const s = findSellerForProduct(item);
+          return s && s.id === targetSeller.id;
+        });
+      } else {
+        const item = order.items.find(i => String(i.id) === String(sellerPhoneOrId) || String(i.productId) === String(sellerPhoneOrId));
+        if (item) {
+          targetSeller = findSellerForProduct(item);
+          itemsForSeller = [item];
+        }
+      }
+
+      if (!targetSeller) {
+        const firstItem = order.items[0];
+        targetSeller = {
+          name: "Partner Merchant",
+          shopName: firstItem ? (firstItem.sourceShop || "Partner Shop") : "Partner Shop",
+          phone: "9835123456"
+        };
+        itemsForSeller = order.items;
+      } else if (itemsForSeller.length === 0) {
+        itemsForSeller = order.items;
+      }
+
+      const packingMsg = formatSellerPackingWhatsApp(targetSeller, order, itemsForSeller);
+      const cleanPhone = targetSeller.phone.replace(/\D/g, '');
+      const waUrl = `https://wa.me/91${cleanPhone}?text=${encodeURIComponent(packingMsg)}`;
+      window.open(waUrl, "_blank");
+      showToast("Packing Alert Sent", `WhatsApp packing instruction opened for ${targetSeller.shopName}.`);
+    }
+
+    function sendAllPackingAlerts(orderId) {
+      const order = orders.find(o => o.orderId === orderId);
+      if (!order) return;
+      
+      const distinctSellers = [];
+      order.items.forEach(item => {
+        const s = findSellerForProduct(item);
+        if (s && !distinctSellers.some(x => x.id === s.id)) {
+          distinctSellers.push(s);
+        }
+      });
+
+      if (distinctSellers.length === 0) {
+        sendPackingAlertToSeller(orderId, "seller_1");
+        return;
+      }
+
+      distinctSellers.forEach((s, idx) => {
+        setTimeout(() => {
+          sendPackingAlertToSeller(orderId, s.id);
+        }, idx * 600);
+      });
     }
 
     // --------------------------------------------------------
@@ -4504,7 +5259,20 @@ _Sent automatically from MS ZenoMart Web Application_`;
                       </div>
                       <div class="truncate">
                         <p class="font-bold text-white truncate">${item.title}</p>
-                        <p class="text-[10px] text-slate-400">Qty: ${item.quantity} • <span class="text-gold-400">${item.sourceShop || 'Local Partner'}</span></p>
+                        <div class="flex items-center gap-2 flex-wrap text-[10px] text-slate-400">
+                          <span>Qty: ${item.quantity}</span>
+                          <span>•</span>
+                          <span class="text-gold-400 font-semibold">${item.sourceShop || 'Local Partner'}</span>
+                          <button 
+                            type="button" 
+                            onclick="sendPackingAlertToSeller('${order.orderId}', '${item.sellerPhone || item.id || ''}')" 
+                            class="px-2 py-0.5 rounded bg-emerald-500/15 hover:bg-emerald-500/30 text-emerald-300 border border-emerald-500/40 text-[9px] font-bold inline-flex items-center gap-1 transition-all active:scale-95"
+                            title="Dispatch WhatsApp packing instruction to partner shop"
+                          >
+                            <i class="fa-brands fa-whatsapp text-[10px]"></i>
+                            <span>Notify Shop to Pack</span>
+                          </button>
+                        </div>
                       </div>
                     </div>
                     <span class="font-mono font-bold text-gold-400 text-xs shrink-0">₹${item.price * item.quantity}</span>
@@ -4539,7 +5307,7 @@ _Sent automatically from MS ZenoMart Web Application_`;
                   <a 
                     href="${getGoogleMapsNavigationUrl(order)}" 
                     target="_blank" 
-                    rel="noopener noreferrer"
+                    rel="noopener noreferrer" 
                     class="w-full md:w-auto inline-flex items-center justify-center gap-2 px-4 py-2.5 rounded-xl bg-gradient-to-r from-blue-600 via-indigo-600 to-blue-700 hover:from-blue-500 hover:to-indigo-500 text-white font-bold text-xs transition-all shadow-lg shadow-blue-600/30 active:scale-95 border border-blue-400/40"
                   >
                     <i class="fa-solid fa-map-location-dot text-sm text-blue-200"></i>
@@ -4556,14 +5324,22 @@ _Sent automatically from MS ZenoMart Web Application_`;
                 <span class="text-sm sm:text-base font-mono font-black text-gold-400">₹${order.total}</span>
                 ${order.deliveryFee > 0 ? `
                   <span class="text-[10px] text-amber-300 font-bold ml-2 bg-amber-500/10 border border-amber-500/30 px-2.5 py-0.5 rounded-full inline-flex items-center gap-1">
-                    <i class="fa-solid fa-bolt text-[9px]"></i> VIP Fast Delivery (+₹50)
+                    <i class="fa-solid fa-bolt text-[9px]"></i> ${order.deliveryOption === 'VIP' ? 'VIP Fast Delivery (+₹50)' : 'Standard Delivery (+₹40)'}
                   </span>
                 ` : `
-                  <span class="text-[10px] text-emerald-400 font-semibold ml-2">(Free Standard Delivery)</span>
+                  <span class="text-[10px] text-emerald-400 font-semibold ml-2">(Free Standard Delivery • Order > ₹1000)</span>
                 `}
               </div>
 
               <div class="flex items-center gap-2 flex-wrap">
+                <button 
+                  onclick="sendAllPackingAlerts('${order.orderId}')" 
+                  class="px-3 py-2 rounded-xl bg-emerald-600/20 hover:bg-emerald-600/30 border border-emerald-500/40 text-emerald-300 font-bold text-xs transition-all flex items-center gap-1.5"
+                  title="Send WhatsApp packing alert to all partner shops in this order"
+                >
+                  <i class="fa-brands fa-whatsapp text-sm"></i>
+                  <span>Notify Shop to Pack</span>
+                </button>
                 ${canCancel ? `
                   <button 
                     onclick="requestOrderCancellation('${order.orderId}')" 
@@ -4736,6 +5512,624 @@ Please share the live delivery executive tracking and hyperlocal shop dispatch s
 
       const waUrl = `https://wa.me/${PRIVATE_OWNER_WHATSAPP}?text=${encodeURIComponent(msg)}`;
       window.open(waUrl, "_blank");
+    }
+
+    // --------------------------------------------------------
+    // Multi-Vendor Partner Seller Registration & Dashboard Logic
+    // --------------------------------------------------------
+    function loadSellersFromStorage() {
+      const stored = getStoreItem("zenomart_sellers");
+      if (stored) {
+        try {
+          sellers = JSON.parse(stored);
+        } catch (e) {
+          sellers = [...INITIAL_SELLERS];
+        }
+      } else {
+        sellers = [...INITIAL_SELLERS];
+        saveSellersToStorage();
+      }
+    }
+
+    function saveSellersToStorage() {
+      setStoreItem("zenomart_sellers", JSON.stringify(sellers));
+    }
+
+    function checkSellerSession() {
+      const storedActive = getStoreItem("zenomart_active_seller_id");
+      const label = document.getElementById("headerSellerBtnLabel");
+      if (storedActive) {
+        const found = sellers.find(s => s.id === storedActive);
+        if (found) {
+          activeSellerId = storedActive;
+          if (label) label.innerText = found.shopName.length > 14 ? found.shopName.substring(0, 12) + "..." : found.shopName;
+          return;
+        }
+      }
+      activeSellerId = null;
+      if (label) label.innerText = "Become a Seller";
+    }
+
+    function handleSellerBtnClick() {
+      if (activeSellerId) {
+        openSellerDashboardModal();
+      } else {
+        openSellerRegisterModal();
+      }
+    }
+
+    function openSellerRegisterModal() {
+      const modal = document.getElementById("sellerRegisterModal");
+      const backdrop = document.getElementById("sellerRegisterModalBackdrop");
+      if (!modal || !backdrop) return;
+      pendingSellerOtp = null;
+      const alertBox = document.getElementById("sellerOtpAlertBox");
+      if (alertBox) alertBox.classList.add("hidden");
+      const otpInput = document.getElementById("sellerOtpInput");
+      if (otpInput) otpInput.value = "";
+      
+      backdrop.classList.remove("opacity-0", "pointer-events-none");
+      backdrop.classList.add("opacity-100", "pointer-events-auto");
+      modal.classList.remove("opacity-0", "pointer-events-none");
+      modal.classList.add("opacity-100", "pointer-events-auto");
+    }
+
+    function closeSellerRegisterModal() {
+      const modal = document.getElementById("sellerRegisterModal");
+      const backdrop = document.getElementById("sellerRegisterModalBackdrop");
+      if (!modal || !backdrop) return;
+      backdrop.classList.add("opacity-0", "pointer-events-none");
+      backdrop.classList.remove("opacity-100", "pointer-events-auto");
+      modal.classList.add("opacity-0", "pointer-events-none");
+      modal.classList.remove("opacity-100", "pointer-events-auto");
+    }
+
+    function sendSellerOtpCode() {
+      const phoneInput = document.getElementById("sellerRegPhone");
+      const phoneVal = phoneInput ? phoneInput.value.trim() : "";
+      if (!phoneVal || phoneVal.length < 10) {
+        showToast("Phone Required", "Please enter a valid 10-digit mobile number first.");
+        if (phoneInput) phoneInput.focus();
+        return;
+      }
+
+      // Generate 6-digit OTP code for free sign up
+      pendingSellerOtp = String(Math.floor(100000 + Math.random() * 900000));
+      const alertBox = document.getElementById("sellerOtpAlertBox");
+      const displayEl = document.getElementById("sellerOtpCodeDisplay");
+      if (alertBox && displayEl) {
+        displayEl.innerText = pendingSellerOtp;
+        alertBox.classList.remove("hidden");
+      }
+      showToast("OTP Generated", `Your MS ZenoMart Seller OTP is: ${pendingSellerOtp}`);
+      
+      const otpInput = document.getElementById("sellerOtpInput");
+      if (otpInput) {
+        otpInput.value = pendingSellerOtp;
+        otpInput.focus();
+      }
+    }
+
+    function handleSellerRegisterSubmit(e) {
+      e.preventDefault();
+      const name = document.getElementById("sellerRegName").value.trim();
+      const shopName = document.getElementById("sellerRegShop").value.trim();
+      const phone = document.getElementById("sellerRegPhone").value.trim();
+      const email = document.getElementById("sellerRegEmail").value.trim();
+      const category = document.getElementById("sellerRegCategory").value;
+      const address = document.getElementById("sellerRegAddress").value.trim();
+      const upi = document.getElementById("sellerRegUpi") ? document.getElementById("sellerRegUpi").value.trim() : "";
+      const enteredOtp = document.getElementById("sellerOtpInput") ? document.getElementById("sellerOtpInput").value.trim() : "";
+
+      if (!pendingSellerOtp) {
+        showToast("OTP Required", "Please click 'Send OTP Code' to verify your mobile number.");
+        return;
+      }
+
+      if (enteredOtp !== pendingSellerOtp) {
+        showToast("Invalid OTP", "The entered verification code does not match. Please re-enter.");
+        return;
+      }
+
+      const newSeller = {
+        id: "seller_" + Date.now(),
+        name,
+        shopName,
+        phone,
+        email,
+        category,
+        address,
+        upiId: upi || "Not Set",
+        verified: true,
+        registeredDate: new Date().toISOString().split("T")[0],
+        status: "ACTIVE"
+      };
+
+      sellers.unshift(newSeller);
+      saveSellersToStorage();
+      activeSellerId = newSeller.id;
+      setStoreItem("zenomart_active_seller_id", newSeller.id);
+      checkSellerSession();
+
+      // Send Instant WhatsApp Notification to Admin MD Meraj Ansari (Mandatory)
+      const adminWhatsAppMsg = `🏪 *NEW PARTNER SELLER REGISTRATION - MS ZENOMART*
+🏬 *Shop Name:* ${newSeller.shopName}
+👤 *Seller Name:* ${newSeller.name}
+📞 *Mobile / WhatsApp:* +91 ${newSeller.phone}
+📧 *Email:* ${newSeller.email}
+🏷 *Shop Category:* ${newSeller.category}
+📍 *Shop Address:* ${newSeller.address}
+💳 *Payout UPI ID:* ${newSeller.upiId}
+🛡 *Verification:* Free Mobile OTP Verified
+⚖ *Data Privacy:* Confidential & Admin Supervised (MD Meraj Ansari)
+
+_Sent automatically from MS ZenoMart Partner Portal_`;
+
+      const adminWaUrl = `https://wa.me/${PRIVATE_OWNER_WHATSAPP}?text=${encodeURIComponent(adminWhatsAppMsg)}`;
+      window.open(adminWaUrl, "_blank");
+
+      closeSellerRegisterModal();
+      showToast("Seller Registered!", `Welcome, ${newSeller.shopName}! Partner portal is now active.`);
+      
+      setTimeout(() => {
+        openSellerDashboardModal();
+      }, 500);
+    }
+
+    function openSellerDashboardModal() {
+      if (!activeSellerId && sellers.length > 0) {
+        activeSellerId = sellers[0].id;
+      }
+      const seller = sellers.find(s => s.id === activeSellerId) || sellers[0];
+      if (!seller) {
+        openSellerRegisterModal();
+        return;
+      }
+
+      const modal = document.getElementById("sellerDashboardModal");
+      const backdrop = document.getElementById("sellerDashboardModalBackdrop");
+      if (!modal || !backdrop) return;
+
+      renderSellerDashboard(seller);
+
+      backdrop.classList.remove("opacity-0", "pointer-events-none");
+      backdrop.classList.add("opacity-100", "pointer-events-auto");
+      modal.classList.remove("opacity-0", "pointer-events-none");
+      modal.classList.add("opacity-100", "pointer-events-auto");
+    }
+
+    function closeSellerDashboardModal() {
+      const modal = document.getElementById("sellerDashboardModal");
+      const backdrop = document.getElementById("sellerDashboardModalBackdrop");
+      if (!modal || !backdrop) return;
+      backdrop.classList.add("opacity-0", "pointer-events-none");
+      backdrop.classList.remove("opacity-100", "pointer-events-auto");
+      modal.classList.add("opacity-0", "pointer-events-none");
+      modal.classList.remove("opacity-100", "pointer-events-auto");
+    }
+
+    function switchSellerDashboardTab(tab) {
+      activeSellerDashTab = tab;
+      const tabProducts = document.getElementById("sellerTabBtnProducts");
+      const tabOrders = document.getElementById("sellerTabBtnOrders");
+      const tabPayouts = document.getElementById("sellerTabBtnPayouts");
+      const secProducts = document.getElementById("sellerSectionProducts");
+      const secOrders = document.getElementById("sellerSectionOrders");
+      const secPayouts = document.getElementById("sellerSectionPayouts");
+
+      [tabProducts, tabOrders, tabPayouts].forEach(btn => {
+        if (btn) btn.className = "px-3.5 py-1.5 rounded-xl text-xs font-bold transition-all text-slate-400 hover:text-white";
+      });
+      [secProducts, secOrders, secPayouts].forEach(sec => {
+        if (sec) sec.classList.add("hidden");
+      });
+
+      if (tab === "products") {
+        if (tabProducts) tabProducts.className = "px-3.5 py-1.5 rounded-xl text-xs font-bold transition-all bg-emerald-500 text-navy-950";
+        if (secProducts) secProducts.classList.remove("hidden");
+      } else if (tab === "orders") {
+        if (tabOrders) tabOrders.className = "px-3.5 py-1.5 rounded-xl text-xs font-bold transition-all bg-emerald-500 text-navy-950";
+        if (secOrders) secOrders.classList.remove("hidden");
+      } else if (tab === "payouts") {
+        if (tabPayouts) tabPayouts.className = "px-3.5 py-1.5 rounded-xl text-xs font-bold transition-all bg-emerald-500 text-navy-950";
+        if (secPayouts) secPayouts.classList.remove("hidden");
+      }
+    }
+
+    function renderSellerDashboard(seller) {
+      if (!seller) return;
+
+      const shopNameEl = document.getElementById("sellerDashShopName");
+      const ownerNameEl = document.getElementById("sellerDashOwnerName");
+      const upiDisplayEl = document.getElementById("sellerDashUpiDisplay");
+      if (shopNameEl) shopNameEl.innerText = seller.shopName;
+      if (ownerNameEl) ownerNameEl.innerText = `${seller.name} • Contact: +91 ${seller.phone} • Category: ${seller.category}`;
+      if (upiDisplayEl) upiDisplayEl.innerText = seller.upiId || "Not set (Click below to share with Admin)";
+
+      // Find products for this seller
+      const sellerProds = products.filter(p => {
+        if (p.sellerId && p.sellerId === seller.id) return true;
+        if (p.sellerPhone && p.sellerPhone === seller.phone) return true;
+        if (p.sourceShop && (p.sourceShop.toLowerCase().includes(seller.shopName.toLowerCase()) || seller.shopName.toLowerCase().includes(p.sourceShop.toLowerCase()))) return true;
+        return false;
+      });
+
+      // Find orders for this seller
+      const sellerOrders = [];
+      let totalGross = 0;
+      let totalAdminMargin = 0;
+
+      orders.forEach(ord => {
+        const matchingItems = ord.items.filter(item => {
+          const s = findSellerForProduct(item);
+          return s && s.id === seller.id;
+        });
+        if (matchingItems.length > 0) {
+          const ordGross = matchingItems.reduce((sum, i) => sum + (i.price * i.quantity), 0);
+          const ordMargin = matchingItems.reduce((sum, i) => {
+            const slab = getAdminCommission(i.price);
+            return sum + (slab.adminMargin * i.quantity);
+          }, 0);
+          totalGross += ordGross;
+          totalAdminMargin += ordMargin;
+          sellerOrders.push({ order: ord, items: matchingItems, gross: ordGross, margin: ordMargin, net: ordGross - ordMargin });
+        }
+      });
+
+      const netPayoutDue = Math.max(0, totalGross - totalAdminMargin);
+
+      const prodCountEl = document.getElementById("sellerDashProductCount");
+      const orderCountEl = document.getElementById("sellerDashOrderCount");
+      const grossSalesEl = document.getElementById("sellerDashGrossSales");
+      const netPayoutEl = document.getElementById("sellerDashNetPayout");
+
+      if (prodCountEl) prodCountEl.innerText = sellerProds.length;
+      if (orderCountEl) orderCountEl.innerText = sellerOrders.length;
+      if (grossSalesEl) grossSalesEl.innerText = `₹${totalGross}`;
+      if (netPayoutEl) netPayoutEl.innerText = `₹${netPayoutDue}`;
+
+      // Render Products List
+      const prodsListEl = document.getElementById("sellerProductsList");
+      if (prodsListEl) {
+        if (sellerProds.length === 0) {
+          prodsListEl.innerHTML = `
+            <div class="text-center p-6 bg-navy-950 rounded-2xl text-slate-400 text-xs">
+              <p>No products listed for your shop yet.</p>
+              <button onclick="openSellerAddProductModal()" class="mt-2 text-emerald-400 font-bold hover:underline">
+                + Add Your First Product
+              </button>
+            </div>
+          `;
+        } else {
+          prodsListEl.innerHTML = sellerProds.map(p => {
+            const slab = getAdminCommission(p.price);
+            return `
+              <div class="bg-navy-950 border border-navy-800 rounded-xl p-3 flex items-center justify-between gap-3 text-xs">
+                <div class="flex items-center gap-3 truncate">
+                  <div class="w-10 h-10 rounded-lg bg-navy-900 border border-navy-700 overflow-hidden shrink-0">
+                    <img src="${p.image}" class="w-full h-full object-cover" />
+                  </div>
+                  <div class="truncate">
+                    <p class="font-bold text-white truncate">${p.title}</p>
+                    <div class="flex items-center gap-2 text-[10px] text-slate-400 mt-0.5">
+                      <span class="text-gold-400 font-mono font-bold">MRP: ₹${p.mrp || p.price}</span>
+                      <span>•</span>
+                      <span class="text-emerald-400 font-bold bg-emerald-500/10 px-1.5 py-0.2 rounded">${slab.slabName}</span>
+                    </div>
+                  </div>
+                </div>
+                <div class="text-right shrink-0">
+                  <div class="font-mono font-black text-white text-xs">Price: ₹${p.price}</div>
+                  <div class="text-[10px] text-slate-400">Admin: <span class="text-gold-400">₹${slab.adminMargin}</span> | You get: <strong class="text-emerald-400">₹${slab.sellerPayout}</strong></div>
+                </div>
+              </div>
+            `;
+          }).join('');
+        }
+      }
+
+      // Render Orders List
+      const ordersListEl = document.getElementById("sellerOrdersList");
+      if (ordersListEl) {
+        if (sellerOrders.length === 0) {
+          ordersListEl.innerHTML = `
+            <div class="text-center p-6 bg-navy-950 rounded-2xl text-slate-400 text-xs">
+              <i class="fa-solid fa-box-open text-slate-600 text-2xl mb-1"></i>
+              <p>No customer orders for your items yet. When customers order, packing alerts appear here.</p>
+            </div>
+          `;
+        } else {
+          ordersListEl.innerHTML = sellerOrders.map(itemObj => `
+            <div class="bg-navy-950 border border-navy-800 rounded-2xl p-4 text-xs">
+              <div class="flex items-center justify-between mb-2 pb-2 border-b border-navy-800">
+                <span class="font-mono font-bold text-white">Order #${itemObj.order.orderId}</span>
+                <span class="text-[10px] bg-emerald-500/15 border border-emerald-500/30 text-emerald-300 px-2 py-0.5 rounded-full font-bold">
+                  Pack for Pickup
+                </span>
+              </div>
+              <div class="space-y-1.5 mb-3">
+                ${itemObj.items.map(i => `
+                  <div class="flex items-center justify-between text-[11px]">
+                    <span class="text-slate-300 font-semibold">• ${i.title} (x${i.quantity})</span>
+                    <span class="font-mono font-bold text-gold-400">₹${i.price * i.quantity}</span>
+                  </div>
+                `).join('')}
+              </div>
+              <div class="flex items-center justify-between pt-2 border-t border-navy-800/80 text-[11px]">
+                <span class="text-slate-400">Net Receivable: <strong class="text-emerald-400 font-mono">₹${itemObj.net}</strong></span>
+                <button 
+                  onclick="sendPackingAlertToSeller('${itemObj.order.orderId}', '${seller.id}')" 
+                  class="px-2.5 py-1 rounded-lg bg-emerald-500/20 hover:bg-emerald-500/30 border border-emerald-500/40 text-emerald-300 font-bold text-[10px] flex items-center gap-1"
+                >
+                  <i class="fa-brands fa-whatsapp"></i> View WhatsApp Slip
+                </button>
+              </div>
+            </div>
+          `).join('');
+        }
+      }
+    }
+
+    function openSellerAddProductModal() {
+      if (!activeSellerId && sellers.length > 0) activeSellerId = sellers[0].id;
+      const seller = sellers.find(s => s.id === activeSellerId) || sellers[0];
+      
+      closeSellerDashboardModal();
+      openAddProductModal();
+
+      if (seller) {
+        const sourceInput = document.getElementById("prodSourceInput");
+        const categoryInput = document.getElementById("prodCategoryInput");
+        if (sourceInput) sourceInput.value = seller.shopName;
+        if (categoryInput && seller.category) categoryInput.value = seller.category;
+      }
+    }
+
+    function requestSellerPayoutWhatsApp() {
+      const seller = sellers.find(s => s.id === activeSellerId) || sellers[0];
+      if (!seller) return;
+
+      const msg = `Namaste MD Meraj Ansari (MS ZenoMart Admin).
+This is ${seller.name} from partner shop *${seller.shopName}* (+91 ${seller.phone}).
+Please clear our pending payout settlement.
+My Payout UPI ID is: ${seller.upiId || 'Please reply to receive QR'}.
+Thank you!`;
+
+      const waUrl = `https://wa.me/${PRIVATE_OWNER_WHATSAPP}?text=${encodeURIComponent(msg)}`;
+      window.open(waUrl, "_blank");
+    }
+
+    function openAdminChatFromSeller() {
+      const seller = sellers.find(s => s.id === activeSellerId) || sellers[0];
+      const shopName = seller ? seller.shopName : "Partner Merchant";
+      const msg = `Hello Admin MD Meraj Ansari, I am contacting you regarding partner shop *${shopName}* on MS ZenoMart.`;
+      const waUrl = `https://wa.me/${PRIVATE_OWNER_WHATSAPP}?text=${encodeURIComponent(msg)}`;
+      window.open(waUrl, "_blank");
+    }
+
+    function sellerLogout() {
+      removeStoreItem("zenomart_active_seller_id");
+      activeSellerId = null;
+      checkSellerSession();
+      closeSellerDashboardModal();
+      showToast("Signed Out", "Switched out of seller account.");
+    }
+
+    // --------------------------------------------------------
+    // Centralized Admin WhatsApp Seller Management & Payouts
+    // --------------------------------------------------------
+    function openAdminSellerModal() {
+      if (!isAdminLoggedIn()) {
+        showToast("Access Restricted", "Admin privileges required. Please sign in as MD Meraj Ansari.");
+        openAdminLoginModal();
+        return;
+      }
+
+      const modal = document.getElementById("adminSellerModal");
+      const backdrop = document.getElementById("adminSellerModalBackdrop");
+      if (!modal || !backdrop) return;
+
+      renderAdminSellersList();
+
+      backdrop.classList.remove("opacity-0", "pointer-events-none");
+      backdrop.classList.add("opacity-100", "pointer-events-auto");
+      modal.classList.remove("opacity-0", "pointer-events-none");
+      modal.classList.add("opacity-100", "pointer-events-auto");
+    }
+
+    function closeAdminSellerModal() {
+      const modal = document.getElementById("adminSellerModal");
+      const backdrop = document.getElementById("adminSellerModalBackdrop");
+      if (!modal || !backdrop) return;
+      backdrop.classList.add("opacity-0", "pointer-events-none");
+      backdrop.classList.remove("opacity-100", "pointer-events-auto");
+      modal.classList.add("opacity-0", "pointer-events-none");
+      modal.classList.remove("opacity-100", "pointer-events-auto");
+    }
+
+    function renderAdminSellersList() {
+      const container = document.getElementById("adminSellersListContainer");
+      if (!container) return;
+
+      let totalGrossAll = 0;
+      let totalAdminMarginAll = 0;
+      let totalSellerProductsAll = 0;
+
+      const sellerCardsHtml = sellers.map(seller => {
+        // Products count
+        const prods = products.filter(p => {
+          if (p.sellerId && p.sellerId === seller.id) return true;
+          if (p.sellerPhone && p.sellerPhone === seller.phone) return true;
+          if (p.sourceShop && (p.sourceShop.toLowerCase().includes(seller.shopName.toLowerCase()) || seller.shopName.toLowerCase().includes(p.sourceShop.toLowerCase()))) return true;
+          return false;
+        });
+        totalSellerProductsAll += prods.length;
+
+        // Sales calculation
+        let sellerGross = 0;
+        let sellerMargin = 0;
+        let sellerItemCount = 0;
+
+        orders.forEach(ord => {
+          ord.items.forEach(i => {
+            const s = findSellerForProduct(i);
+            if (s && s.id === seller.id) {
+              const amount = (i.price * i.quantity);
+              const slab = getAdminCommission(i.price);
+              sellerGross += amount;
+              sellerMargin += (slab.adminMargin * i.quantity);
+              sellerItemCount += i.quantity;
+            }
+          });
+        });
+
+        totalGrossAll += sellerGross;
+        totalAdminMarginAll += sellerMargin;
+        const netPayable = Math.max(0, sellerGross - sellerMargin);
+
+        return `
+          <div class="bg-navy-950 border border-navy-800 hover:border-gold-500/40 rounded-2xl p-4 transition-all shadow-md">
+            <div class="flex flex-wrap items-center justify-between gap-2 mb-2 pb-2 border-b border-navy-800">
+              <div class="flex items-center gap-2">
+                <span class="font-black text-white text-sm">${seller.shopName}</span>
+                <span class="text-[9px] bg-emerald-500/20 text-emerald-400 border border-emerald-500/40 px-2 py-0.2 rounded-full font-bold">
+                  ${seller.category || 'Retail'}
+                </span>
+              </div>
+              <span class="text-[10px] text-slate-400">Reg: ${seller.registeredDate || 'Verified'}</span>
+            </div>
+
+            <div class="grid grid-cols-1 sm:grid-cols-2 gap-2 text-[11px] text-slate-300 mb-3">
+              <div>
+                <p>👤 <strong>Owner:</strong> ${seller.name}</p>
+                <p>📞 <strong>Phone:</strong> <a href="tel:${seller.phone}" class="text-blue-400 hover:underline font-mono">+91 ${seller.phone}</a></p>
+                <p>📍 <strong>Shop Locality:</strong> ${seller.address}</p>
+              </div>
+              <div class="sm:text-right">
+                <p>💳 <strong>UPI ID:</strong> <span class="font-mono text-gold-400">${seller.upiId || 'Not Set'}</span></p>
+                <p>📦 <strong>Items Sold:</strong> ${sellerItemCount} units (${prods.length} in catalog)</p>
+                <p>💰 <strong>Sales:</strong> <span class="font-mono text-white">₹${sellerGross}</span> | Margin: <span class="text-gold-400 font-mono">₹${sellerMargin}</span></p>
+                <p class="text-xs font-bold text-emerald-400 mt-1">Net Payout Due: <span class="font-mono text-base font-black">₹${netPayable}</span></p>
+              </div>
+            </div>
+
+            <!-- Centralized Master WhatsApp Actions for Admin -->
+            <div class="flex flex-wrap items-center justify-end gap-2 pt-2 border-t border-navy-800/80">
+              <a 
+                href="https://wa.me/91${seller.phone.replace(/\D/g, '')}?text=${encodeURIComponent(`Namaste ${seller.name}ji (MD Meraj Ansari - MS ZenoMart Admin).`)}"
+                target="_blank"
+                class="px-3 py-1.5 rounded-xl bg-navy-900 hover:bg-navy-800 text-slate-200 border border-navy-700 text-xs font-bold transition-all flex items-center gap-1.5"
+              >
+                <i class="fa-brands fa-whatsapp text-emerald-400"></i>
+                <span>Direct WhatsApp Chat</span>
+              </a>
+
+              <button 
+                type="button" 
+                onclick="requestSellerUpiWhatsApp('${seller.id}')"
+                class="px-3 py-1.5 rounded-xl bg-blue-600/20 hover:bg-blue-600/30 text-blue-300 border border-blue-500/40 text-xs font-bold transition-all flex items-center gap-1.5"
+              >
+                <i class="fa-solid fa-qrcode text-blue-400"></i>
+                <span>Request UPI / QR via WhatsApp</span>
+              </button>
+
+              <button 
+                type="button" 
+                onclick="clearSellerPayout('${seller.id}')"
+                class="px-3.5 py-1.5 rounded-xl bg-gradient-to-r from-emerald-500 to-teal-500 hover:from-emerald-400 text-navy-950 font-black text-xs transition-all shadow-md flex items-center gap-1.5"
+              >
+                <i class="fa-solid fa-money-bill-transfer"></i>
+                <span>Clear Payout & WhatsApp Receipt</span>
+              </button>
+            </div>
+          </div>
+        `;
+      }).join('');
+
+      container.innerHTML = sellerCardsHtml;
+
+      // Update KPIs
+      const totSellersEl = document.getElementById("adminTotalSellersCount");
+      const totProdsEl = document.getElementById("adminTotalSellerProductsCount");
+      const totMarginEl = document.getElementById("adminTotalCommissionEarned");
+      const totPayoutsEl = document.getElementById("adminTotalSellerPayouts");
+
+      if (totSellersEl) totSellersEl.innerText = sellers.length;
+      if (totProdsEl) totProdsEl.innerText = totalSellerProductsAll;
+      if (totMarginEl) totMarginEl.innerText = `₹${totalAdminMarginAll}`;
+      if (totPayoutsEl) totPayoutsEl.innerText = `₹${Math.max(0, totalGrossAll - totalAdminMarginAll)}`;
+    }
+
+    function requestSellerUpiWhatsApp(sellerId) {
+      const seller = sellers.find(s => s.id === sellerId);
+      if (!seller) return;
+
+      let sellerGross = 0;
+      let sellerMargin = 0;
+      orders.forEach(ord => {
+        ord.items.forEach(i => {
+          const s = findSellerForProduct(i);
+          if (s && s.id === seller.id) {
+            const slab = getAdminCommission(i.price);
+            sellerGross += (i.price * i.quantity);
+            sellerMargin += (slab.adminMargin * i.quantity);
+          }
+        });
+      });
+      const net = Math.max(0, sellerGross - sellerMargin);
+
+      const reqMsg = `Namaste ${seller.name}ji.
+This is MD Meraj Ansari (Store Owner & Admin, MS ZenoMart).
+Your current sales payout due is *₹${net}* (Gross: ₹${sellerGross} minus progressive admin commission: ₹${sellerMargin}).
+Please share your UPI ID / PhonePe / GPay QR code directly in this chat so I can clear your payout instantly.
+Thank you!`;
+
+      const waUrl = `https://wa.me/91${seller.phone.replace(/\D/g, '')}?text=${encodeURIComponent(reqMsg)}`;
+      window.open(waUrl, "_blank");
+      showToast("UPI Request Sent", `WhatsApp UPI request opened for ${seller.shopName}.`);
+    }
+
+    function clearSellerPayout(sellerId) {
+      const seller = sellers.find(s => s.id === sellerId);
+      if (!seller) return;
+
+      let sellerGross = 0;
+      let sellerMargin = 0;
+      orders.forEach(ord => {
+        ord.items.forEach(i => {
+          const s = findSellerForProduct(i);
+          if (s && s.id === seller.id) {
+            const slab = getAdminCommission(i.price);
+            sellerGross += (i.price * i.quantity);
+            sellerMargin += (slab.adminMargin * i.quantity);
+          }
+        });
+      });
+      const net = Math.max(0, sellerGross - sellerMargin);
+
+      const ref = prompt(`Clear payout of ₹${net} for ${seller.shopName}?\n\nEnter Transaction UTR / Ref ID (optional):`, "UPI-" + Math.floor(100000 + Math.random() * 900000));
+      if (ref === null) return;
+
+      const settlementReceiptMsg = `🎉 *MS ZENOMART - SELLER PAYOUT SETTLEMENT RECEIPT*
+🏬 *Partner Shop:* ${seller.shopName}
+👤 *Seller Name:* ${seller.name} (+91 ${seller.phone})
+🗓 *Date:* ${new Date().toLocaleDateString('en-IN')} ${new Date().toLocaleTimeString()}
+🔢 *Settlement Ref / UTR:* ${ref || 'DIRECT-UPI-SETTLED'}
+
+📊 *PAYOUT BREAKDOWN:*
+• Gross Sourced Sales: ₹${sellerGross}
+• Admin Commission Deducted: -₹${sellerMargin}
+• *NET AMOUNT TRANSFERRED:* ₹${net}
+
+🏦 *Settled & Cleared By:*
+MD Meraj Ansari (Store Owner & Admin, MS ZenoMart)
+📞 WhatsApp / Phone: +91 79798 64406
+
+_Thank you for partnering with MS ZenoMart Hyperlocal Network!_`;
+
+      const waUrl = `https://wa.me/91${seller.phone.replace(/\D/g, '')}?text=${encodeURIComponent(settlementReceiptMsg)}`;
+      window.open(waUrl, "_blank");
+      showToast("Payout Cleared", `Settlement receipt sent to ${seller.shopName} via WhatsApp.`);
     }
 
     // --------------------------------------------------------
