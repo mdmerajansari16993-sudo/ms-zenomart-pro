@@ -11,8 +11,10 @@ import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
+import androidx.compose.foundation.layout.WindowInsets
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
+import androidx.compose.foundation.layout.navigationBars
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
@@ -22,9 +24,8 @@ import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.text.KeyboardActions
 import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.filled.ArrowForward
+import androidx.compose.material.icons.automirrored.filled.ArrowForward
 import androidx.compose.material.icons.filled.Bolt
-import androidx.compose.material.icons.filled.Check
 import androidx.compose.material.icons.filled.Clear
 import androidx.compose.material.icons.filled.Computer
 import androidx.compose.material.icons.filled.DryCleaning
@@ -36,21 +37,30 @@ import androidx.compose.material.icons.filled.KeyboardArrowDown
 import androidx.compose.material.icons.filled.KeyboardArrowLeft
 import androidx.compose.material.icons.filled.KeyboardArrowRight
 import androidx.compose.material.icons.filled.LocalMall
+import androidx.compose.material.icons.filled.LocalShipping
+import androidx.compose.material.icons.filled.LocationOn
 import androidx.compose.material.icons.filled.Person
 import androidx.compose.material.icons.filled.Search
 import androidx.compose.material.icons.filled.ShoppingBag
 import androidx.compose.material.icons.filled.ShoppingCart
+import androidx.compose.material.icons.filled.Storefront
+import androidx.compose.material.icons.filled.Timer
 import androidx.compose.material.icons.filled.Weekend
 import androidx.compose.material.icons.outlined.Person
 import androidx.compose.material3.Badge
 import androidx.compose.material3.BadgedBox
 import androidx.compose.material3.Button
 import androidx.compose.material3.ButtonDefaults
+import androidx.compose.material3.Card
+import androidx.compose.material3.CardDefaults
 import androidx.compose.material3.DropdownMenu
 import androidx.compose.material3.DropdownMenuItem
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
-import androidx.compose.material3.MaterialTheme
+import androidx.compose.material3.LinearProgressIndicator
+import androidx.compose.material3.NavigationBar
+import androidx.compose.material3.NavigationBarItem
+import androidx.compose.material3.NavigationBarItemDefaults
 import androidx.compose.material3.OutlinedTextField
 import androidx.compose.material3.OutlinedTextFieldDefaults
 import androidx.compose.material3.Surface
@@ -65,15 +75,15 @@ import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
-import androidx.compose.ui.draw.shadow
 import androidx.compose.ui.graphics.Brush
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.graphics.StrokeCap
 import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.platform.LocalFocusManager
 import androidx.compose.ui.platform.testTag
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.input.ImeAction
-import androidx.compose.ui.text.style.TextAlign
+import androidx.compose.ui.text.style.TextDecoration
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
@@ -85,9 +95,16 @@ import com.example.ui.theme.NavyCard
 import com.example.ui.theme.NavyDark
 import com.example.ui.theme.NavyPrimary
 import com.example.ui.theme.OrangeAccent
-import com.example.ui.theme.OrangeGlow
+import com.example.ui.theme.SlateBorder
 import kotlinx.coroutines.delay
 
+/**
+ * TopStickyNavBar mimics the signature Amazon/Flipkart mobile header:
+ * 1. Delivery Location bar with pin icon
+ * 2. Brand bar with Logo, Wishlist, Cart, and Profile
+ * 3. Prominent, clean search bar with integrated Category dropdown and clear icon
+ * 4. Trending search keyword pills
+ */
 @Composable
 fun TopStickyNavBar(
     searchQuery: String,
@@ -113,59 +130,85 @@ fun TopStickyNavBar(
         shadowElevation = 8.dp
     ) {
         Column(modifier = Modifier.fillMaxWidth()) {
-            // Micro announcement header
+            
+            // 1. Amazon / Flipkart Delivery Location Strip
             Row(
                 modifier = Modifier
                     .fillMaxWidth()
                     .background(NavyDark)
-                    .padding(horizontal = 16.dp, vertical = 5.dp),
+                    .padding(horizontal = 14.dp, vertical = 5.dp),
                 verticalAlignment = Alignment.CenterVertically,
                 horizontalArrangement = Arrangement.SpaceBetween
             ) {
-                Row(verticalAlignment = Alignment.CenterVertically) {
+                Row(
+                    verticalAlignment = Alignment.CenterVertically,
+                    modifier = Modifier.weight(1f, fill = false)
+                ) {
                     Icon(
-                        imageVector = Icons.Default.Bolt,
-                        contentDescription = "Sale",
+                        imageVector = Icons.Default.LocationOn,
+                        contentDescription = "Location",
                         tint = OrangeAccent,
                         modifier = Modifier.size(14.dp)
                     )
                     Spacer(modifier = Modifier.width(4.dp))
                     Text(
-                        text = "Mega Sale Live: ",
-                        color = GoldAccent,
-                        fontSize = 11.sp,
-                        fontWeight = FontWeight.Bold
-                    )
-                    Text(
-                        text = "Use coupon ZENO20 for 20% off",
-                        color = Color(0xFFE2E8F0),
+                        text = "Deliver to: ",
+                        color = Color(0xFF94A3B8),
                         fontSize = 11.sp
                     )
+                    Text(
+                        text = "MD Meraj Ansari - Deoghar 814112 ▾",
+                        color = Color.White,
+                        fontSize = 11.sp,
+                        fontWeight = FontWeight.Bold,
+                        maxLines = 1,
+                        overflow = TextOverflow.Ellipsis
+                    )
                 }
-                Text(
-                    text = "Free Express Delivery over $50",
-                    color = Color(0xFF94A3B8),
-                    fontSize = 10.sp,
-                    fontWeight = FontWeight.Medium
-                )
+
+                // Express Delivery Pill
+                Surface(
+                    color = Color(0xFF10B981).copy(alpha = 0.15f),
+                    shape = RoundedCornerShape(12.dp),
+                    border = androidx.compose.foundation.BorderStroke(1.dp, Color(0xFF10B981).copy(alpha = 0.4f))
+                ) {
+                    Row(
+                        modifier = Modifier.padding(horizontal = 6.dp, vertical = 2.dp),
+                        verticalAlignment = Alignment.CenterVertically
+                    ) {
+                        Icon(
+                            imageVector = Icons.Default.LocalShipping,
+                            contentDescription = null,
+                            tint = Color(0xFF34D399),
+                            modifier = Modifier.size(11.dp)
+                        )
+                        Spacer(modifier = Modifier.width(3.dp))
+                        Text(
+                            text = "60-90 Min Express",
+                            color = Color(0xFF34D399),
+                            fontSize = 9.sp,
+                            fontWeight = FontWeight.Bold
+                        )
+                    }
+                }
             }
 
-            // Main Bar: Brand Logo, Profile, Wishlist, Cart
+            // 2. Main Brand Bar: Brand Logo, Profile, Wishlist, Cart
             Row(
                 modifier = Modifier
                     .fillMaxWidth()
-                    .padding(horizontal = 16.dp, vertical = 10.dp),
+                    .padding(horizontal = 14.dp, vertical = 8.dp),
                 verticalAlignment = Alignment.CenterVertically,
                 horizontalArrangement = Arrangement.SpaceBetween
             ) {
                 // Brand Logo
                 Row(
                     verticalAlignment = Alignment.CenterVertically,
-                    modifier = Modifier.clickable { /* Reset or Home */ }
+                    modifier = Modifier.clickable { onCategoryChanged("all"); onSearchChanged("") }
                 ) {
                     Box(
                         modifier = Modifier
-                            .size(38.dp)
+                            .size(36.dp)
                             .clip(RoundedCornerShape(10.dp))
                             .background(
                                 Brush.linearGradient(
@@ -175,11 +218,11 @@ fun TopStickyNavBar(
                             .border(1.dp, GoldAccent.copy(alpha = 0.5f), RoundedCornerShape(10.dp)),
                         contentAlignment = Alignment.Center
                     ) {
-                        Icon(
-                            imageVector = Icons.Default.ShoppingBag,
-                            contentDescription = "Logo",
-                            tint = Color.White,
-                            modifier = Modifier.size(20.dp)
+                        Text(
+                            text = "Z",
+                            color = Color.White,
+                            fontSize = 20.sp,
+                            fontWeight = FontWeight.Black
                         )
                     }
                     Spacer(modifier = Modifier.width(8.dp))
@@ -188,24 +231,37 @@ fun TopStickyNavBar(
                             Text(
                                 text = "MS ",
                                 color = Color.White,
-                                fontSize = 18.sp,
+                                fontSize = 17.sp,
                                 fontWeight = FontWeight.Black,
                                 letterSpacing = (-0.5).sp
                             )
                             Text(
                                 text = "ZenoMart",
                                 color = GoldAccent,
-                                fontSize = 18.sp,
+                                fontSize = 17.sp,
                                 fontWeight = FontWeight.Black,
                                 letterSpacing = (-0.5).sp
                             )
+                            Spacer(modifier = Modifier.width(4.dp))
+                            Surface(
+                                color = OrangeAccent,
+                                shape = RoundedCornerShape(4.dp)
+                            ) {
+                                Text(
+                                    text = "PLUS",
+                                    color = Color.White,
+                                    fontSize = 7.sp,
+                                    fontWeight = FontWeight.Black,
+                                    modifier = Modifier.padding(horizontal = 3.dp, vertical = 1.dp)
+                                )
+                            }
                         }
                         Text(
-                            text = "PREMIUM E-COMMERCE",
+                            text = "HYPERLOCAL DROPSHIPPING",
                             color = Color(0xFF94A3B8),
                             fontSize = 8.sp,
                             fontWeight = FontWeight.Bold,
-                            letterSpacing = 1.sp
+                            letterSpacing = 0.8.sp
                         )
                     }
                 }
@@ -213,13 +269,13 @@ fun TopStickyNavBar(
                 // Action Icons (Profile, Wishlist, Cart)
                 Row(
                     verticalAlignment = Alignment.CenterVertically,
-                    horizontalArrangement = Arrangement.spacedBy(8.dp)
+                    horizontalArrangement = Arrangement.spacedBy(6.dp)
                 ) {
                     // Profile Icon
                     IconButton(
                         onClick = onProfileClicked,
                         modifier = Modifier
-                            .size(40.dp)
+                            .size(36.dp)
                             .clip(RoundedCornerShape(10.dp))
                             .background(NavyCard)
                             .testTag("user_profile_button")
@@ -228,7 +284,7 @@ fun TopStickyNavBar(
                             imageVector = Icons.Outlined.Person,
                             contentDescription = "Profile",
                             tint = GoldLight,
-                            modifier = Modifier.size(20.dp)
+                            modifier = Modifier.size(19.dp)
                         )
                     }
 
@@ -236,7 +292,7 @@ fun TopStickyNavBar(
                     IconButton(
                         onClick = onWishlistClicked,
                         modifier = Modifier
-                            .size(40.dp)
+                            .size(36.dp)
                             .clip(RoundedCornerShape(10.dp))
                             .background(NavyCard)
                             .testTag("wishlist_button")
@@ -257,22 +313,22 @@ fun TopStickyNavBar(
                                 imageVector = if (wishlistCount > 0) Icons.Default.Favorite else Icons.Default.FavoriteBorder,
                                 contentDescription = "Wishlist",
                                 tint = if (wishlistCount > 0) OrangeAccent else Color(0xFFE2E8F0),
-                                modifier = Modifier.size(20.dp)
+                                modifier = Modifier.size(19.dp)
                             )
                         }
                     }
 
-                    // Cart Button with Counter Badge & Subtotal
+                    // Cart Button with Counter Badge & Rupee Subtotal
                     Button(
                         onClick = onCartClicked,
                         colors = ButtonDefaults.buttonColors(
                             containerColor = OrangeAccent,
-                            contentColor = NavyDark
+                            contentColor = Color.White
                         ),
-                        shape = RoundedCornerShape(12.dp),
-                        contentPadding = androidx.compose.foundation.layout.PaddingValues(horizontal = 10.dp, vertical = 6.dp),
+                        shape = RoundedCornerShape(10.dp),
+                        contentPadding = androidx.compose.foundation.layout.PaddingValues(horizontal = 9.dp, vertical = 4.dp),
                         modifier = Modifier
-                            .height(40.dp)
+                            .height(36.dp)
                             .testTag("cart_button")
                     ) {
                         BadgedBox(
@@ -291,25 +347,25 @@ fun TopStickyNavBar(
                                 imageVector = Icons.Default.ShoppingCart,
                                 contentDescription = "Cart",
                                 tint = Color.White,
-                                modifier = Modifier.size(18.dp)
+                                modifier = Modifier.size(17.dp)
                             )
                         }
-                        Spacer(modifier = Modifier.width(6.dp))
+                        Spacer(modifier = Modifier.width(5.dp))
                         Text(
-                            text = if (cartSubtotal > 0) "$${String.format("%.2f", cartSubtotal)}" else "Cart",
+                            text = if (cartSubtotal > 0) "₹${cartSubtotal.toInt()}" else "Cart",
                             color = Color.White,
-                            fontSize = 12.sp,
+                            fontSize = 11.sp,
                             fontWeight = FontWeight.Bold
                         )
                     }
                 }
             }
 
-            // Global Search Bar with integrated Category Dropdown
+            // 3. Prominent Amazon / Flipkart Search Bar
             Row(
                 modifier = Modifier
                     .fillMaxWidth()
-                    .padding(start = 16.dp, end = 16.dp, bottom = 12.dp),
+                    .padding(start = 14.dp, end = 14.dp, bottom = 6.dp),
                 verticalAlignment = Alignment.CenterVertically
             ) {
                 OutlinedTextField(
@@ -317,9 +373,11 @@ fun TopStickyNavBar(
                     onValueChange = onSearchChanged,
                     placeholder = {
                         Text(
-                            text = "Search in MS ZenoMart...",
+                            text = "Search jeans, electronics, groceries, ghee...",
                             color = Color(0xFF94A3B8),
-                            fontSize = 13.sp
+                            fontSize = 12.sp,
+                            maxLines = 1,
+                            overflow = TextOverflow.Ellipsis
                         )
                     },
                     leadingIcon = {
@@ -407,10 +465,45 @@ fun TopStickyNavBar(
                         .testTag("global_search_input")
                 )
             }
+
+            // 4. Amazon & Flipkart Trending Keywords Strip
+            Row(
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .horizontalScroll(rememberScrollState())
+                    .padding(start = 14.dp, end = 14.dp, bottom = 8.dp),
+                verticalAlignment = Alignment.CenterVertically,
+                horizontalArrangement = Arrangement.spacedBy(6.dp)
+            ) {
+                Text(
+                    text = "Trending:",
+                    color = GoldAccent,
+                    fontSize = 10.sp,
+                    fontWeight = FontWeight.Bold
+                )
+                listOf("Jeans", "Headphones", "Ghee", "T-Shirt", "Sneakers", "Wallet").forEach { tag ->
+                    Surface(
+                        color = NavyDark,
+                        shape = RoundedCornerShape(12.dp),
+                        border = androidx.compose.foundation.BorderStroke(1.dp, NavyBorder),
+                        modifier = Modifier.clickable { onSearchChanged(tag) }
+                    ) {
+                        Text(
+                            text = tag,
+                            color = Color(0xFFE2E8F0),
+                            fontSize = 10.sp,
+                            modifier = Modifier.padding(horizontal = 8.dp, vertical = 2.dp)
+                        )
+                    }
+                }
+            }
         }
     }
 }
 
+/**
+ * Top-tier Hero Banner Carousel (Amazon Great Indian Festival / Flipkart Big Billion Days style)
+ */
 @Composable
 fun HeroBannerCarousel(
     onShopNowClicked: () -> Unit,
@@ -422,20 +515,25 @@ fun HeroBannerCarousel(
     LaunchedEffect(Unit) {
         while (true) {
             delay(4500)
-            activeSlide = (activeSlide + 1) % 2
+            activeSlide = (activeSlide + 1) % 3
         }
     }
 
     val slides = listOf(
         Triple(
-            "GRAND MEGA SALE - UP TO 70% OFF",
-            "Upgrade With ZenoTech & Audio Gadgets",
-            "Explore ANC noise-cancelling studio sound, AMOLED smartwatches, and next-gen gaming power."
+            "⚡ FLASH SALE • UP TO 70% OFF",
+            "Trending Stretch Denim & Audio Gadgets",
+            "Shop ANC noise-cancelling headphones, AMOLED smartwatches, and premium stretch denim jeans."
         ),
         Triple(
-            "EXCLUSIVE SEASON DROP - FLAT 45% OFF",
-            "Refine Your Style With Zeno Couture",
-            "Signature genuine grain leather bombers, titanium chronographs, and Italian sunglasses."
+            "🏪 HYPERLOCAL FRESH • 60-90 MINS",
+            "Pure A2 Cow Ghee & Daily Grocery Mart",
+            "Direct neighborhood store sourcing with zero delay. Free delivery on orders over ₹1000!"
+        ),
+        Triple(
+            "🔥 EXCLUSIVE DROP • FLAT 50% OFF",
+            "Signature Genuine Leather & Couture",
+            "Handcrafted cowhide bifold wallets with gift box, titanium aviators, and artisan wear."
         )
     )
 
@@ -444,66 +542,100 @@ fun HeroBannerCarousel(
     Box(
         modifier = modifier
             .fillMaxWidth()
-            .padding(horizontal = 16.dp, vertical = 12.dp)
-            .clip(RoundedCornerShape(20.dp))
+            .padding(horizontal = 14.dp, vertical = 8.dp)
+            .clip(RoundedCornerShape(18.dp))
             .background(
                 Brush.horizontalGradient(
                     listOf(NavyDark, NavyCard, NavyDark)
                 )
             )
-            .border(1.dp, GoldAccent.copy(alpha = 0.35f), RoundedCornerShape(20.dp))
-            .padding(18.dp)
+            .border(1.dp, GoldAccent.copy(alpha = 0.35f), RoundedCornerShape(18.dp))
+            .padding(16.dp)
             .testTag("hero_banner_carousel")
     ) {
         Column {
-            // Tag Pill
+            // Tag Pill & Countdown
             Row(
+                modifier = Modifier.fillMaxWidth(),
                 verticalAlignment = Alignment.CenterVertically,
-                modifier = Modifier
-                    .clip(RoundedCornerShape(20.dp))
-                    .background(OrangeAccent.copy(alpha = 0.2f))
-                    .border(1.dp, OrangeAccent.copy(alpha = 0.4f), RoundedCornerShape(20.dp))
-                    .padding(horizontal = 8.dp, vertical = 4.dp)
+                horizontalArrangement = Arrangement.SpaceBetween
             ) {
-                Icon(
-                    imageVector = Icons.Default.Bolt,
-                    contentDescription = "Flash",
-                    tint = OrangeAccent,
-                    modifier = Modifier.size(12.dp)
-                )
-                Spacer(modifier = Modifier.width(4.dp))
-                Text(
-                    text = current.first,
-                    color = OrangeAccent,
-                    fontSize = 9.sp,
-                    fontWeight = FontWeight.ExtraBold,
-                    letterSpacing = 0.5.sp
-                )
+                Row(
+                    verticalAlignment = Alignment.CenterVertically,
+                    modifier = Modifier
+                        .clip(RoundedCornerShape(20.dp))
+                        .background(OrangeAccent.copy(alpha = 0.2f))
+                        .border(1.dp, OrangeAccent.copy(alpha = 0.4f), RoundedCornerShape(20.dp))
+                        .padding(horizontal = 8.dp, vertical = 3.dp)
+                ) {
+                    Icon(
+                        imageVector = Icons.Default.Bolt,
+                        contentDescription = "Flash",
+                        tint = OrangeAccent,
+                        modifier = Modifier.size(12.dp)
+                    )
+                    Spacer(modifier = Modifier.width(4.dp))
+                    Text(
+                        text = current.first,
+                        color = OrangeAccent,
+                        fontSize = 9.sp,
+                        fontWeight = FontWeight.ExtraBold,
+                        letterSpacing = 0.5.sp
+                    )
+                }
+
+                // Countdown Pill
+                Surface(
+                    color = Color.Red.copy(alpha = 0.2f),
+                    shape = RoundedCornerShape(12.dp),
+                    border = androidx.compose.foundation.BorderStroke(1.dp, Color.Red.copy(alpha = 0.4f))
+                ) {
+                    Row(
+                        modifier = Modifier.padding(horizontal = 6.dp, vertical = 2.dp),
+                        verticalAlignment = Alignment.CenterVertically
+                    ) {
+                        Icon(
+                            imageVector = Icons.Default.Timer,
+                            contentDescription = null,
+                            tint = Color(0xFFF87171),
+                            modifier = Modifier.size(11.dp)
+                        )
+                        Spacer(modifier = Modifier.width(3.dp))
+                        Text(
+                            text = "Ends Tonight",
+                            color = Color(0xFFF87171),
+                            fontSize = 8.sp,
+                            fontWeight = FontWeight.Black
+                        )
+                    }
+                }
             }
 
-            Spacer(modifier = Modifier.height(10.dp))
+            Spacer(modifier = Modifier.height(8.dp))
 
             // Main Title
             Text(
                 text = current.second,
                 color = Color.White,
-                fontSize = 20.sp,
+                fontSize = 18.sp,
                 fontWeight = FontWeight.Black,
-                lineHeight = 24.sp,
+                lineHeight = 22.sp,
                 letterSpacing = (-0.5).sp
             )
 
-            Spacer(modifier = Modifier.height(6.dp))
+            Spacer(modifier = Modifier.height(4.dp))
 
             // Subtitle
             Text(
                 text = current.third,
                 color = Color(0xFFCBD5E1),
-                fontSize = 12.sp,
-                lineHeight = 16.sp
+                fontSize = 11.sp,
+                lineHeight = 15.sp,
+                maxLines = 2,
+                overflow = TextOverflow.Ellipsis
             )
 
-            Spacer(modifier = Modifier.height(14.dp))
+            Spacer(modifier = Modifier.height(12.dp))
 
             // Shop button and Carousel dots
             Row(
@@ -518,33 +650,33 @@ fun HeroBannerCarousel(
                         contentColor = NavyDark
                     ),
                     shape = RoundedCornerShape(10.dp),
-                    contentPadding = androidx.compose.foundation.layout.PaddingValues(horizontal = 14.dp, vertical = 8.dp)
+                    contentPadding = androidx.compose.foundation.layout.PaddingValues(horizontal = 14.dp, vertical = 6.dp)
                 ) {
                     Text(
                         text = "Shop Deals",
                         fontWeight = FontWeight.ExtraBold,
-                        fontSize = 12.sp
+                        fontSize = 11.sp
                     )
-                    Spacer(modifier = Modifier.width(6.dp))
+                    Spacer(modifier = Modifier.width(5.dp))
                     Icon(
-                        imageVector = Icons.Default.ArrowForward,
+                        imageVector = Icons.AutoMirrored.Filled.ArrowForward,
                         contentDescription = "Go",
                         tint = NavyDark,
-                        modifier = Modifier.size(14.dp)
+                        modifier = Modifier.size(13.dp)
                     )
                 }
 
                 // Controls: Previous / Next & Indicator dots
                 Row(verticalAlignment = Alignment.CenterVertically) {
                     IconButton(
-                        onClick = { activeSlide = if (activeSlide == 0) 1 else 0 },
-                        modifier = Modifier.size(28.dp)
+                        onClick = { activeSlide = if (activeSlide == 0) 2 else activeSlide - 1 },
+                        modifier = Modifier.size(26.dp)
                     ) {
                         Icon(
                             imageVector = Icons.Default.KeyboardArrowLeft,
                             contentDescription = "Prev",
                             tint = Color.White,
-                            modifier = Modifier.size(16.dp)
+                            modifier = Modifier.size(15.dp)
                         )
                     }
 
@@ -553,10 +685,10 @@ fun HeroBannerCarousel(
                         horizontalArrangement = Arrangement.spacedBy(4.dp),
                         verticalAlignment = Alignment.CenterVertically
                     ) {
-                        repeat(2) { index ->
+                        repeat(3) { index ->
                             Box(
                                 modifier = Modifier
-                                    .size(width = if (activeSlide == index) 16.dp else 6.dp, height = 6.dp)
+                                    .size(width = if (activeSlide == index) 16.dp else 5.dp, height = 5.dp)
                                     .clip(CircleShape)
                                     .background(if (activeSlide == index) GoldAccent else Color(0xFF475569))
                             )
@@ -564,14 +696,14 @@ fun HeroBannerCarousel(
                     }
 
                     IconButton(
-                        onClick = { activeSlide = (activeSlide + 1) % 2 },
-                        modifier = Modifier.size(28.dp)
+                        onClick = { activeSlide = (activeSlide + 1) % 3 },
+                        modifier = Modifier.size(26.dp)
                     ) {
                         Icon(
                             imageVector = Icons.Default.KeyboardArrowRight,
                             contentDescription = "Next",
                             tint = Color.White,
-                            modifier = Modifier.size(16.dp)
+                            modifier = Modifier.size(15.dp)
                         )
                     }
                 }
@@ -580,6 +712,9 @@ fun HeroBannerCarousel(
     }
 }
 
+/**
+ * Amazon / Flipkart style Category Circular Avatar Grid
+ */
 @Composable
 fun CategoryQuickGrid(
     categories: List<CategoryItem>,
@@ -590,28 +725,28 @@ fun CategoryQuickGrid(
     Column(
         modifier = modifier
             .fillMaxWidth()
-            .padding(vertical = 10.dp)
+            .padding(vertical = 8.dp)
             .testTag("category_grid_section")
     ) {
         Row(
             modifier = Modifier
                 .fillMaxWidth()
-                .padding(horizontal = 16.dp),
+                .padding(horizontal = 14.dp),
             verticalAlignment = Alignment.CenterVertically,
             horizontalArrangement = Arrangement.SpaceBetween
         ) {
             Column {
                 Text(
-                    text = "FEATURED DEPARTMENTS",
+                    text = "EXPLORE CATEGORIES",
                     color = OrangeAccent,
                     fontSize = 10.sp,
                     fontWeight = FontWeight.ExtraBold,
                     letterSpacing = 1.sp
                 )
                 Text(
-                    text = "Browse By Category",
+                    text = "Popular Departments",
                     color = NavyPrimary,
-                    fontSize = 18.sp,
+                    fontSize = 16.sp,
                     fontWeight = FontWeight.Black
                 )
             }
@@ -626,15 +761,15 @@ fun CategoryQuickGrid(
             }
         }
 
-        Spacer(modifier = Modifier.height(10.dp))
+        Spacer(modifier = Modifier.height(8.dp))
 
         // Horizontal Category Cards
         Row(
             modifier = Modifier
                 .fillMaxWidth()
                 .horizontalScroll(rememberScrollState())
-                .padding(horizontal = 16.dp),
-            horizontalArrangement = Arrangement.spacedBy(10.dp)
+                .padding(horizontal = 14.dp),
+            horizontalArrangement = Arrangement.spacedBy(8.dp)
         ) {
             categories.forEach { category ->
                 val isSelected = category.id.equals(selectedCategory, ignoreCase = true)
@@ -675,33 +810,34 @@ fun CategoryPillCard(
     Column(
         horizontalAlignment = Alignment.CenterHorizontally,
         modifier = Modifier
-            .width(88.dp)
-            .clip(RoundedCornerShape(16.dp))
+            .width(80.dp)
+            .clip(RoundedCornerShape(14.dp))
             .background(bgColor)
-            .border(if (isSelected) 2.dp else 1.dp, borderColor, RoundedCornerShape(16.dp))
+            .border(if (isSelected) 2.dp else 1.dp, borderColor, RoundedCornerShape(14.dp))
             .clickable { onClick() }
-            .padding(vertical = 12.dp, horizontal = 6.dp)
+            .padding(vertical = 10.dp, horizontal = 4.dp)
             .testTag("category_card_${category.id}")
     ) {
         Box(
             modifier = Modifier
-                .size(44.dp)
-                .clip(RoundedCornerShape(12.dp))
+                .size(42.dp)
+                .clip(CircleShape)
                 .background(
                     if (isSelected) Brush.linearGradient(listOf(GoldAccent, OrangeAccent))
                     else Brush.linearGradient(listOf(NavyPrimary, NavyCard))
-                ),
+                )
+                .border(1.5.dp, if (isSelected) OrangeAccent else SlateBorder, CircleShape),
             contentAlignment = Alignment.Center
         ) {
             Icon(
                 imageVector = icon,
                 contentDescription = category.name,
                 tint = Color.White,
-                modifier = Modifier.size(22.dp)
+                modifier = Modifier.size(20.dp)
             )
         }
 
-        Spacer(modifier = Modifier.height(6.dp))
+        Spacer(modifier = Modifier.height(5.dp))
 
         Text(
             text = category.name,
@@ -715,9 +851,422 @@ fun CategoryPillCard(
         Text(
             text = category.subtitle,
             color = Color(0xFF64748B),
-            fontSize = 9.sp,
+            fontSize = 8.sp,
             maxLines = 1,
             overflow = TextOverflow.Ellipsis
+        )
+    }
+}
+
+/**
+ * Signature Amazon / Flipkart "Blockbuster Deals & Deal of the Day" Section
+ */
+@Composable
+fun BlockbusterDealsSection(
+    onDealClicked: (String) -> Unit,
+    modifier: Modifier = Modifier
+) {
+    Column(
+        modifier = modifier
+            .fillMaxWidth()
+            .padding(vertical = 8.dp)
+            .testTag("blockbuster_deals_section")
+    ) {
+        // Section Header with Countdown timer
+        Row(
+            modifier = Modifier
+                .fillMaxWidth()
+                .padding(horizontal = 14.dp, vertical = 4.dp),
+            verticalAlignment = Alignment.CenterVertically,
+            horizontalArrangement = Arrangement.SpaceBetween
+        ) {
+            Row(verticalAlignment = Alignment.CenterVertically) {
+                Box(
+                    modifier = Modifier
+                        .size(24.dp)
+                        .clip(RoundedCornerShape(6.dp))
+                        .background(Color.Red),
+                    contentAlignment = Alignment.Center
+                ) {
+                    Icon(
+                        imageVector = Icons.Default.Bolt,
+                        contentDescription = null,
+                        tint = Color.White,
+                        modifier = Modifier.size(15.dp)
+                    )
+                }
+                Spacer(modifier = Modifier.width(6.dp))
+                Column {
+                    Text(
+                        text = "DEAL OF THE DAY",
+                        color = Color.Red,
+                        fontSize = 13.sp,
+                        fontWeight = FontWeight.Black,
+                        letterSpacing = 0.5.sp
+                    )
+                    Text(
+                        text = "Limited quantities • Grab before price reset",
+                        color = Color(0xFF64748B),
+                        fontSize = 9.sp
+                    )
+                }
+            }
+
+            Surface(
+                color = Color.Red.copy(alpha = 0.1f),
+                shape = RoundedCornerShape(8.dp),
+                border = androidx.compose.foundation.BorderStroke(1.dp, Color.Red.copy(alpha = 0.3f))
+            ) {
+                Text(
+                    text = "⏳ 03h 45m left",
+                    color = Color.Red,
+                    fontSize = 10.sp,
+                    fontWeight = FontWeight.Bold,
+                    modifier = Modifier.padding(horizontal = 6.dp, vertical = 2.dp)
+                )
+            }
+        }
+
+        Spacer(modifier = Modifier.height(6.dp))
+
+        // Horizontal Deals Cards Row (Amazon/Flipkart style)
+        Row(
+            modifier = Modifier
+                .fillMaxWidth()
+                .horizontalScroll(rememberScrollState())
+                .padding(horizontal = 14.dp),
+            horizontalArrangement = Arrangement.spacedBy(10.dp)
+        ) {
+            // Deal 1: Levi's Leather Wallet
+            DealItemCard(
+                title = "Levi's Leather Bifold Wallet",
+                category = "Fashion",
+                dealPrice = 250,
+                mrp = 899,
+                discountPercent = 72,
+                claimedPercent = 0.78f,
+                icon = Icons.Default.ShoppingBag,
+                onClick = { onDealClicked("Wallet") }
+            )
+
+            // Deal 2: Bass ANC Headphones
+            DealItemCard(
+                title = "ZenoStudio ANC Headphones",
+                category = "Gadgets",
+                dealPrice = 1499,
+                mrp = 2999,
+                discountPercent = 50,
+                claimedPercent = 0.85f,
+                icon = Icons.Default.Headphones,
+                onClick = { onDealClicked("Headphones") }
+            )
+
+            // Deal 3: Pure Desi Cow Ghee
+            DealItemCard(
+                title = "Pure A2 Cow Ghee (1L)",
+                category = "Groceries",
+                dealPrice = 749,
+                mrp = 1100,
+                discountPercent = 32,
+                claimedPercent = 0.64f,
+                icon = Icons.Default.LocalMall,
+                onClick = { onDealClicked("Ghee") }
+            )
+
+            // Deal 4: Slim-Fit Stretch Jeans
+            DealItemCard(
+                title = "Apex Stretch Denim Jeans",
+                category = "Fashion",
+                dealPrice = 999,
+                mrp = 1999,
+                discountPercent = 50,
+                claimedPercent = 0.91f,
+                icon = Icons.Default.DryCleaning,
+                onClick = { onDealClicked("Jeans") }
+            )
+        }
+    }
+}
+
+@Composable
+fun DealItemCard(
+    title: String,
+    category: String,
+    dealPrice: Int,
+    mrp: Int,
+    discountPercent: Int,
+    claimedPercent: Float,
+    icon: ImageVector,
+    onClick: () -> Unit
+) {
+    Card(
+        shape = RoundedCornerShape(14.dp),
+        colors = CardDefaults.cardColors(containerColor = Color.White),
+        elevation = CardDefaults.cardElevation(defaultElevation = 2.dp),
+        modifier = Modifier
+            .width(160.dp)
+            .border(1.dp, SlateBorder, RoundedCornerShape(14.dp))
+            .clickable { onClick() }
+    ) {
+        Column(modifier = Modifier.padding(10.dp)) {
+            // Icon & Discount Tag
+            Box(
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .height(80.dp)
+                    .clip(RoundedCornerShape(10.dp))
+                    .background(Color(0xFFF1F5F9)),
+                contentAlignment = Alignment.Center
+            ) {
+                Icon(
+                    imageVector = icon,
+                    contentDescription = title,
+                    tint = NavyPrimary,
+                    modifier = Modifier.size(36.dp)
+                )
+
+                // Discount Pill
+                Surface(
+                    color = Color.Red,
+                    shape = RoundedCornerShape(6.dp),
+                    modifier = Modifier
+                        .align(Alignment.TopStart)
+                        .padding(4.dp)
+                ) {
+                    Text(
+                        text = "$discountPercent% OFF",
+                        color = Color.White,
+                        fontSize = 8.sp,
+                        fontWeight = FontWeight.Black,
+                        modifier = Modifier.padding(horizontal = 4.dp, vertical = 2.dp)
+                    )
+                }
+            }
+
+            Spacer(modifier = Modifier.height(6.dp))
+
+            Text(
+                text = title,
+                color = NavyDark,
+                fontSize = 11.sp,
+                fontWeight = FontWeight.Bold,
+                maxLines = 1,
+                overflow = TextOverflow.Ellipsis
+            )
+
+            Spacer(modifier = Modifier.height(2.dp))
+
+            // Pricing
+            Row(verticalAlignment = Alignment.CenterVertically) {
+                Text(
+                    text = "₹$dealPrice",
+                    color = NavyPrimary,
+                    fontSize = 13.sp,
+                    fontWeight = FontWeight.Black
+                )
+                Spacer(modifier = Modifier.width(4.dp))
+                Text(
+                    text = "₹$mrp",
+                    color = Color(0xFF94A3B8),
+                    fontSize = 9.sp,
+                    textDecoration = TextDecoration.LineThrough
+                )
+            }
+
+            Spacer(modifier = Modifier.height(4.dp))
+
+            // Claimed Progress Bar (Amazon style)
+            LinearProgressIndicator(
+                progress = { claimedPercent },
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .height(4.dp)
+                    .clip(RoundedCornerShape(2.dp)),
+                color = OrangeAccent,
+                trackColor = Color(0xFFE2E8F0),
+                strokeCap = StrokeCap.Round
+            )
+
+            Spacer(modifier = Modifier.height(2.dp))
+
+            Text(
+                text = "${(claimedPercent * 100).toInt()}% claimed",
+                color = OrangeAccent,
+                fontSize = 8.sp,
+                fontWeight = FontWeight.Bold
+            )
+        }
+    }
+}
+
+/**
+ * Top-tier E-commerce Bottom Navigation Shortcuts Bar (Amazon & Flipkart style)
+ */
+@Composable
+fun EcommerceBottomNavigationBar(
+    selectedTab: Int,
+    cartCount: Int,
+    ordersCount: Int,
+    onHomeClicked: () -> Unit,
+    onCategoriesClicked: () -> Unit,
+    onDealsClicked: () -> Unit,
+    onOrdersClicked: () -> Unit,
+    onCartClicked: () -> Unit,
+    onProfileClicked: () -> Unit,
+    modifier: Modifier = Modifier
+) {
+    NavigationBar(
+        modifier = modifier
+            .fillMaxWidth()
+            .testTag("bottom_navigation_bar"),
+        containerColor = NavyDark,
+        windowInsets = WindowInsets.navigationBars
+    ) {
+        // 1. Home
+        NavigationBarItem(
+            selected = selectedTab == 0,
+            onClick = onHomeClicked,
+            icon = {
+                Icon(
+                    imageVector = Icons.Default.Home,
+                    contentDescription = "Home",
+                    modifier = Modifier.size(20.dp)
+                )
+            },
+            label = { Text("Home", fontSize = 10.sp, fontWeight = FontWeight.Bold) },
+            colors = NavigationBarItemDefaults.colors(
+                selectedIconColor = GoldAccent,
+                selectedTextColor = GoldAccent,
+                unselectedIconColor = Color(0xFF94A3B8),
+                unselectedTextColor = Color(0xFF94A3B8),
+                indicatorColor = NavyCard
+            )
+        )
+
+        // 2. Categories
+        NavigationBarItem(
+            selected = false,
+            onClick = onCategoriesClicked,
+            icon = {
+                Icon(
+                    imageVector = Icons.Default.LocalMall,
+                    contentDescription = "Categories",
+                    modifier = Modifier.size(20.dp)
+                )
+            },
+            label = { Text("Categories", fontSize = 10.sp, fontWeight = FontWeight.Bold) },
+            colors = NavigationBarItemDefaults.colors(
+                selectedIconColor = GoldAccent,
+                selectedTextColor = GoldAccent,
+                unselectedIconColor = Color(0xFF94A3B8),
+                unselectedTextColor = Color(0xFF94A3B8),
+                indicatorColor = NavyCard
+            )
+        )
+
+        // 3. Deals / Flash Sale
+        NavigationBarItem(
+            selected = false,
+            onClick = onDealsClicked,
+            icon = {
+                Icon(
+                    imageVector = Icons.Default.Bolt,
+                    contentDescription = "Deals",
+                    tint = OrangeAccent,
+                    modifier = Modifier.size(20.dp)
+                )
+            },
+            label = { Text("Deals", fontSize = 10.sp, fontWeight = FontWeight.Bold) },
+            colors = NavigationBarItemDefaults.colors(
+                selectedIconColor = OrangeAccent,
+                selectedTextColor = OrangeAccent,
+                unselectedIconColor = OrangeAccent,
+                unselectedTextColor = OrangeAccent,
+                indicatorColor = NavyCard
+            )
+        )
+
+        // 4. Orders Tracker
+        NavigationBarItem(
+            selected = selectedTab == 1,
+            onClick = onOrdersClicked,
+            icon = {
+                BadgedBox(
+                    badge = {
+                        if (ordersCount > 0) {
+                            Badge(containerColor = OrangeAccent, contentColor = Color.White) {
+                                Text("$ordersCount", fontSize = 8.sp, fontWeight = FontWeight.Bold)
+                            }
+                        }
+                    }
+                ) {
+                    Icon(
+                        imageVector = Icons.Default.LocalShipping,
+                        contentDescription = "Orders",
+                        modifier = Modifier.size(20.dp)
+                    )
+                }
+            },
+            label = { Text("Orders", fontSize = 10.sp, fontWeight = FontWeight.Bold) },
+            colors = NavigationBarItemDefaults.colors(
+                selectedIconColor = GoldAccent,
+                selectedTextColor = GoldAccent,
+                unselectedIconColor = Color(0xFF94A3B8),
+                unselectedTextColor = Color(0xFF94A3B8),
+                indicatorColor = NavyCard
+            )
+        )
+
+        // 5. Cart
+        NavigationBarItem(
+            selected = false,
+            onClick = onCartClicked,
+            icon = {
+                BadgedBox(
+                    badge = {
+                        if (cartCount > 0) {
+                            Badge(containerColor = OrangeAccent, contentColor = Color.White) {
+                                Text("$cartCount", fontSize = 8.sp, fontWeight = FontWeight.Bold)
+                            }
+                        }
+                    }
+                ) {
+                    Icon(
+                        imageVector = Icons.Default.ShoppingCart,
+                        contentDescription = "Cart",
+                        modifier = Modifier.size(20.dp)
+                    )
+                }
+            },
+            label = { Text("Cart", fontSize = 10.sp, fontWeight = FontWeight.Bold) },
+            colors = NavigationBarItemDefaults.colors(
+                selectedIconColor = GoldAccent,
+                selectedTextColor = GoldAccent,
+                unselectedIconColor = Color(0xFF94A3B8),
+                unselectedTextColor = Color(0xFF94A3B8),
+                indicatorColor = NavyCard
+            )
+        )
+
+        // 6. Account
+        NavigationBarItem(
+            selected = false,
+            onClick = onProfileClicked,
+            icon = {
+                Icon(
+                    imageVector = Icons.Default.Person,
+                    contentDescription = "Account",
+                    modifier = Modifier.size(20.dp)
+                )
+            },
+            label = { Text("Account", fontSize = 10.sp, fontWeight = FontWeight.Bold) },
+            colors = NavigationBarItemDefaults.colors(
+                selectedIconColor = GoldAccent,
+                selectedTextColor = GoldAccent,
+                unselectedIconColor = Color(0xFF94A3B8),
+                unselectedTextColor = Color(0xFF94A3B8),
+                indicatorColor = NavyCard
+            )
         )
     }
 }

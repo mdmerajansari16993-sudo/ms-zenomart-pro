@@ -249,25 +249,35 @@ fun ProductCard(
                     Column {
                         Row(verticalAlignment = Alignment.CenterVertically) {
                             Text(
-                                text = "$${product.price}",
+                                text = "₹${product.price.toInt()}",
                                 color = NavyPrimary,
                                 fontSize = 15.sp,
                                 fontWeight = FontWeight.Black
                             )
                             Spacer(modifier = Modifier.width(4.dp))
+                            if (product.mrp > product.price) {
+                                Text(
+                                    text = "₹${product.mrp.toInt()}",
+                                    color = Color(0xFF94A3B8),
+                                    fontSize = 10.sp,
+                                    textDecoration = TextDecoration.LineThrough
+                                )
+                            }
+                        }
+                        Row(verticalAlignment = Alignment.CenterVertically) {
                             Text(
-                                text = "$${product.mrp}",
-                                color = Color(0xFF94A3B8),
-                                fontSize = 10.sp,
-                                textDecoration = TextDecoration.LineThrough
+                                text = "⚡ Express",
+                                color = Color(0xFF10B981),
+                                fontSize = 9.sp,
+                                fontWeight = FontWeight.Bold
+                            )
+                            Spacer(modifier = Modifier.width(4.dp))
+                            Text(
+                                text = "• In Stock",
+                                color = Color(0xFF64748B),
+                                fontSize = 9.sp
                             )
                         }
-                        Text(
-                            text = "In Stock",
-                            color = Color(0xFF10B981),
-                            fontSize = 9.sp,
-                            fontWeight = FontWeight.Bold
-                        )
                     }
 
                     // Glowing Add to Cart Button
@@ -278,7 +288,7 @@ fun ProductCard(
                             contentColor = Color.White
                         ),
                         shape = RoundedCornerShape(10.dp),
-                        contentPadding = androidx.compose.foundation.layout.PaddingValues(horizontal = 8.dp, vertical = 6.dp),
+                        contentPadding = androidx.compose.foundation.layout.PaddingValues(horizontal = 10.dp, vertical = 6.dp),
                         modifier = Modifier
                             .height(34.dp)
                             .testTag("add_to_cart_btn_${product.id}")
@@ -288,7 +298,7 @@ fun ProductCard(
                             contentDescription = "Add",
                             modifier = Modifier.size(14.dp)
                         )
-                        Spacer(modifier = Modifier.width(3.dp))
+                        Spacer(modifier = Modifier.width(4.dp))
                         Text(
                             text = "Add",
                             fontSize = 11.sp,

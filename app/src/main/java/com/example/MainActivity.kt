@@ -75,9 +75,11 @@ import com.example.model.Product
 import com.example.ui.ZenoMartViewModel
 import com.example.ui.components.AdminDashboard
 import com.example.ui.components.AddSellerDialog
+import com.example.ui.components.BlockbusterDealsSection
 import com.example.ui.components.BottomFooterSection
 import com.example.ui.components.CartBottomSheet
 import com.example.ui.components.CategoryQuickGrid
+import com.example.ui.components.EcommerceBottomNavigationBar
 import com.example.ui.components.HeroBannerCarousel
 import com.example.ui.components.OrderSuccessDialog
 import com.example.ui.components.PaymentQrDialog
@@ -170,6 +172,36 @@ fun MSZenoMartApp(viewModel: ZenoMartViewModel = viewModel()) {
     Scaffold(
         modifier = Modifier.fillMaxSize(),
         snackbarHost = { SnackbarHost(snackbarHostState) },
+        bottomBar = {
+            EcommerceBottomNavigationBar(
+                selectedTab = selectedTab,
+                cartCount = totalCartCount,
+                ordersCount = orders.size,
+                onHomeClicked = {
+                    selectedTab = 0
+                    viewModel.onCategorySelected("all")
+                    viewModel.onSearchQueryChanged("")
+                    coroutineScope.launch { listState.animateScrollToItem(0) }
+                },
+                onCategoriesClicked = {
+                    selectedTab = 0
+                    coroutineScope.launch { listState.animateScrollToItem(1) }
+                },
+                onDealsClicked = {
+                    selectedTab = 0
+                    coroutineScope.launch { listState.animateScrollToItem(2) }
+                },
+                onOrdersClicked = {
+                    selectedTab = 1
+                },
+                onCartClicked = {
+                    showCartSheet = true
+                },
+                onProfileClicked = {
+                    showProfileDialog = true
+                }
+            )
+        },
         floatingActionButton = {
             if (selectedTab == 0 && totalCartCount > 0) {
                 FloatingActionButton(
@@ -314,7 +346,28 @@ fun MSZenoMartApp(viewModel: ZenoMartViewModel = viewModel()) {
                         HeroBannerCarousel(
                             onShopNowClicked = {
                                 coroutineScope.launch {
-                                    listState.animateScrollToItem(3)
+                                    listState.animateScrollToItem(2)
+                                }
+                            }
+                        )
+                    }
+
+                    // Category Grid / Quick Circular Icons
+                    item {
+                        CategoryQuickGrid(
+                            categories = viewModel.sampleCategories,
+                            selectedCategory = selectedCategory,
+                            onCategorySelected = viewModel::onCategorySelected
+                        )
+                    }
+
+                    // Amazon / Flipkart Signature Blockbuster Deals & Lightning Deals Section
+                    item {
+                        BlockbusterDealsSection(
+                            onDealClicked = { dealKeyword ->
+                                viewModel.onSearchQueryChanged(dealKeyword)
+                                coroutineScope.launch {
+                                    listState.animateScrollToItem(4)
                                 }
                             }
                         )
@@ -365,15 +418,6 @@ fun MSZenoMartApp(viewModel: ZenoMartViewModel = viewModel()) {
                                 Icon(Icons.AutoMirrored.Filled.ArrowForward, contentDescription = null, tint = GoldAccent, modifier = Modifier.size(16.dp))
                             }
                         }
-                    }
-
-                    // Category Grid / Quick Icons
-                    item {
-                        CategoryQuickGrid(
-                            categories = viewModel.sampleCategories,
-                            selectedCategory = selectedCategory,
-                            onCategorySelected = viewModel::onCategorySelected
-                        )
                     }
 
                     // Section Header: Featured Products & Sort Dropdown
