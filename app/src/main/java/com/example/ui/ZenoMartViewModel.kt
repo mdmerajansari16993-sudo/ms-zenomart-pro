@@ -2,12 +2,14 @@ package com.example.ui
 
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
+import com.example.model.AiOrderChatMessage
 import com.example.model.CartItem
 import com.example.model.CategoryItem
 import com.example.model.Order
 import com.example.model.OrderItem
 import com.example.model.OrderStatus
 import com.example.model.Product
+import com.example.model.PromoBanner
 import com.example.model.Seller
 import com.example.model.UserAccount
 import com.example.model.calculateAdminCommission
@@ -16,6 +18,7 @@ import kotlinx.coroutines.flow.SharingStarted
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.flow.combine
+import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.flow.stateIn
 
 class ZenoMartViewModel : ViewModel() {
@@ -374,6 +377,17 @@ class ZenoMartViewModel : ViewModel() {
     private val _orders = MutableStateFlow<List<Order>>(initialOrders)
     val orders: StateFlow<List<Order>> = _orders.asStateFlow()
 
+    private val initialAiChatMessages = listOf(
+        AiOrderChatMessage(
+            id = "welcome_1",
+            sender = "ai",
+            text = "Namaste! I am your MS ZenoMart AI Order & Delivery Assistant. Ask me anything about your order status, arrival time, live GPS tracking, or your 4-digit Secure Delivery OTP.",
+            timestamp = "Active"
+        )
+    )
+    private val _aiChatMessages = MutableStateFlow<List<AiOrderChatMessage>>(initialAiChatMessages)
+    val aiChatMessages: StateFlow<List<AiOrderChatMessage>> = _aiChatMessages.asStateFlow()
+
     // Registered user base for MD Meraj Ansari's store management
     private val initialUsers = listOf(
         UserAccount(
@@ -508,6 +522,76 @@ class ZenoMartViewModel : ViewModel() {
 
     private val _sellers = MutableStateFlow<List<Seller>>(initialSellers)
     val sellers: StateFlow<List<Seller>> = _sellers.asStateFlow()
+
+    // Owner Promotional Banner & Ad Management System (Owner: MD Meraj Ansari)
+    private val initialBanners = listOf(
+        PromoBanner(
+            id = "banner_1",
+            tag = "⚡ FLASH SALE • UP TO 70% OFF",
+            title = "Trending Stretch Denim & Audio Gadgets",
+            subtitle = "Shop ANC noise-cancelling headphones, AMOLED smartwatches, and premium stretch denim jeans.",
+            buttonText = "Shop Deals",
+            searchTarget = "Jeans",
+            badgeColor = "orange",
+            imageUrl = "https://images.unsplash.com/photo-1542272604-787c3835535d?w=800&q=80",
+            isActive = true,
+            displayOrder = 1
+        ),
+        PromoBanner(
+            id = "banner_2",
+            tag = "🏪 HYPERLOCAL FRESH • 60-90 MINS",
+            title = "Pure A2 Cow Ghee & Daily Grocery Mart",
+            subtitle = "Direct neighborhood store sourcing with zero delay. Free delivery on orders over ₹1000!",
+            buttonText = "Order Groceries",
+            searchTarget = "Groceries",
+            badgeColor = "emerald",
+            imageUrl = "https://images.unsplash.com/photo-1588964895597-cfccd6e2dbf9?w=800&q=80",
+            isActive = true,
+            displayOrder = 2
+        ),
+        PromoBanner(
+            id = "banner_3",
+            tag = "🔥 EXCLUSIVE DROP • FLAT 50% OFF",
+            title = "Signature Genuine Leather & Couture",
+            subtitle = "Handcrafted cowhide bifold wallets with gift box, titanium aviators, and artisan wear.",
+            buttonText = "Shop Leather",
+            searchTarget = "Wallet",
+            badgeColor = "gold",
+            imageUrl = "https://images.unsplash.com/photo-1627123424574-724758594e93?w=800&q=80",
+            isActive = true,
+            displayOrder = 3
+        ),
+        PromoBanner(
+            id = "banner_4",
+            tag = "⚡ MEGA BLOCKBUSTER • 24HR ONLY",
+            title = "4K OLED Smart TVs & Gaming Beast Laptops",
+            subtitle = "Massive exchange bonuses and zero delivery delay on verified high-tech store catalog.",
+            buttonText = "Explore Electronics",
+            searchTarget = "Electronics",
+            badgeColor = "blue",
+            imageUrl = "https://images.unsplash.com/photo-1593305841991-05c297ba4575?w=800&q=80",
+            isActive = true,
+            displayOrder = 4
+        )
+    )
+
+    private val _banners = MutableStateFlow<List<PromoBanner>>(initialBanners)
+    val banners: StateFlow<List<PromoBanner>> = _banners.asStateFlow()
+
+    val activeBanners: StateFlow<List<PromoBanner>> = _banners.map { list ->
+        list.filter { it.isActive }.sortedBy { it.displayOrder }
+    }.stateIn(viewModelScope, SharingStarted.Lazily, initialBanners)
+
+    // Dynamic Deal Products for Homepage: Combines high discounts & approved partner seller products automatically
+    val dealProducts: StateFlow<List<Product>> = _products.map { list ->
+        list.filter { product ->
+            product.discountPercent >= 25 ||
+            product.badge.isNotBlank() ||
+            product.category.equals("Fashion", ignoreCase = true) ||
+            product.category.equals("Gadgets", ignoreCase = true) ||
+            product.iconType == "wallet"
+        }.take(8)
+    }.stateIn(viewModelScope, SharingStarted.Lazily, emptyList())
 
     val filteredProducts: StateFlow<List<Product>> = combine(
         _searchQuery,
@@ -645,12 +729,125 @@ class ZenoMartViewModel : ViewModel() {
             paymentMethod = paymentMethod,
             transactionRef = transactionRef,
             timestamp = "Just Now",
-            status = OrderStatus.PROCESSING
+            status = OrderStatus.PROCESSING,
+            deliveryOtp = (1000..9999).random().toString(),
+            isCallVerified = true,
+            callVerificationStatus = "Confirmed (Key 1 Pressed)",
+            sellerNotified = true,
+            ownerNotified = true,
+            liveCoordinates = "24.4826° N, 86.6978° E (Deoghar)",
+            otpVerifiedAtDelivery = false
         )
         _orders.value = listOf(newOrder) + _orders.value
         clearCart()
-        _lastMessage.value = "Order #$orderId recorded and placed successfully!"
+        _lastMessage.value = "Order #$orderId placed! Automated voice call confirmed (Key 1). Delivery OTP is ${newOrder.deliveryOtp}."
         return newOrder
+    }
+
+    // --- Automated AI Voice Call Verification & Delivery OTP ---
+
+    fun verifyOrderViaCall(orderId: String, pressedKey: Int): Boolean {
+        var success = false
+        _orders.value = _orders.value.map { order ->
+            if (order.id == orderId) {
+                if (pressedKey == 1) {
+                    success = true
+                    order.copy(
+                        isCallVerified = true,
+                        callVerificationStatus = "Confirmed (Key 1 Pressed)",
+                        sellerNotified = true,
+                        ownerNotified = true
+                    )
+                } else if (pressedKey == 5) {
+                    order.copy(
+                        isCallVerified = false,
+                        callVerificationStatus = "Cancelled by Customer (Key 5 Pressed)"
+                    )
+                } else {
+                    order.copy(
+                        isCallVerified = false,
+                        callVerificationStatus = "No Answer - Auto-retry in 15 mins"
+                    )
+                }
+            } else order
+        }
+        if (pressedKey == 1) {
+            _lastMessage.value = "AI Call Verified! Dispatched packing details to Seller and GPS coordinates to Delivery."
+        } else if (pressedKey == 5) {
+            _lastMessage.value = "Order cancelled via customer automated voice call."
+        } else {
+            _lastMessage.value = "Customer did not answer call. Automated retry scheduled in 15 minutes."
+        }
+        return success
+    }
+
+    fun verifyDeliveryOtp(orderId: String, enteredOtp: String): Boolean {
+        val order = _orders.value.find { it.id == orderId } ?: return false
+        if (order.deliveryOtp.trim() == enteredOtp.trim()) {
+            _orders.value = _orders.value.map {
+                if (it.id == orderId) {
+                    it.copy(
+                        status = OrderStatus.DELIVERED,
+                        otpVerifiedAtDelivery = true
+                    )
+                } else it
+            }
+            _lastMessage.value = "Delivery OTP Verified successfully! Order #$orderId marked Delivered & Confirmed."
+            return true
+        } else {
+            _lastMessage.value = "Invalid OTP! Handover blocked. Expected OTP from customer app."
+            return false
+        }
+    }
+
+    fun sendAiOrderChatMessage(orderId: String, question: String) {
+        val q = question.trim()
+        if (q.isBlank()) return
+        val userMsg = AiOrderChatMessage(
+            id = "msg_${System.currentTimeMillis()}",
+            sender = "user",
+            text = q,
+            timestamp = "Just now",
+            orderId = orderId
+        )
+        val order = _orders.value.find { it.id == orderId } ?: _orders.value.firstOrNull()
+        val botReply = when {
+            q.contains("where", ignoreCase = true) || q.contains("status", ignoreCase = true) || q.contains("track", ignoreCase = true) -> {
+                if (order != null) {
+                    "Order #${order.id} is currently ${order.status.label}. Delivery OTP is ${order.deliveryOtp}. Live Coordinates: ${order.liveCoordinates}. Express courier is en route."
+                } else {
+                    "Your order is currently processing at the local hub. Estimated arrival is 60-90 minutes."
+                }
+            }
+            q.contains("when", ignoreCase = true) || q.contains("arrive", ignoreCase = true) || q.contains("time", ignoreCase = true) -> {
+                "Your package will arrive in approximately 60 to 90 minutes. Our local delivery agent is on their way."
+            }
+            q.contains("otp", ignoreCase = true) || q.contains("code", ignoreCase = true) -> {
+                if (order != null) {
+                    "Your Secure Delivery OTP is ${order.deliveryOtp}. Please share this 4-digit OTP with the delivery agent only when they reach your doorstep."
+                } else {
+                    "Your 4-digit Secure Delivery OTP is generated when your order is placed and is required upon parcel handover."
+                }
+            }
+            q.contains("call", ignoreCase = true) || q.contains("verify", ignoreCase = true) -> {
+                if (order != null) {
+                    "Voice Verification Status: ${order.callVerificationStatus}. If unconfirmed, the automated system auto-retries every 15 minutes."
+                } else {
+                    "Our automated system initiates a voice call where pressing 1 confirms your order."
+                }
+            }
+            else -> {
+                "Hello! I am your MS ZenoMart Order Assistant. Your items are sourced from verified neighborhood partner shops. You can ask me for delivery ETA, your Secure Delivery OTP, or tracking details."
+            }
+        }
+        val aiMsg = AiOrderChatMessage(
+            id = "msg_${System.currentTimeMillis() + 1}",
+            sender = "ai",
+            text = botReply,
+            timestamp = "Just now",
+            orderId = orderId
+        )
+        _aiChatMessages.value = _aiChatMessages.value + listOf(userMsg, aiMsg)
     }
 
     // --- Admin Dashboard Actions for MD Meraj Ansari ---
@@ -786,6 +983,106 @@ class ZenoMartViewModel : ViewModel() {
     fun clearSellerPayout(sellerId: String) {
         val seller = _sellers.value.find { it.id == sellerId }
         _lastMessage.value = "Payout settled for ${seller?.shopName ?: "Seller"}."
+    }
+
+    // --- Owner Promotional Banner & Ad Management System ---
+
+    fun addBanner(
+        tag: String,
+        title: String,
+        subtitle: String,
+        buttonText: String = "Shop Deals",
+        searchTarget: String = "Deals",
+        badgeColor: String = "orange",
+        imageUrl: String = ""
+    ): Boolean {
+        if (title.isBlank()) {
+            _lastMessage.value = "Banner title cannot be empty."
+            return false
+        }
+        val newBanner = PromoBanner(
+            id = "banner_${System.currentTimeMillis()}",
+            tag = if (tag.isBlank()) "⚡ EXCLUSIVE PROMO" else tag.trim(),
+            title = title.trim(),
+            subtitle = subtitle.trim(),
+            buttonText = if (buttonText.isBlank()) "Shop Deals" else buttonText.trim(),
+            searchTarget = if (searchTarget.isBlank()) "Deals" else searchTarget.trim(),
+            badgeColor = badgeColor.ifBlank { "orange" },
+            imageUrl = imageUrl.trim(),
+            isActive = true,
+            displayOrder = (_banners.value.maxOfOrNull { it.displayOrder } ?: 0) + 1
+        )
+        _banners.value = listOf(newBanner) + _banners.value
+        _lastMessage.value = "Promotional banner \"${newBanner.title}\" published to Homepage!"
+        return true
+    }
+
+    fun updateBanner(
+        id: String,
+        tag: String,
+        title: String,
+        subtitle: String,
+        buttonText: String,
+        searchTarget: String,
+        badgeColor: String,
+        imageUrl: String,
+        isActive: Boolean = true
+    ): Boolean {
+        if (title.isBlank()) {
+            _lastMessage.value = "Banner title cannot be empty."
+            return false
+        }
+        val current = _banners.value
+        val updated = current.map { b ->
+            if (b.id == id) {
+                b.copy(
+                    tag = tag.trim(),
+                    title = title.trim(),
+                    subtitle = subtitle.trim(),
+                    buttonText = buttonText.trim(),
+                    searchTarget = searchTarget.trim(),
+                    badgeColor = badgeColor,
+                    imageUrl = imageUrl.trim(),
+                    isActive = isActive
+                )
+            } else b
+        }
+        _banners.value = updated
+        _lastMessage.value = "Banner updated successfully!"
+        return true
+    }
+
+    fun deleteBanner(id: String) {
+        val current = _banners.value.filter { it.id != id }
+        _banners.value = current
+        _lastMessage.value = "Promotional banner removed from Homepage."
+    }
+
+    fun toggleBannerActive(id: String) {
+        val updated = _banners.value.map { b ->
+            if (b.id == id) b.copy(isActive = !b.isActive) else b
+        }
+        _banners.value = updated
+        _lastMessage.value = "Banner status updated."
+    }
+
+    fun toggleBannerStatus(id: String) = toggleBannerActive(id)
+
+    fun addNewBanner(
+        tag: String,
+        title: String,
+        subtitle: String,
+        buttonText: String = "Shop Deals",
+        searchTarget: String = "Deals",
+        badgeColor: String = "orange",
+        imageUrl: String = ""
+    ): Boolean = addBanner(tag, title, subtitle, buttonText, searchTarget, badgeColor, imageUrl)
+
+    fun triggerAutomatedVoiceCall(orderId: String, pressedKey: Int): Boolean = verifyOrderViaCall(orderId, pressedKey)
+
+    fun resetBannersToDefault() {
+        _banners.value = initialBanners
+        _lastMessage.value = "Homepage banners restored to default campaign."
     }
 
     fun clearMessage() {

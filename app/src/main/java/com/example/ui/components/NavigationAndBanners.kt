@@ -88,6 +88,8 @@ import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import com.example.model.CategoryItem
+import com.example.model.Product
+import com.example.model.PromoBanner
 import com.example.ui.theme.GoldAccent
 import com.example.ui.theme.GoldLight
 import com.example.ui.theme.NavyBorder
@@ -503,41 +505,71 @@ fun TopStickyNavBar(
 
 /**
  * Top-tier Hero Banner Carousel (Amazon Great Indian Festival / Flipkart Big Billion Days style)
+ * Fully controllable via Owner Banner & Ad Management System
  */
 @Composable
 fun HeroBannerCarousel(
+    banners: List<PromoBanner> = emptyList(),
+    onBannerClicked: (String) -> Unit = {},
     onShopNowClicked: () -> Unit,
     modifier: Modifier = Modifier
 ) {
-    var activeSlide by remember { mutableIntStateOf(0) }
-
-    // Auto rotate slides every 4.5 seconds
-    LaunchedEffect(Unit) {
-        while (true) {
-            delay(4500)
-            activeSlide = (activeSlide + 1) % 3
-        }
-    }
-
-    val slides = listOf(
-        Triple(
-            "⚡ FLASH SALE • UP TO 70% OFF",
-            "Trending Stretch Denim & Audio Gadgets",
-            "Shop ANC noise-cancelling headphones, AMOLED smartwatches, and premium stretch denim jeans."
+    val fallbackSlides = listOf(
+        PromoBanner(
+            id = "default_1",
+            tag = "⚡ FLASH SALE • UP TO 70% OFF",
+            title = "Trending Stretch Denim & Audio Gadgets",
+            subtitle = "Shop ANC noise-cancelling headphones, AMOLED smartwatches, and premium stretch denim jeans.",
+            buttonText = "Shop Deals",
+            searchTarget = "Jeans",
+            badgeColor = "orange"
         ),
-        Triple(
-            "🏪 HYPERLOCAL FRESH • 60-90 MINS",
-            "Pure A2 Cow Ghee & Daily Grocery Mart",
-            "Direct neighborhood store sourcing with zero delay. Free delivery on orders over ₹1000!"
+        PromoBanner(
+            id = "default_2",
+            tag = "🏪 HYPERLOCAL FRESH • 60-90 MINS",
+            title = "Pure A2 Cow Ghee & Daily Grocery Mart",
+            subtitle = "Direct neighborhood store sourcing with zero delay. Free delivery on orders over ₹1000!",
+            buttonText = "Order Groceries",
+            searchTarget = "Groceries",
+            badgeColor = "emerald"
         ),
-        Triple(
-            "🔥 EXCLUSIVE DROP • FLAT 50% OFF",
-            "Signature Genuine Leather & Couture",
-            "Handcrafted cowhide bifold wallets with gift box, titanium aviators, and artisan wear."
+        PromoBanner(
+            id = "default_3",
+            tag = "🔥 EXCLUSIVE DROP • FLAT 50% OFF",
+            title = "Signature Genuine Leather & Couture",
+            subtitle = "Handcrafted cowhide bifold wallets with gift box, titanium aviators, and artisan wear.",
+            buttonText = "Shop Leather",
+            searchTarget = "Wallet",
+            badgeColor = "gold"
         )
     )
 
-    val current = slides[activeSlide]
+    val activeBanners = if (banners.isNotEmpty()) banners else fallbackSlides
+    val totalCount = activeBanners.size
+    var activeSlide by remember { mutableIntStateOf(0) }
+
+    LaunchedEffect(totalCount) {
+        if (activeSlide >= totalCount) activeSlide = 0
+    }
+
+    // Auto rotate slides every 4.5 seconds
+    LaunchedEffect(totalCount) {
+        while (totalCount > 1) {
+            delay(4500)
+            activeSlide = (activeSlide + 1) % totalCount
+        }
+    }
+
+    val current = activeBanners[activeSlide.coerceIn(0, totalCount - 1)]
+
+    val accentColor = when (current.badgeColor.lowercase()) {
+        "emerald", "green" -> Color(0xFF34D399)
+        "gold", "yellow" -> GoldAccent
+        "blue" -> Color(0xFF38BDF8)
+        "purple" -> Color(0xFFA855F7)
+        "red" -> Color(0xFFEF4444)
+        else -> OrangeAccent
+    }
 
     Box(
         modifier = modifier
@@ -550,6 +582,13 @@ fun HeroBannerCarousel(
                 )
             )
             .border(1.dp, GoldAccent.copy(alpha = 0.35f), RoundedCornerShape(18.dp))
+            .clickable {
+                if (current.searchTarget.isNotBlank()) {
+                    onBannerClicked(current.searchTarget)
+                } else {
+                    onShopNowClicked()
+                }
+            }
             .padding(16.dp)
             .testTag("hero_banner_carousel")
     ) {
@@ -564,20 +603,20 @@ fun HeroBannerCarousel(
                     verticalAlignment = Alignment.CenterVertically,
                     modifier = Modifier
                         .clip(RoundedCornerShape(20.dp))
-                        .background(OrangeAccent.copy(alpha = 0.2f))
-                        .border(1.dp, OrangeAccent.copy(alpha = 0.4f), RoundedCornerShape(20.dp))
+                        .background(accentColor.copy(alpha = 0.2f))
+                        .border(1.dp, accentColor.copy(alpha = 0.45f), RoundedCornerShape(20.dp))
                         .padding(horizontal = 8.dp, vertical = 3.dp)
                 ) {
                     Icon(
                         imageVector = Icons.Default.Bolt,
                         contentDescription = "Flash",
-                        tint = OrangeAccent,
+                        tint = accentColor,
                         modifier = Modifier.size(12.dp)
                     )
                     Spacer(modifier = Modifier.width(4.dp))
                     Text(
-                        text = current.first,
-                        color = OrangeAccent,
+                        text = current.tag,
+                        color = accentColor,
                         fontSize = 9.sp,
                         fontWeight = FontWeight.ExtraBold,
                         letterSpacing = 0.5.sp
@@ -615,7 +654,7 @@ fun HeroBannerCarousel(
 
             // Main Title
             Text(
-                text = current.second,
+                text = current.title,
                 color = Color.White,
                 fontSize = 18.sp,
                 fontWeight = FontWeight.Black,
@@ -627,7 +666,7 @@ fun HeroBannerCarousel(
 
             // Subtitle
             Text(
-                text = current.third,
+                text = current.subtitle,
                 color = Color(0xFFCBD5E1),
                 fontSize = 11.sp,
                 lineHeight = 15.sp,
@@ -644,7 +683,13 @@ fun HeroBannerCarousel(
                 horizontalArrangement = Arrangement.SpaceBetween
             ) {
                 Button(
-                    onClick = onShopNowClicked,
+                    onClick = {
+                        if (current.searchTarget.isNotBlank()) {
+                            onBannerClicked(current.searchTarget)
+                        } else {
+                            onShopNowClicked()
+                        }
+                    },
                     colors = ButtonDefaults.buttonColors(
                         containerColor = GoldAccent,
                         contentColor = NavyDark
@@ -653,7 +698,7 @@ fun HeroBannerCarousel(
                     contentPadding = androidx.compose.foundation.layout.PaddingValues(horizontal = 14.dp, vertical = 6.dp)
                 ) {
                     Text(
-                        text = "Shop Deals",
+                        text = current.buttonText.ifBlank { "Shop Deals" },
                         fontWeight = FontWeight.ExtraBold,
                         fontSize = 11.sp
                     )
@@ -668,43 +713,45 @@ fun HeroBannerCarousel(
 
                 // Controls: Previous / Next & Indicator dots
                 Row(verticalAlignment = Alignment.CenterVertically) {
-                    IconButton(
-                        onClick = { activeSlide = if (activeSlide == 0) 2 else activeSlide - 1 },
-                        modifier = Modifier.size(26.dp)
-                    ) {
-                        Icon(
-                            imageVector = Icons.Default.KeyboardArrowLeft,
-                            contentDescription = "Prev",
-                            tint = Color.White,
-                            modifier = Modifier.size(15.dp)
-                        )
-                    }
-
-                    // Dots
-                    Row(
-                        horizontalArrangement = Arrangement.spacedBy(4.dp),
-                        verticalAlignment = Alignment.CenterVertically
-                    ) {
-                        repeat(3) { index ->
-                            Box(
-                                modifier = Modifier
-                                    .size(width = if (activeSlide == index) 16.dp else 5.dp, height = 5.dp)
-                                    .clip(CircleShape)
-                                    .background(if (activeSlide == index) GoldAccent else Color(0xFF475569))
+                    if (totalCount > 1) {
+                        IconButton(
+                            onClick = { activeSlide = if (activeSlide == 0) totalCount - 1 else activeSlide - 1 },
+                            modifier = Modifier.size(26.dp)
+                        ) {
+                            Icon(
+                                imageVector = Icons.Default.KeyboardArrowLeft,
+                                contentDescription = "Prev",
+                                tint = Color.White,
+                                modifier = Modifier.size(15.dp)
                             )
                         }
-                    }
 
-                    IconButton(
-                        onClick = { activeSlide = (activeSlide + 1) % 3 },
-                        modifier = Modifier.size(26.dp)
-                    ) {
-                        Icon(
-                            imageVector = Icons.Default.KeyboardArrowRight,
-                            contentDescription = "Next",
-                            tint = Color.White,
-                            modifier = Modifier.size(15.dp)
-                        )
+                        // Dots
+                        Row(
+                            horizontalArrangement = Arrangement.spacedBy(4.dp),
+                            verticalAlignment = Alignment.CenterVertically
+                        ) {
+                            repeat(totalCount.coerceAtMost(6)) { index ->
+                                Box(
+                                    modifier = Modifier
+                                        .size(width = if (activeSlide == index) 16.dp else 5.dp, height = 5.dp)
+                                        .clip(CircleShape)
+                                        .background(if (activeSlide == index) GoldAccent else Color(0xFF475569))
+                                )
+                            }
+                        }
+
+                        IconButton(
+                            onClick = { activeSlide = (activeSlide + 1) % totalCount },
+                            modifier = Modifier.size(26.dp)
+                        ) {
+                            Icon(
+                                imageVector = Icons.Default.KeyboardArrowRight,
+                                contentDescription = "Next",
+                                tint = Color.White,
+                                modifier = Modifier.size(15.dp)
+                            )
+                        }
                     }
                 }
             }
@@ -860,10 +907,13 @@ fun CategoryPillCard(
 
 /**
  * Signature Amazon / Flipkart "Blockbuster Deals & Deal of the Day" Section
+ * Automatically displays approved partner seller products and blockbuster promotions
  */
 @Composable
 fun BlockbusterDealsSection(
+    sellerProducts: List<Product> = emptyList(),
     onDealClicked: (String) -> Unit,
+    onProductClicked: (Product) -> Unit = {},
     modifier: Modifier = Modifier
 ) {
     Column(
@@ -898,14 +948,14 @@ fun BlockbusterDealsSection(
                 Spacer(modifier = Modifier.width(6.dp))
                 Column {
                     Text(
-                        text = "DEAL OF THE DAY",
+                        text = "DEAL OF THE DAY & PARTNER DROPS",
                         color = Color.Red,
                         fontSize = 13.sp,
                         fontWeight = FontWeight.Black,
                         letterSpacing = 0.5.sp
                     )
                     Text(
-                        text = "Limited quantities • Grab before price reset",
+                        text = "Verified Partner Sellers & Flash Deals • Grab before price reset",
                         color = Color(0xFF64748B),
                         fontSize = 9.sp
                     )
@@ -937,6 +987,33 @@ fun BlockbusterDealsSection(
                 .padding(horizontal = 14.dp),
             horizontalArrangement = Arrangement.spacedBy(10.dp)
         ) {
+            // Dynamically populated approved partner seller products
+            sellerProducts.take(6).forEach { product ->
+                val icon: ImageVector = when (product.iconType.lowercase()) {
+                    "wallet" -> Icons.Default.ShoppingBag
+                    "headphones" -> Icons.Default.Headphones
+                    "watch" -> Icons.Default.Bolt
+                    "tv", "laptop" -> Icons.Default.Computer
+                    "basket" -> Icons.Default.LocalMall
+                    "jacket" -> Icons.Default.DryCleaning
+                    else -> Icons.Default.ShoppingBag
+                }
+                val discount = if (product.discountPercent > 0) product.discountPercent else 35
+                DealItemCard(
+                    title = product.title,
+                    category = if (product.badge.isNotBlank()) product.badge else product.category,
+                    dealPrice = product.price.toInt(),
+                    mrp = if (product.mrp > product.price) product.mrp.toInt() else (product.price * 1.4).toInt(),
+                    discountPercent = discount,
+                    claimedPercent = 0.72f,
+                    icon = icon,
+                    onClick = {
+                        onProductClicked(product)
+                        onDealClicked(product.title)
+                    }
+                )
+            }
+
             // Deal 1: Levi's Leather Wallet
             DealItemCard(
                 title = "Levi's Leather Bifold Wallet",

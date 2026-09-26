@@ -4,7 +4,8 @@ enum class OrderStatus(val label: String) {
     PENDING("Pending Verification"),
     PROCESSING("Processing & Packing"),
     SHIPPED("Dispatched / In Transit"),
-    DELIVERED("Delivered")
+    DELIVERED("Delivered"),
+    CANCELLED("Cancelled by Customer")
 }
 
 data class OrderItem(
@@ -29,8 +30,30 @@ data class Order(
     val paymentMethod: String = "UPI Instant Pay",
     val transactionRef: String = "",
     val timestamp: String,
-    val status: OrderStatus = OrderStatus.PROCESSING
-)
+    val status: OrderStatus = OrderStatus.PROCESSING,
+    val deliveryOtp: String = "4892",
+    val isCallVerified: Boolean = true,
+    val callVerificationStatus: String = "Confirmed (Key 1 Pressed)", // "Confirmed (Key 1 Pressed)", "Calling Customer...", "No Answer - Retry in 15 mins", "Cancelled (Key 5 Pressed)"
+    val sellerNotified: Boolean = true,
+    val ownerNotified: Boolean = true,
+    val liveCoordinates: String = "24.4826° N, 86.6978° E (Deoghar)",
+    val otpVerifiedAtDelivery: Boolean = false
+) {
+    val date: String get() = timestamp
+    val deliveryAddress: String get() = shippingAddress
+    val sellerDispatchedData: String get() = items.joinToString(", ") { "${it.quantity}x ${it.productTitle}" }
+    val adminDispatchedData: String get() = "$customerName ($customerPhone), $shippingAddress | GPS: $liveCoordinates"
+}
+
+data class AiOrderChatMessage(
+    val id: String,
+    val sender: String, // "user" or "ai"
+    val text: String,
+    val timestamp: String,
+    val orderId: String = ""
+) {
+    val isFromCustomer: Boolean get() = sender == "user"
+}
 
 data class UserAccount(
     val id: String,
@@ -83,3 +106,17 @@ fun calculateAdminCommission(price: Double): CommissionSlab {
     }
     return CommissionSlab(rate, slabName, adminMargin, sellerPayout)
 }
+
+data class PromoBanner(
+    val id: String,
+    val tag: String,
+    val title: String,
+    val subtitle: String,
+    val buttonText: String = "Shop Deals",
+    val searchTarget: String = "Deals",
+    val badgeColor: String = "orange", // "orange", "gold", "blue", "red", "emerald", "purple"
+    val imageUrl: String = "",
+    val isActive: Boolean = true,
+    val displayOrder: Int = 0,
+    val isOwnerSponsored: Boolean = true
+)

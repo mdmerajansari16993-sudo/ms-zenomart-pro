@@ -79,6 +79,7 @@ import com.example.ui.components.BlockbusterDealsSection
 import com.example.ui.components.BottomFooterSection
 import com.example.ui.components.CartBottomSheet
 import com.example.ui.components.CategoryQuickGrid
+import com.example.ui.components.CustomerOrderAiAssistantSheet
 import com.example.ui.components.EcommerceBottomNavigationBar
 import com.example.ui.components.HeroBannerCarousel
 import com.example.ui.components.OrderSuccessDialog
@@ -129,6 +130,9 @@ fun MSZenoMartApp(viewModel: ZenoMartViewModel = viewModel()) {
     val orders by viewModel.orders.collectAsState()
     val users by viewModel.users.collectAsState()
     val sellers by viewModel.sellers.collectAsState()
+    val banners by viewModel.banners.collectAsState()
+    val dealProducts by viewModel.dealProducts.collectAsState()
+    val aiChatMessages by viewModel.aiChatMessages.collectAsState()
     val lastMessage by viewModel.lastMessage.collectAsState()
 
     // UI state
@@ -138,6 +142,7 @@ fun MSZenoMartApp(viewModel: ZenoMartViewModel = viewModel()) {
     var showProfileDialog by remember { mutableStateOf(false) }
     var showPaymentQrDialog by remember { mutableStateOf(false) }
     var showOrderSuccessDialog by remember { mutableStateOf(false) }
+    var showCustomerOrdersSheet by remember { mutableStateOf(false) }
     var showSellerRegisterDialog by remember { mutableStateOf(false) }
     var pendingOrderNumber by remember { mutableStateOf("") }
     var pendingOrderAmount by remember { mutableDoubleStateOf(0.0) }
@@ -192,7 +197,7 @@ fun MSZenoMartApp(viewModel: ZenoMartViewModel = viewModel()) {
                     coroutineScope.launch { listState.animateScrollToItem(2) }
                 },
                 onOrdersClicked = {
-                    selectedTab = 1
+                    showCustomerOrdersSheet = true
                 },
                 onCartClicked = {
                     showCartSheet = true
@@ -318,6 +323,7 @@ fun MSZenoMartApp(viewModel: ZenoMartViewModel = viewModel()) {
                         products = allProducts,
                         users = users,
                         sellers = sellers,
+                        banners = banners,
                         onBackToStore = { selectedTab = 0 },
                         onAddNewProduct = viewModel::addNewProduct,
                         onDeleteProduct = viewModel::deleteProduct,
@@ -328,7 +334,14 @@ fun MSZenoMartApp(viewModel: ZenoMartViewModel = viewModel()) {
                         onClearSellerPayout = viewModel::clearSellerPayout,
                         onAddNewSeller = { name, shop, phone, email, cat, addr, upi ->
                             viewModel.registerSeller(name, shop, phone, email, cat, addr, upi)
-                        }
+                        },
+                        onAddBanner = viewModel::addNewBanner,
+                        onUpdateBanner = viewModel::updateBanner,
+                        onDeleteBanner = viewModel::deleteBanner,
+                        onToggleBannerStatus = viewModel::toggleBannerStatus,
+                        onResetBanners = viewModel::resetBannersToDefault,
+                        onVerifyDeliveryOtp = viewModel::verifyDeliveryOtp,
+                        onTriggerVoiceCall = viewModel::triggerAutomatedVoiceCall
                     )
                 }
                 2 -> {
@@ -341,9 +354,16 @@ fun MSZenoMartApp(viewModel: ZenoMartViewModel = viewModel()) {
                         state = listState,
                         modifier = Modifier.fillMaxSize()
                     ) {
-                    // Promotional Banner / Hero Carousel
+                    // Promotional Banner / Hero Carousel (controllable via Owner Banner Management)
                     item {
                         HeroBannerCarousel(
+                            banners = banners,
+                            onBannerClicked = { searchTarget ->
+                                viewModel.onSearchQueryChanged(searchTarget)
+                                coroutineScope.launch {
+                                    listState.animateScrollToItem(4)
+                                }
+                            },
                             onShopNowClicked = {
                                 coroutineScope.launch {
                                     listState.animateScrollToItem(2)
@@ -361,13 +381,20 @@ fun MSZenoMartApp(viewModel: ZenoMartViewModel = viewModel()) {
                         )
                     }
 
-                    // Amazon / Flipkart Signature Blockbuster Deals & Lightning Deals Section
+                    // Amazon / Flipkart Signature Blockbuster Deals & Lightning Deals Section (populates approved seller items)
                     item {
                         BlockbusterDealsSection(
+                            sellerProducts = dealProducts,
                             onDealClicked = { dealKeyword ->
                                 viewModel.onSearchQueryChanged(dealKeyword)
                                 coroutineScope.launch {
                                     listState.animateScrollToItem(4)
+                                }
+                            },
+                            onProductClicked = { product ->
+                                viewModel.addToCart(product)
+                                coroutineScope.launch {
+                                    snackbarHostState.showSnackbar("Added ${product.title} to cart")
                                 }
                             }
                         )
@@ -659,8 +686,20 @@ fun MSZenoMartApp(viewModel: ZenoMartViewModel = viewModel()) {
             },
             onViewInAdmin = {
                 showOrderSuccessDialog = false
-                selectedTab = 1
+                showCustomerOrdersSheet = true
             }
+        )
+    }
+
+    // Customer Orders Tracking & AI Chat Assistant Sheet with Speaker Voice-out
+    if (showCustomerOrdersSheet) {
+        CustomerOrderAiAssistantSheet(
+            orders = orders,
+            aiChatMessages = aiChatMessages,
+            onDismiss = { showCustomerOrdersSheet = false },
+            onSendMessage = viewModel::sendAiOrderChatMessage,
+            onTriggerVoiceCall = viewModel::triggerAutomatedVoiceCall,
+            onVerifyDeliveryOtp = viewModel::verifyDeliveryOtp
         )
     }
 

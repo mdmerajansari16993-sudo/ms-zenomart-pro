@@ -36,6 +36,7 @@ import androidx.compose.material.icons.filled.Close
 import androidx.compose.material.icons.filled.Computer
 import androidx.compose.material.icons.filled.Delete
 import androidx.compose.material.icons.filled.DryCleaning
+import androidx.compose.material.icons.filled.Edit
 import androidx.compose.material.icons.filled.Headphones
 import androidx.compose.material.icons.filled.Inventory
 import androidx.compose.material.icons.filled.KeyboardArrowDown
@@ -45,10 +46,12 @@ import androidx.compose.material.icons.filled.People
 import androidx.compose.material.icons.filled.Person
 import androidx.compose.material.icons.filled.Phone
 import androidx.compose.material.icons.filled.Receipt
+import androidx.compose.material.icons.filled.Refresh
 import androidx.compose.material.icons.filled.Search
 import androidx.compose.material.icons.filled.ShoppingBag
 import androidx.compose.material.icons.filled.Storefront
 import androidx.compose.material.icons.filled.Tv
+import androidx.compose.material.icons.filled.Campaign
 import androidx.compose.material.icons.filled.Verified
 import androidx.compose.material.icons.filled.Visibility
 import androidx.compose.material.icons.filled.Watch
@@ -98,6 +101,7 @@ import androidx.compose.ui.unit.sp
 import com.example.model.Order
 import com.example.model.OrderStatus
 import com.example.model.Product
+import com.example.model.PromoBanner
 import com.example.model.Seller
 import com.example.model.UserAccount
 import com.example.model.calculateAdminCommission
@@ -117,6 +121,7 @@ fun AdminDashboard(
     products: List<Product>,
     users: List<UserAccount>,
     sellers: List<Seller> = emptyList(),
+    banners: List<PromoBanner> = emptyList(),
     onBackToStore: () -> Unit,
     onAddNewProduct: (title: String, category: String, price: Double, mrp: Double, description: String, badge: String, iconType: String, imageUrl: String) -> Boolean,
     onDeleteProduct: (Int) -> Unit,
@@ -126,9 +131,16 @@ fun AdminDashboard(
     onAddNewUser: (name: String, email: String, phone: String, address: String, tier: String) -> Unit,
     onClearSellerPayout: (sellerId: String) -> Unit = {},
     onAddNewSeller: (name: String, shopName: String, phone: String, email: String, category: String, address: String, upiId: String) -> Unit = { _, _, _, _, _, _, _ -> },
+    onAddBanner: (tag: String, title: String, subtitle: String, buttonText: String, searchTarget: String, badgeColor: String, imageUrl: String) -> Boolean = { _, _, _, _, _, _, _ -> false },
+    onUpdateBanner: (id: String, tag: String, title: String, subtitle: String, buttonText: String, searchTarget: String, badgeColor: String, imageUrl: String, isActive: Boolean) -> Boolean = { _, _, _, _, _, _, _, _, _ -> false },
+    onDeleteBanner: (id: String) -> Unit = {},
+    onToggleBannerStatus: (id: String) -> Unit = {},
+    onResetBanners: () -> Unit = {},
+    onVerifyDeliveryOtp: (orderId: String, enteredOtp: String) -> Boolean = { _, _ -> false },
+    onTriggerVoiceCall: (orderId: String, pressedKey: Int) -> Boolean = { _, _ -> false },
     modifier: Modifier = Modifier
 ) {
-    var adminSubTab by remember { mutableIntStateOf(0) } // 0: Orders, 1: Add Product, 2: Users, 3: Sellers
+    var adminSubTab by remember { mutableIntStateOf(0) } // 0: Orders, 1: Add Product, 2: Users, 3: Sellers, 4: Banners & Ads, 5: Call & OTP
     var orderStatusFilter by remember { mutableStateOf("ALL") }
     var orderSearchQuery by remember { mutableStateOf("") }
     var userSearchQuery by remember { mutableStateOf("") }
@@ -262,9 +274,16 @@ fun AdminDashboard(
                         icon = Icons.Default.People,
                         iconTint = Color(0xFF10B981)
                     )
+                    KpiCard(
+                        title = "ACTIVE BANNERS",
+                        value = "${banners.count { it.isActive }}",
+                        subtitle = "${banners.size} campaigns live",
+                        icon = Icons.Default.Campaign,
+                        iconTint = GoldAccent
+                    )
                 }
 
-                // Sub Tabs (Orders, Add Product, Users)
+                // Sub Tabs (Orders, Add Product, Users, Sellers, Banners & Ads, Call & OTP)
                 SecondaryTabRow(
                     selectedTabIndex = adminSubTab,
                     containerColor = NavyDark,
@@ -314,6 +333,28 @@ fun AdminDashboard(
                             }
                         }
                     )
+                    Tab(
+                        selected = adminSubTab == 4,
+                        onClick = { adminSubTab = 4 },
+                        text = {
+                            Row(verticalAlignment = Alignment.CenterVertically) {
+                                Icon(Icons.Default.Campaign, contentDescription = null, modifier = Modifier.size(15.dp))
+                                Spacer(modifier = Modifier.width(6.dp))
+                                Text("Banners & Ads (${banners.size})", fontWeight = FontWeight.Bold, fontSize = 12.sp)
+                            }
+                        }
+                    )
+                    Tab(
+                        selected = adminSubTab == 5,
+                        onClick = { adminSubTab = 5 },
+                        text = {
+                            Row(verticalAlignment = Alignment.CenterVertically) {
+                                Icon(Icons.Default.Phone, contentDescription = null, modifier = Modifier.size(15.dp))
+                                Spacer(modifier = Modifier.width(6.dp))
+                                Text("Call & Delivery OTP", fontWeight = FontWeight.Bold, fontSize = 12.sp)
+                            }
+                        }
+                    )
                 }
             }
         }
@@ -327,7 +368,9 @@ fun AdminDashboard(
                     onSearchChanged = { orderSearchQuery = it },
                     statusFilter = orderStatusFilter,
                     onStatusFilterChanged = { orderStatusFilter = it },
-                    onUpdateStatus = onUpdateOrderStatus
+                    onUpdateStatus = onUpdateOrderStatus,
+                    onVerifyDeliveryOtp = onVerifyDeliveryOtp,
+                    onTriggerVoiceCall = onTriggerVoiceCall
                 )
                 1 -> AddProductSection(
                     products = products,
@@ -348,6 +391,19 @@ fun AdminDashboard(
                     orders = orders,
                     onClearPayout = onClearSellerPayout,
                     onOpenAddSellerDialog = { showAddSellerDialog = true }
+                )
+                4 -> BannerManagementSection(
+                    banners = banners,
+                    onAddBanner = onAddBanner,
+                    onUpdateBanner = onUpdateBanner,
+                    onDeleteBanner = onDeleteBanner,
+                    onToggleStatus = onToggleBannerStatus,
+                    onResetDefaults = onResetBanners
+                )
+                5 -> DeliveryAndAiCallVerificationSection(
+                    orders = orders,
+                    onVerifyDeliveryOtp = onVerifyDeliveryOtp,
+                    onTriggerVoiceCall = onTriggerVoiceCall
                 )
             }
         }
@@ -433,7 +489,9 @@ fun IncomingOrdersSection(
     onSearchChanged: (String) -> Unit,
     statusFilter: String,
     onStatusFilterChanged: (String) -> Unit,
-    onUpdateStatus: (orderId: String, newStatus: OrderStatus) -> Unit
+    onUpdateStatus: (orderId: String, newStatus: OrderStatus) -> Unit,
+    onVerifyDeliveryOtp: (orderId: String, enteredOtp: String) -> Boolean = { _, _ -> false },
+    onTriggerVoiceCall: (orderId: String, pressedKey: Int) -> Boolean = { _, _ -> false }
 ) {
     val filteredOrders = orders.filter { order ->
         val matchesStatus = when (statusFilter) {
@@ -530,7 +588,12 @@ fun IncomingOrdersSection(
             }
         } else {
             items(filteredOrders, key = { it.id }) { order ->
-                OrderCard(order = order, onUpdateStatus = onUpdateStatus)
+                OrderCard(
+                    order = order,
+                    onUpdateStatus = onUpdateStatus,
+                    onVerifyDeliveryOtp = onVerifyDeliveryOtp,
+                    onTriggerVoiceCall = onTriggerVoiceCall
+                )
             }
         }
 
@@ -543,16 +606,21 @@ fun IncomingOrdersSection(
 @Composable
 fun OrderCard(
     order: Order,
-    onUpdateStatus: (String, OrderStatus) -> Unit
+    onUpdateStatus: (String, OrderStatus) -> Unit,
+    onVerifyDeliveryOtp: (String, String) -> Boolean = { _, _ -> false },
+    onTriggerVoiceCall: (String, Int) -> Boolean = { _, _ -> false }
 ) {
     var expanded by remember { mutableStateOf(false) }
     var showStatusMenu by remember { mutableStateOf(false) }
+    var otpInput by remember { mutableStateOf("") }
+    var otpError by remember { mutableStateOf<String?>(null) }
 
     val statusColor = when (order.status) {
         OrderStatus.PENDING -> Color(0xFFF59E0B)
         OrderStatus.PROCESSING -> OrangeAccent
         OrderStatus.SHIPPED -> Color(0xFF3B82F6)
         OrderStatus.DELIVERED -> Color(0xFF10B981)
+        OrderStatus.CANCELLED -> Color(0xFFEF4444)
     }
 
     Card(
@@ -717,7 +785,183 @@ fun OrderCard(
                     ) {
                         Icon(Icons.Default.LocalShipping, contentDescription = null, modifier = Modifier.size(14.dp), tint = Color(0xFF1D4ED8))
                         Spacer(modifier = Modifier.width(6.dp))
-                        Text("🗺️ Navigate to Customer Location (Google Maps)", fontSize = 10.sp, fontWeight = FontWeight.Bold)
+                        Text("🗺️ Live GPS: ${order.liveCoordinates} (Navigate)", fontSize = 10.sp, fontWeight = FontWeight.Bold)
+                    }
+
+                    Spacer(modifier = Modifier.height(8.dp))
+
+                    // 1. AI Voice Call Verification & Smart Routing
+                    Surface(
+                        color = if (order.isCallVerified) Color(0xFFECFDF5) else Color(0xFFFEF3C7),
+                        shape = RoundedCornerShape(10.dp),
+                        border = androidx.compose.foundation.BorderStroke(1.dp, if (order.isCallVerified) Color(0xFFA7F3D0) else Color(0xFFFDE68A)),
+                        modifier = Modifier.fillMaxWidth()
+                    ) {
+                        Column(modifier = Modifier.padding(10.dp), verticalArrangement = Arrangement.spacedBy(4.dp)) {
+                            Row(
+                                modifier = Modifier.fillMaxWidth(),
+                                horizontalArrangement = Arrangement.SpaceBetween,
+                                verticalAlignment = Alignment.CenterVertically
+                            ) {
+                                Row(verticalAlignment = Alignment.CenterVertically) {
+                                    Icon(
+                                        imageVector = Icons.Default.Phone,
+                                        contentDescription = null,
+                                        tint = if (order.isCallVerified) Color(0xFF059669) else Color(0xFFD97706),
+                                        modifier = Modifier.size(14.dp)
+                                    )
+                                    Spacer(modifier = Modifier.width(6.dp))
+                                    Text(
+                                        text = "AI Voice Call Verification",
+                                        fontWeight = FontWeight.Bold,
+                                        fontSize = 11.sp,
+                                        color = if (order.isCallVerified) Color(0xFF065F46) else Color(0xFF92400E)
+                                    )
+                                }
+                                Surface(
+                                    color = if (order.isCallVerified) Color(0xFF10B981) else Color(0xFFF59E0B),
+                                    shape = RoundedCornerShape(6.dp)
+                                ) {
+                                    Text(
+                                        text = order.callVerificationStatus,
+                                        color = Color.White,
+                                        fontSize = 8.sp,
+                                        fontWeight = FontWeight.Black,
+                                        modifier = Modifier.padding(horizontal = 6.dp, vertical = 2.dp)
+                                    )
+                                }
+                            }
+
+                            Text(
+                                text = "Smart Routing: ✓ Exact items sent to Seller Mobile • ✓ Customer GPS sent to Owner (+91 79798 64406)",
+                                fontSize = 9.sp,
+                                color = Color(0xFF475569)
+                            )
+
+                            // Voice Call Simulation Buttons
+                            Row(
+                                modifier = Modifier.fillMaxWidth(),
+                                horizontalArrangement = Arrangement.spacedBy(6.dp)
+                            ) {
+                                Button(
+                                    onClick = { onTriggerVoiceCall(order.id, 1) },
+                                    colors = ButtonDefaults.buttonColors(containerColor = Color(0xFF10B981), contentColor = Color.White),
+                                    shape = RoundedCornerShape(6.dp),
+                                    contentPadding = androidx.compose.foundation.layout.PaddingValues(horizontal = 8.dp, vertical = 2.dp),
+                                    modifier = Modifier.height(26.dp)
+                                ) {
+                                    Text("Press 1 (Confirm)", fontSize = 8.sp, fontWeight = FontWeight.Bold)
+                                }
+                                Button(
+                                    onClick = { onTriggerVoiceCall(order.id, 5) },
+                                    colors = ButtonDefaults.buttonColors(containerColor = Color(0xFFEF4444), contentColor = Color.White),
+                                    shape = RoundedCornerShape(6.dp),
+                                    contentPadding = androidx.compose.foundation.layout.PaddingValues(horizontal = 8.dp, vertical = 2.dp),
+                                    modifier = Modifier.height(26.dp)
+                                ) {
+                                    Text("Press 5 (Cancel)", fontSize = 8.sp, fontWeight = FontWeight.Bold)
+                                }
+                                OutlinedButton(
+                                    onClick = { onTriggerVoiceCall(order.id, 0) },
+                                    shape = RoundedCornerShape(6.dp),
+                                    contentPadding = androidx.compose.foundation.layout.PaddingValues(horizontal = 8.dp, vertical = 2.dp),
+                                    modifier = Modifier.height(26.dp)
+                                ) {
+                                    Text("No Answer (Retry 15m)", fontSize = 8.sp, fontWeight = FontWeight.Bold)
+                                }
+                            }
+                        }
+                    }
+
+                    Spacer(modifier = Modifier.height(6.dp))
+
+                    // 2. Secure Delivery OTP Handover Verification
+                    Surface(
+                        color = if (order.status == OrderStatus.DELIVERED) Color(0xFFECFDF5) else Color(0xFFF1F5F9),
+                        shape = RoundedCornerShape(10.dp),
+                        border = androidx.compose.foundation.BorderStroke(1.dp, if (order.status == OrderStatus.DELIVERED) Color(0xFFA7F3D0) else Color(0xFFCBD5E1)),
+                        modifier = Modifier.fillMaxWidth()
+                    ) {
+                        Column(modifier = Modifier.padding(10.dp), verticalArrangement = Arrangement.spacedBy(6.dp)) {
+                            Row(
+                                modifier = Modifier.fillMaxWidth(),
+                                horizontalArrangement = Arrangement.SpaceBetween,
+                                verticalAlignment = Alignment.CenterVertically
+                            ) {
+                                Row(verticalAlignment = Alignment.CenterVertically) {
+                                    Icon(
+                                        imageVector = Icons.Default.Verified,
+                                        contentDescription = null,
+                                        tint = if (order.status == OrderStatus.DELIVERED) Color(0xFF059669) else NavyPrimary,
+                                        modifier = Modifier.size(14.dp)
+                                    )
+                                    Spacer(modifier = Modifier.width(6.dp))
+                                    Text(
+                                        text = "Secure Delivery OTP Verification",
+                                        fontWeight = FontWeight.Bold,
+                                        fontSize = 11.sp,
+                                        color = if (order.status == OrderStatus.DELIVERED) Color(0xFF065F46) else NavyPrimary
+                                    )
+                                }
+                                Surface(
+                                    color = Color(0xFFE2E8F0),
+                                    shape = RoundedCornerShape(6.dp)
+                                ) {
+                                    Text(
+                                        text = "Customer OTP: ${order.deliveryOtp}",
+                                        color = NavyDark,
+                                        fontSize = 9.sp,
+                                        fontWeight = FontWeight.Black,
+                                        modifier = Modifier.padding(horizontal = 6.dp, vertical = 2.dp)
+                                    )
+                                }
+                            }
+
+                            if (order.status == OrderStatus.DELIVERED || order.otpVerifiedAtDelivery) {
+                                Row(verticalAlignment = Alignment.CenterVertically) {
+                                    Icon(Icons.Default.CheckCircle, contentDescription = null, tint = Color(0xFF10B981), modifier = Modifier.size(16.dp))
+                                    Spacer(modifier = Modifier.width(6.dp))
+                                    Text("Parcel Handover Confirmed & Verified with Customer OTP", color = Color(0xFF047857), fontSize = 10.sp, fontWeight = FontWeight.Bold)
+                                }
+                            } else {
+                                Row(
+                                    modifier = Modifier.fillMaxWidth(),
+                                    verticalAlignment = Alignment.CenterVertically,
+                                    horizontalArrangement = Arrangement.spacedBy(8.dp)
+                                ) {
+                                    OutlinedTextField(
+                                        value = otpInput,
+                                        onValueChange = {
+                                            otpInput = it.take(4)
+                                            otpError = null
+                                        },
+                                        placeholder = { Text("Enter Customer 4-digit OTP", fontSize = 10.sp) },
+                                        singleLine = true,
+                                        keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Number),
+                                        shape = RoundedCornerShape(8.dp),
+                                        modifier = Modifier.weight(1f).height(44.dp)
+                                    )
+                                    Button(
+                                        onClick = {
+                                            if (onVerifyDeliveryOtp(order.id, otpInput)) {
+                                                otpError = null
+                                                otpInput = ""
+                                            } else {
+                                                otpError = "Incorrect OTP! Must match customer code."
+                                            }
+                                        },
+                                        colors = ButtonDefaults.buttonColors(containerColor = NavyPrimary, contentColor = GoldAccent),
+                                        shape = RoundedCornerShape(8.dp),
+                                        modifier = Modifier.height(44.dp)
+                                    ) {
+                                        Text("Verify & Deliver", fontSize = 10.sp, fontWeight = FontWeight.Bold)
+                                    }
+                                }
+                                if (otpError != null) {
+                                    Text(otpError ?: "", color = Color.Red, fontSize = 9.sp, fontWeight = FontWeight.Bold)
+                                }
+                            }
+                        }
                     }
                 }
             }
@@ -2033,4 +2277,750 @@ fun AddSellerDialog(
             }
         }
     )
+}
+
+// -------------------------------------------------------------
+// 5. OWNER BANNER & AD MANAGEMENT SECTION
+// -------------------------------------------------------------
+@Composable
+fun BannerManagementSection(
+    banners: List<PromoBanner>,
+    onAddBanner: (tag: String, title: String, subtitle: String, buttonText: String, searchTarget: String, badgeColor: String, imageUrl: String) -> Boolean,
+    onUpdateBanner: (id: String, tag: String, title: String, subtitle: String, buttonText: String, searchTarget: String, badgeColor: String, imageUrl: String, isActive: Boolean) -> Boolean,
+    onDeleteBanner: (id: String) -> Unit,
+    onToggleStatus: (id: String) -> Unit,
+    onResetDefaults: () -> Unit,
+    modifier: Modifier = Modifier
+) {
+    var editingBannerId by remember { mutableStateOf<String?>(null) }
+    var tagInput by remember { mutableStateOf("⚡ FLASH SALE • UP TO 70% OFF") }
+    var titleInput by remember { mutableStateOf("") }
+    var subtitleInput by remember { mutableStateOf("") }
+    var buttonTextInput by remember { mutableStateOf("Shop Deals") }
+    var searchTargetInput by remember { mutableStateOf("Jeans") }
+    var selectedColor by remember { mutableStateOf("orange") }
+    var imageUrlInput by remember { mutableStateOf("") }
+    var isActiveInput by remember { mutableStateOf(true) }
+    var bannerSuccessMsg by remember { mutableStateOf<String?>(null) }
+
+    fun populateForEdit(b: PromoBanner) {
+        editingBannerId = b.id
+        tagInput = b.tag
+        titleInput = b.title
+        subtitleInput = b.subtitle
+        buttonTextInput = b.buttonText
+        searchTargetInput = b.searchTarget
+        selectedColor = b.badgeColor
+        imageUrlInput = b.imageUrl
+        isActiveInput = b.isActive
+        bannerSuccessMsg = "Editing banner \"${b.title}\""
+    }
+
+    fun resetForm() {
+        editingBannerId = null
+        tagInput = "⚡ FLASH SALE • UP TO 70% OFF"
+        titleInput = ""
+        subtitleInput = ""
+        buttonTextInput = "Shop Deals"
+        searchTargetInput = "Jeans"
+        selectedColor = "orange"
+        imageUrlInput = ""
+        isActiveInput = true
+    }
+
+    val previewAccentColor = when (selectedColor.lowercase()) {
+        "emerald", "green" -> Color(0xFF34D399)
+        "gold", "yellow" -> GoldAccent
+        "blue" -> Color(0xFF38BDF8)
+        "purple" -> Color(0xFFA855F7)
+        "red" -> Color(0xFFEF4444)
+        else -> OrangeAccent
+    }
+
+    LazyColumn(
+        modifier = modifier
+            .fillMaxSize()
+            .padding(16.dp),
+        verticalArrangement = Arrangement.spacedBy(16.dp)
+    ) {
+        // Section Header
+        item {
+            Card(
+                colors = CardDefaults.cardColors(containerColor = NavyDark),
+                shape = RoundedCornerShape(16.dp),
+                border = androidx.compose.foundation.BorderStroke(1.dp, GoldAccent.copy(alpha = 0.4f)),
+                modifier = Modifier.fillMaxWidth()
+            ) {
+                Column(modifier = Modifier.padding(14.dp)) {
+                    Row(
+                        modifier = Modifier.fillMaxWidth(),
+                        horizontalArrangement = Arrangement.SpaceBetween,
+                        verticalAlignment = Alignment.CenterVertically
+                    ) {
+                        Row(verticalAlignment = Alignment.CenterVertically) {
+                            Box(
+                                modifier = Modifier
+                                    .size(36.dp)
+                                    .clip(RoundedCornerShape(8.dp))
+                                    .background(GoldAccent),
+                                contentAlignment = Alignment.Center
+                            ) {
+                                Icon(Icons.Default.Campaign, contentDescription = null, tint = NavyDark, modifier = Modifier.size(20.dp))
+                            }
+                            Spacer(modifier = Modifier.width(10.dp))
+                            Column {
+                                Text("Owner Banner & Ad Manager", color = Color.White, fontWeight = FontWeight.Black, fontSize = 15.sp)
+                                Text("Locked to Master Gmail: mdmerajansari16993@gmail.com", color = GoldAccent, fontSize = 10.sp, fontWeight = FontWeight.Bold)
+                            }
+                        }
+
+                        Button(
+                            onClick = {
+                                onResetDefaults()
+                                resetForm()
+                                bannerSuccessMsg = "Default store campaign banners restored!"
+                            },
+                            colors = ButtonDefaults.buttonColors(containerColor = NavyCard, contentColor = GoldAccent),
+                            shape = RoundedCornerShape(8.dp),
+                            contentPadding = androidx.compose.foundation.layout.PaddingValues(horizontal = 8.dp, vertical = 4.dp)
+                        ) {
+                            Icon(Icons.Default.Refresh, contentDescription = null, modifier = Modifier.size(12.dp))
+                            Spacer(modifier = Modifier.width(4.dp))
+                            Text("Reset Defaults", fontSize = 10.sp, fontWeight = FontWeight.Bold)
+                        }
+                    }
+
+                    Spacer(modifier = Modifier.height(6.dp))
+                    Text(
+                        "Add, edit, replace, or pause active promotional banners shown on the customer homepage. Changes reflect instantaneously across the entire store.",
+                        color = Color(0xFFCBD5E1),
+                        fontSize = 11.sp,
+                        lineHeight = 15.sp
+                    )
+                }
+            }
+        }
+
+        // Live Banner Preview
+        item {
+            Column(verticalArrangement = Arrangement.spacedBy(6.dp)) {
+                Text(
+                    text = "LIVE HOMEPAGE BANNER PREVIEW:",
+                    color = NavyPrimary,
+                    fontSize = 11.sp,
+                    fontWeight = FontWeight.ExtraBold,
+                    letterSpacing = 0.5.sp
+                )
+
+                Box(
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .clip(RoundedCornerShape(16.dp))
+                        .background(Brush.horizontalGradient(listOf(NavyDark, NavyCard, NavyDark)))
+                        .border(1.dp, previewAccentColor.copy(alpha = 0.5f), RoundedCornerShape(16.dp))
+                        .padding(14.dp)
+                ) {
+                    Column(verticalArrangement = Arrangement.spacedBy(6.dp)) {
+                        Row(
+                            modifier = Modifier.fillMaxWidth(),
+                            horizontalArrangement = Arrangement.SpaceBetween,
+                            verticalAlignment = Alignment.CenterVertically
+                        ) {
+                            Surface(
+                                color = previewAccentColor.copy(alpha = 0.2f),
+                                shape = RoundedCornerShape(12.dp),
+                                border = androidx.compose.foundation.BorderStroke(1.dp, previewAccentColor.copy(alpha = 0.5f))
+                            ) {
+                                Row(
+                                    modifier = Modifier.padding(horizontal = 8.dp, vertical = 2.dp),
+                                    verticalAlignment = Alignment.CenterVertically
+                                ) {
+                                    Icon(Icons.Default.Campaign, contentDescription = null, tint = previewAccentColor, modifier = Modifier.size(11.dp))
+                                    Spacer(modifier = Modifier.width(4.dp))
+                                    Text(
+                                        text = tagInput.ifBlank { "⚡ PROMOTIONAL OFFER" },
+                                        color = previewAccentColor,
+                                        fontSize = 9.sp,
+                                        fontWeight = FontWeight.Black
+                                    )
+                                }
+                            }
+
+                            Surface(
+                                color = Color.Red.copy(alpha = 0.2f),
+                                shape = RoundedCornerShape(10.dp)
+                            ) {
+                                Text("⏳ Live On Homepage", color = Color(0xFFF87171), fontSize = 8.sp, fontWeight = FontWeight.Bold, modifier = Modifier.padding(horizontal = 6.dp, vertical = 2.dp))
+                            }
+                        }
+
+                        Text(
+                            text = titleInput.ifBlank { "Sample Banner Headline (Type Below)" },
+                            color = Color.White,
+                            fontSize = 16.sp,
+                            fontWeight = FontWeight.Black
+                        )
+
+                        Text(
+                            text = subtitleInput.ifBlank { "Sample promotional subtitle detailing discounts, coupons, and fast delivery." },
+                            color = Color(0xFFCBD5E1),
+                            fontSize = 11.sp,
+                            maxLines = 2
+                        )
+
+                        Row(
+                            modifier = Modifier.fillMaxWidth(),
+                            horizontalArrangement = Arrangement.SpaceBetween,
+                            verticalAlignment = Alignment.CenterVertically
+                        ) {
+                            Surface(
+                                color = GoldAccent,
+                                shape = RoundedCornerShape(8.dp)
+                            ) {
+                                Text(
+                                    text = "${buttonTextInput.ifBlank { "Shop Deals" }} →",
+                                    color = NavyDark,
+                                    fontSize = 10.sp,
+                                    fontWeight = FontWeight.Black,
+                                    modifier = Modifier.padding(horizontal = 10.dp, vertical = 4.dp)
+                                )
+                            }
+                            Text(
+                                text = "Category Target: ${searchTargetInput.ifBlank { "All Deals" }}",
+                                color = Color(0xFF94A3B8),
+                                fontSize = 9.sp
+                            )
+                        }
+                    }
+                }
+            }
+        }
+
+        // Add / Edit Form Card
+        item {
+            Card(
+                colors = CardDefaults.cardColors(containerColor = Color.White),
+                shape = RoundedCornerShape(16.dp),
+                border = androidx.compose.foundation.BorderStroke(1.dp, Color(0xFFE2E8F0)),
+                modifier = Modifier.fillMaxWidth()
+            ) {
+                Column(modifier = Modifier.padding(14.dp), verticalArrangement = Arrangement.spacedBy(10.dp)) {
+                    Row(
+                        modifier = Modifier.fillMaxWidth(),
+                        horizontalArrangement = Arrangement.SpaceBetween,
+                        verticalAlignment = Alignment.CenterVertically
+                    ) {
+                        Text(
+                            text = if (editingBannerId != null) "Edit / Replace Banner" else "Create New Homepage Banner",
+                            color = NavyPrimary,
+                            fontSize = 14.sp,
+                            fontWeight = FontWeight.Black
+                        )
+                        if (editingBannerId != null) {
+                            OutlinedButton(
+                                onClick = { resetForm() },
+                                shape = RoundedCornerShape(6.dp),
+                                contentPadding = androidx.compose.foundation.layout.PaddingValues(horizontal = 8.dp, vertical = 2.dp),
+                                modifier = Modifier.height(26.dp)
+                            ) {
+                                Text("Cancel Edit", fontSize = 9.sp)
+                            }
+                        }
+                    }
+
+                    if (bannerSuccessMsg != null) {
+                        Surface(
+                            color = Color(0xFFECFDF5),
+                            shape = RoundedCornerShape(8.dp),
+                            modifier = Modifier.fillMaxWidth()
+                        ) {
+                            Text(
+                                text = bannerSuccessMsg ?: "",
+                                color = Color(0xFF047857),
+                                fontSize = 11.sp,
+                                fontWeight = FontWeight.Bold,
+                                modifier = Modifier.padding(8.dp)
+                            )
+                        }
+                    }
+
+                    // Quick Preset Badges
+                    Text("QUICK PRESET TAGS:", fontSize = 10.sp, fontWeight = FontWeight.Bold, color = Color(0xFF64748B))
+                    Row(
+                        modifier = Modifier
+                            .fillMaxWidth()
+                            .horizontalScroll(rememberScrollState()),
+                        horizontalArrangement = Arrangement.spacedBy(6.dp)
+                    ) {
+                        listOf(
+                            "⚡ FLASH SALE • UP TO 70% OFF",
+                            "🏪 HYPERLOCAL FRESH • 60-90 MINS",
+                            "🔥 EXCLUSIVE DROP • FLAT 50% OFF",
+                            "⚡ MEGA BLOCKBUSTER • 24HR ONLY",
+                            "✨ BIG FESTIVE DEALS • FLAT 40% OFF"
+                        ).forEach { preset ->
+                            Surface(
+                                color = if (tagInput == preset) NavyPrimary else Color(0xFFF1F5F9),
+                                shape = RoundedCornerShape(8.dp),
+                                modifier = Modifier.clickable { tagInput = preset }
+                            ) {
+                                Text(
+                                    text = preset,
+                                    color = if (tagInput == preset) GoldAccent else NavyPrimary,
+                                    fontSize = 9.sp,
+                                    fontWeight = FontWeight.Bold,
+                                    modifier = Modifier.padding(horizontal = 8.dp, vertical = 4.dp)
+                                )
+                            }
+                        }
+                    }
+
+                    OutlinedTextField(
+                        value = tagInput,
+                        onValueChange = { tagInput = it },
+                        label = { Text("Banner Tag / Badge Text *") },
+                        singleLine = true,
+                        modifier = Modifier.fillMaxWidth()
+                    )
+
+                    OutlinedTextField(
+                        value = titleInput,
+                        onValueChange = { titleInput = it },
+                        label = { Text("Main Headline * (e.g. Trending Stretch Denim & Audio)") },
+                        singleLine = true,
+                        modifier = Modifier.fillMaxWidth()
+                    )
+
+                    OutlinedTextField(
+                        value = subtitleInput,
+                        onValueChange = { subtitleInput = it },
+                        label = { Text("Subtitle / Offer Details *") },
+                        maxLines = 2,
+                        modifier = Modifier.fillMaxWidth()
+                    )
+
+                    Row(
+                        modifier = Modifier.fillMaxWidth(),
+                        horizontalArrangement = Arrangement.spacedBy(8.dp)
+                    ) {
+                        OutlinedTextField(
+                            value = buttonTextInput,
+                            onValueChange = { buttonTextInput = it },
+                            label = { Text("Button Text (e.g. Shop Deals)") },
+                            singleLine = true,
+                            modifier = Modifier.weight(1f)
+                        )
+                        OutlinedTextField(
+                            value = searchTargetInput,
+                            onValueChange = { searchTargetInput = it },
+                            label = { Text("Search / Deal Target (e.g. Jeans)") },
+                            singleLine = true,
+                            modifier = Modifier.weight(1f)
+                        )
+                    }
+
+                    // Color Palette Selector
+                    Text("BANNER THEME COLOR:", fontSize = 10.sp, fontWeight = FontWeight.Bold, color = Color(0xFF64748B))
+                    Row(
+                        modifier = Modifier.fillMaxWidth(),
+                        horizontalArrangement = Arrangement.spacedBy(8.dp)
+                    ) {
+                        listOf(
+                            "orange" to OrangeAccent,
+                            "gold" to GoldAccent,
+                            "emerald" to Color(0xFF10B981),
+                            "blue" to Color(0xFF38BDF8),
+                            "purple" to Color(0xFFA855F7),
+                            "red" to Color(0xFFEF4444)
+                        ).forEach { (colorName, colorVal) ->
+                            Box(
+                                modifier = Modifier
+                                    .size(36.dp)
+                                    .clip(CircleShape)
+                                    .background(colorVal)
+                                    .border(if (selectedColor == colorName) 3.dp else 1.dp, if (selectedColor == colorName) NavyDark else Color.White, CircleShape)
+                                    .clickable { selectedColor = colorName },
+                                contentAlignment = Alignment.Center
+                            ) {
+                                if (selectedColor == colorName) {
+                                    Icon(Icons.Default.Check, contentDescription = null, tint = NavyDark, modifier = Modifier.size(16.dp))
+                                }
+                            }
+                        }
+                    }
+
+                    OutlinedTextField(
+                        value = imageUrlInput,
+                        onValueChange = { imageUrlInput = it },
+                        label = { Text("Optional Banner Image URL") },
+                        singleLine = true,
+                        modifier = Modifier.fillMaxWidth()
+                    )
+
+                    // Action Buttons
+                    Button(
+                        onClick = {
+                            if (titleInput.isNotBlank()) {
+                                if (editingBannerId != null) {
+                                    onUpdateBanner(
+                                        editingBannerId ?: "",
+                                        tagInput,
+                                        titleInput,
+                                        subtitleInput,
+                                        buttonTextInput,
+                                        searchTargetInput,
+                                        selectedColor,
+                                        imageUrlInput,
+                                        isActiveInput
+                                    )
+                                    bannerSuccessMsg = "Banner updated and replaced on Homepage!"
+                                } else {
+                                    onAddBanner(
+                                        tagInput,
+                                        titleInput,
+                                        subtitleInput,
+                                        buttonTextInput,
+                                        searchTargetInput,
+                                        selectedColor,
+                                        imageUrlInput
+                                    )
+                                    bannerSuccessMsg = "New banner published live to Homepage!"
+                                }
+                                resetForm()
+                            } else {
+                                bannerSuccessMsg = "Please enter a banner headline."
+                            }
+                        },
+                        colors = ButtonDefaults.buttonColors(containerColor = NavyPrimary, contentColor = GoldAccent),
+                        shape = RoundedCornerShape(10.dp),
+                        modifier = Modifier.fillMaxWidth().height(44.dp)
+                    ) {
+                        Icon(Icons.Default.Campaign, contentDescription = null, modifier = Modifier.size(16.dp))
+                        Spacer(modifier = Modifier.width(8.dp))
+                        Text(
+                            text = if (editingBannerId != null) "Update & Replace Banner on Homepage" else "Publish Banner Live to Homepage",
+                            fontWeight = FontWeight.Bold,
+                            fontSize = 12.sp
+                        )
+                    }
+                }
+            }
+        }
+
+        // Existing Banners List
+        item {
+            Text(
+                text = "CURRENT HOMEPAGE BANNERS (${banners.size}):",
+                color = NavyPrimary,
+                fontSize = 12.sp,
+                fontWeight = FontWeight.Black
+            )
+        }
+
+        items(banners, key = { it.id }) { banner ->
+            Card(
+                colors = CardDefaults.cardColors(containerColor = Color.White),
+                shape = RoundedCornerShape(14.dp),
+                border = androidx.compose.foundation.BorderStroke(1.dp, Color(0xFFE2E8F0)),
+                modifier = Modifier.fillMaxWidth()
+            ) {
+                Column(modifier = Modifier.padding(12.dp), verticalArrangement = Arrangement.spacedBy(6.dp)) {
+                    Row(
+                        modifier = Modifier.fillMaxWidth(),
+                        horizontalArrangement = Arrangement.SpaceBetween,
+                        verticalAlignment = Alignment.CenterVertically
+                    ) {
+                        Row(verticalAlignment = Alignment.CenterVertically) {
+                            Surface(
+                                color = if (banner.isActive) Color(0xFFECFDF5) else Color(0xFFF1F5F9),
+                                shape = RoundedCornerShape(6.dp)
+                            ) {
+                                Text(
+                                    text = if (banner.isActive) "● LIVE" else "PAUSED",
+                                    color = if (banner.isActive) Color(0xFF047857) else Color(0xFF64748B),
+                                    fontSize = 8.sp,
+                                    fontWeight = FontWeight.Black,
+                                    modifier = Modifier.padding(horizontal = 6.dp, vertical = 2.dp)
+                                )
+                            }
+                            Spacer(modifier = Modifier.width(6.dp))
+                            Text(
+                                text = banner.tag,
+                                color = OrangeAccent,
+                                fontSize = 10.sp,
+                                fontWeight = FontWeight.Bold,
+                                maxLines = 1
+                            )
+                        }
+
+                        Row(verticalAlignment = Alignment.CenterVertically) {
+                            IconButton(
+                                onClick = { populateForEdit(banner) },
+                                modifier = Modifier.size(28.dp)
+                            ) {
+                                Icon(Icons.Default.Edit, contentDescription = "Edit", tint = NavyPrimary, modifier = Modifier.size(16.dp))
+                            }
+                            IconButton(
+                                onClick = { onDeleteBanner(banner.id) },
+                                modifier = Modifier.size(28.dp)
+                            ) {
+                                Icon(Icons.Default.Delete, contentDescription = "Delete", tint = Color.Red, modifier = Modifier.size(16.dp))
+                            }
+                        }
+                    }
+
+                    Text(text = banner.title, fontWeight = FontWeight.Black, color = NavyDark, fontSize = 13.sp)
+                    Text(text = banner.subtitle, color = Color(0xFF64748B), fontSize = 10.sp, maxLines = 2)
+
+                    Row(
+                        modifier = Modifier.fillMaxWidth(),
+                        horizontalArrangement = Arrangement.SpaceBetween,
+                        verticalAlignment = Alignment.CenterVertically
+                    ) {
+                        Text(
+                            text = "Target: ${banner.searchTarget} • Button: \"${banner.buttonText}\"",
+                            color = Color(0xFF94A3B8),
+                            fontSize = 9.sp
+                        )
+
+                        Row(verticalAlignment = Alignment.CenterVertically) {
+                            Text(
+                                text = if (banner.isActive) "Active" else "Paused",
+                                fontSize = 10.sp,
+                                fontWeight = FontWeight.Bold,
+                                color = if (banner.isActive) Color(0xFF047857) else Color(0xFF64748B)
+                            )
+                            Spacer(modifier = Modifier.width(4.dp))
+                            Switch(
+                                checked = banner.isActive,
+                                onCheckedChange = { onToggleStatus(banner.id) },
+                                modifier = Modifier.height(20.dp)
+                            )
+                        }
+                    }
+                }
+            }
+        }
+
+        item {
+            Spacer(modifier = Modifier.height(30.dp))
+        }
+    }
+}
+
+// -------------------------------------------------------------
+// 6. DELIVERY AND AI CALL VERIFICATION SECTION
+// -------------------------------------------------------------
+@Composable
+fun DeliveryAndAiCallVerificationSection(
+    orders: List<Order>,
+    onVerifyDeliveryOtp: (orderId: String, enteredOtp: String) -> Boolean,
+    onTriggerVoiceCall: (orderId: String, pressedKey: Int) -> Boolean,
+    modifier: Modifier = Modifier
+) {
+    LazyColumn(
+        modifier = modifier
+            .fillMaxSize()
+            .padding(16.dp),
+        verticalArrangement = Arrangement.spacedBy(14.dp)
+    ) {
+        item {
+            Card(
+                colors = CardDefaults.cardColors(containerColor = NavyDark),
+                shape = RoundedCornerShape(16.dp),
+                border = androidx.compose.foundation.BorderStroke(1.dp, Color(0xFF10B981).copy(alpha = 0.4f)),
+                modifier = Modifier.fillMaxWidth()
+            ) {
+                Column(modifier = Modifier.padding(14.dp), verticalArrangement = Arrangement.spacedBy(6.dp)) {
+                    Row(verticalAlignment = Alignment.CenterVertically) {
+                        Box(
+                            modifier = Modifier
+                                .size(36.dp)
+                                .clip(RoundedCornerShape(8.dp))
+                                .background(Color(0xFF10B981)),
+                            contentAlignment = Alignment.Center
+                        ) {
+                            Icon(Icons.Default.Phone, contentDescription = null, tint = NavyDark, modifier = Modifier.size(20.dp))
+                        }
+                        Spacer(modifier = Modifier.width(10.dp))
+                        Column {
+                            Text("AI Call & Secure Delivery OTP Engine", color = Color.White, fontWeight = FontWeight.Black, fontSize = 14.sp)
+                            Text("Anti-Fraud Order System • Master Admin: MD Meraj Ansari", color = Color(0xFF34D399), fontSize = 10.sp, fontWeight = FontWeight.Bold)
+                        }
+                    }
+                    Text(
+                        "1. Automated AI Voice Call triggers immediately to customer phone (Press 1 to Confirm / Press 5 to Cancel / 15m Retry loop).\n2. Smart Data Routing: Seller receives product packing instructions, Master Admin receives GPS & customer coordinates.\n3. Secure Handover OTP: Parcel is strictly confirmed Delivered only when the customer's 4-digit OTP matches.",
+                        color = Color(0xFFE2E8F0),
+                        fontSize = 11.sp,
+                        lineHeight = 15.sp
+                    )
+                }
+            }
+        }
+
+        item {
+            Text(
+                text = "ACTIVE VERIFICATION ORDERS (${orders.size}):",
+                color = NavyPrimary,
+                fontSize = 12.sp,
+                fontWeight = FontWeight.Black
+            )
+        }
+
+        items(orders, key = { it.id }) { order ->
+            var enteredOtp by remember { mutableStateOf("") }
+            var otpMsg by remember { mutableStateOf<String?>(null) }
+
+            Card(
+                colors = CardDefaults.cardColors(containerColor = Color.White),
+                shape = RoundedCornerShape(14.dp),
+                border = androidx.compose.foundation.BorderStroke(1.dp, Color(0xFFE2E8F0)),
+                modifier = Modifier.fillMaxWidth()
+            ) {
+                Column(modifier = Modifier.padding(14.dp), verticalArrangement = Arrangement.spacedBy(8.dp)) {
+                    Row(
+                        modifier = Modifier.fillMaxWidth(),
+                        horizontalArrangement = Arrangement.SpaceBetween,
+                        verticalAlignment = Alignment.CenterVertically
+                    ) {
+                        Text(text = "Order #${order.id}", fontWeight = FontWeight.Black, color = NavyPrimary, fontSize = 14.sp)
+                        Surface(
+                            color = if (order.status == OrderStatus.DELIVERED) Color(0xFF10B981) else OrangeAccent,
+                            shape = RoundedCornerShape(6.dp)
+                        ) {
+                            Text(
+                                text = order.status.label,
+                                color = Color.White,
+                                fontSize = 9.sp,
+                                fontWeight = FontWeight.Bold,
+                                modifier = Modifier.padding(horizontal = 6.dp, vertical = 2.dp)
+                            )
+                        }
+                    }
+
+                    Text(text = "${order.customerName} • 📞 ${order.customerPhone}", fontWeight = FontWeight.Bold, fontSize = 11.sp, color = NavyDark)
+                    Text(text = "📍 Address: ${order.shippingAddress}", fontSize = 10.sp, color = Color(0xFF475569))
+                    Text(text = "🛰️ Live GPS Coordinates: ${order.liveCoordinates}", fontSize = 10.sp, color = Color(0xFF1D4ED8), fontWeight = FontWeight.Bold)
+
+                    // Call Verification Box
+                    Surface(
+                        color = if (order.isCallVerified) Color(0xFFECFDF5) else Color(0xFFFEF3C7),
+                        shape = RoundedCornerShape(8.dp),
+                        modifier = Modifier.fillMaxWidth()
+                    ) {
+                        Column(modifier = Modifier.padding(8.dp), verticalArrangement = Arrangement.spacedBy(4.dp)) {
+                            Row(
+                                modifier = Modifier.fillMaxWidth(),
+                                horizontalArrangement = Arrangement.SpaceBetween,
+                                verticalAlignment = Alignment.CenterVertically
+                            ) {
+                                Text("📞 Automated Voice Call Status:", fontSize = 10.sp, fontWeight = FontWeight.Bold, color = NavyPrimary)
+                                Text(order.callVerificationStatus, fontSize = 9.sp, fontWeight = FontWeight.Black, color = if (order.isCallVerified) Color(0xFF047857) else Color(0xFFD97706))
+                            }
+                            Row(horizontalArrangement = Arrangement.spacedBy(6.dp)) {
+                                Button(
+                                    onClick = { onTriggerVoiceCall(order.id, 1) },
+                                    colors = ButtonDefaults.buttonColors(containerColor = Color(0xFF10B981)),
+                                    shape = RoundedCornerShape(6.dp),
+                                    contentPadding = androidx.compose.foundation.layout.PaddingValues(horizontal = 8.dp, vertical = 2.dp),
+                                    modifier = Modifier.height(24.dp)
+                                ) {
+                                    Text("Test Press 1 (Confirm)", fontSize = 8.sp)
+                                }
+                                Button(
+                                    onClick = { onTriggerVoiceCall(order.id, 5) },
+                                    colors = ButtonDefaults.buttonColors(containerColor = Color(0xFFEF4444)),
+                                    shape = RoundedCornerShape(6.dp),
+                                    contentPadding = androidx.compose.foundation.layout.PaddingValues(horizontal = 8.dp, vertical = 2.dp),
+                                    modifier = Modifier.height(24.dp)
+                                ) {
+                                    Text("Test Press 5 (Cancel)", fontSize = 8.sp)
+                                }
+                                OutlinedButton(
+                                    onClick = { onTriggerVoiceCall(order.id, 0) },
+                                    shape = RoundedCornerShape(6.dp),
+                                    contentPadding = androidx.compose.foundation.layout.PaddingValues(horizontal = 8.dp, vertical = 2.dp),
+                                    modifier = Modifier.height(24.dp)
+                                ) {
+                                    Text("No Answer (Retry 15m)", fontSize = 8.sp)
+                                }
+                            }
+                        }
+                    }
+
+                    // Handover OTP Box
+                    Surface(
+                        color = Color(0xFFF8FAFC),
+                        shape = RoundedCornerShape(8.dp),
+                        border = androidx.compose.foundation.BorderStroke(1.dp, Color(0xFFCBD5E1)),
+                        modifier = Modifier.fillMaxWidth()
+                    ) {
+                        Column(modifier = Modifier.padding(8.dp), verticalArrangement = Arrangement.spacedBy(6.dp)) {
+                            Row(
+                                modifier = Modifier.fillMaxWidth(),
+                                horizontalArrangement = Arrangement.SpaceBetween,
+                                verticalAlignment = Alignment.CenterVertically
+                            ) {
+                                Text("🔑 Doorstep Delivery Handover OTP:", fontSize = 10.sp, fontWeight = FontWeight.Bold, color = NavyPrimary)
+                                Surface(color = GoldAccent, shape = RoundedCornerShape(4.dp)) {
+                                    Text(
+                                        text = "Customer Code: ${order.deliveryOtp}",
+                                        color = NavyDark,
+                                        fontSize = 9.sp,
+                                        fontWeight = FontWeight.Black,
+                                        modifier = Modifier.padding(horizontal = 6.dp, vertical = 2.dp)
+                                    )
+                                }
+                            }
+
+                            if (order.status == OrderStatus.DELIVERED || order.otpVerifiedAtDelivery) {
+                                Text("✓ Handover Complete! Order marked Delivered & Confirmed.", color = Color(0xFF047857), fontSize = 10.sp, fontWeight = FontWeight.Bold)
+                            } else {
+                                Row(
+                                    modifier = Modifier.fillMaxWidth(),
+                                    verticalAlignment = Alignment.CenterVertically,
+                                    horizontalArrangement = Arrangement.spacedBy(6.dp)
+                                ) {
+                                    OutlinedTextField(
+                                        value = enteredOtp,
+                                        onValueChange = {
+                                            enteredOtp = it.take(4)
+                                            otpMsg = null
+                                        },
+                                        placeholder = { Text("Enter 4-digit OTP", fontSize = 10.sp) },
+                                        singleLine = true,
+                                        keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Number),
+                                        shape = RoundedCornerShape(6.dp),
+                                        modifier = Modifier.weight(1f).height(40.dp)
+                                    )
+                                    Button(
+                                        onClick = {
+                                            if (onVerifyDeliveryOtp(order.id, enteredOtp)) {
+                                                otpMsg = "Handover Verified! Order Delivered."
+                                                enteredOtp = ""
+                                            } else {
+                                                otpMsg = "Invalid OTP! Must match customer code."
+                                            }
+                                        },
+                                        colors = ButtonDefaults.buttonColors(containerColor = NavyPrimary, contentColor = GoldAccent),
+                                        shape = RoundedCornerShape(6.dp),
+                                        modifier = Modifier.height(40.dp)
+                                    ) {
+                                        Text("Confirm Handover", fontSize = 10.sp, fontWeight = FontWeight.Bold)
+                                    }
+                                }
+                                if (otpMsg != null) {
+                                    Text(text = otpMsg ?: "", color = if (otpMsg?.contains("Verified") == true) Color(0xFF047857) else Color.Red, fontSize = 9.sp, fontWeight = FontWeight.Bold)
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+        }
+
+        item {
+            Spacer(modifier = Modifier.height(30.dp))
+        }
+    }
 }
