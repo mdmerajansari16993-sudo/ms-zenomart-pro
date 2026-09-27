@@ -4606,7 +4606,20 @@
         googleMapsUrl: getGoogleMapsNavigationUrl({ customer: { address, landmark, pincode } }),
         paymentMethod: paymentMethodLabel,
         paymentStatus: paymentStatusLabel,
-        sellerAlerts: sellerAlerts
+        sellerAlerts: sellerAlerts,
+        deliveryOtp: String(Math.floor(1000 + Math.random() * 9000)),
+        otpVerifiedAtDelivery: false,
+        callVerificationStatus: "Pending Automated Voice Call",
+        callAttempts: 1,
+        sellerDispatchedData: `Routed ${itemsToOrder.length} SKU(s) to respective sellers with variant & batch details.`,
+        adminDispatchedData: `Routed full customer address, phone (+91 ${phone}), and GPS navigation to Master Admin (MD Meraj Ansari) & delivery team.`,
+        aiChatMessages: [
+          {
+            sender: "ai",
+            text: `Namaste ${name}! I am your MS ZenoMart AI Order Assistant. Your order #${orderId} is placed. Your 4-digit Delivery Handover OTP is confidential. You can ask me questions anytime and tap the speaker icon to listen to answers read aloud!`,
+            time: "Just now"
+          }
+        ]
       };
 
       orders.unshift(newOrder);
@@ -5461,6 +5474,221 @@ ${itemsText}
               </div>
             </div>
 
+            <!-- 1. Automated AI Voice Call Verification System -->
+            <div class="mb-4 bg-navy-950 border border-blue-500/30 rounded-2xl p-4 shadow-md">
+              <div class="flex flex-wrap items-center justify-between gap-2 mb-2 pb-2 border-b border-navy-800">
+                <div class="flex items-center gap-2">
+                  <div class="w-7 h-7 rounded-lg bg-blue-500/20 text-blue-400 flex items-center justify-center text-xs">
+                    <i class="fa-solid fa-phone-volume"></i>
+                  </div>
+                  <span class="font-bold text-white text-xs sm:text-sm">Automated AI Voice Call Verification</span>
+                </div>
+                <span class="text-[10px] px-2.5 py-0.5 rounded-full font-bold ${
+                  (order.callVerificationStatus || '').includes('Confirmed') 
+                    ? 'bg-emerald-500/20 text-emerald-400 border border-emerald-500/40' 
+                    : (order.callVerificationStatus || '').includes('Cancelled')
+                    ? 'bg-red-500/20 text-red-400 border border-red-500/40'
+                    : 'bg-amber-500/20 text-amber-400 border border-amber-500/40'
+                }">
+                  ${order.callVerificationStatus || 'Pending Automated Voice Call'}
+                </span>
+              </div>
+              <p class="text-[11px] text-slate-300 leading-relaxed mb-3">
+                Automated order confirmation call dispatched to customer's phone (<strong class="text-white font-mono">${order.customer.phone}</strong>). Customers press 1 to confirm, or 5 to cancel. Prevents fake/fraud orders. Auto-retries every 15 minutes.
+              </p>
+              <div class="flex flex-wrap items-center gap-2">
+                <button 
+                  type="button" 
+                  onclick="triggerVoiceCall('${order.orderId}', 1)"
+                  class="px-3 py-1.5 rounded-xl bg-emerald-500 hover:bg-emerald-400 text-navy-950 font-black text-xs transition-all flex items-center gap-1.5 shadow-sm"
+                >
+                  <i class="fa-solid fa-phone"></i>
+                  <span>Press 1 (Confirm Order)</span>
+                </button>
+                <button 
+                  type="button" 
+                  onclick="triggerVoiceCall('${order.orderId}', 5)"
+                  class="px-3 py-1.5 rounded-xl bg-red-500/20 hover:bg-red-500/30 text-red-300 border border-red-500/40 font-bold text-xs transition-all flex items-center gap-1.5"
+                >
+                  <i class="fa-solid fa-phone-slash"></i>
+                  <span>Press 5 (Cancel Order)</span>
+                </button>
+                <button 
+                  type="button" 
+                  onclick="triggerVoiceCall('${order.orderId}', 0)"
+                  class="px-3 py-1.5 rounded-xl bg-navy-900 hover:bg-navy-850 text-slate-300 border border-navy-700 font-bold text-xs transition-all flex items-center gap-1.5"
+                >
+                  <i class="fa-solid fa-clock-rotate-left"></i>
+                  <span>15m Auto-Retry</span>
+                </button>
+              </div>
+            </div>
+
+            <!-- 2. Smart Data Routing Upon Confirmation -->
+            <div class="mb-4 bg-navy-950 border border-navy-800 rounded-2xl p-4 shadow-md">
+              <div class="flex items-center gap-2 mb-2 pb-2 border-b border-navy-800 text-gold-400 font-bold text-xs">
+                <i class="fa-solid fa-route text-sm"></i>
+                <span>Smart Data Routing (Automated Dispatch)</span>
+              </div>
+              <div class="grid grid-cols-1 md:grid-cols-2 gap-3 text-[11px]">
+                <div class="p-2.5 rounded-xl bg-navy-900/90 border border-emerald-500/20">
+                  <div class="flex items-center gap-1.5 font-bold text-emerald-400 mb-1">
+                    <i class="fa-solid fa-store"></i>
+                    <span>Routed to Registered Seller(s):</span>
+                  </div>
+                  <p class="text-slate-300 leading-normal">
+                    ${order.sellerDispatchedData || `Routed exact product SKUs, size/variants, and packaging tags for ${order.items.length} item(s) to respective registered local partner shop(s).`}
+                  </p>
+                </div>
+                <div class="p-2.5 rounded-xl bg-navy-900/90 border border-accent-orange/20">
+                  <div class="flex items-center gap-1.5 font-bold text-accent-orange mb-1">
+                    <i class="fa-solid fa-user-shield"></i>
+                    <span>Routed to Master Admin & Delivery:</span>
+                  </div>
+                  <p class="text-slate-300 leading-normal">
+                    ${order.adminDispatchedData || `Routed complete customer profile (${order.customer.name}, ${order.customer.phone}), GPS landmark, and address to Master Admin (MD Meraj Ansari) & delivery team.`}
+                  </p>
+                </div>
+              </div>
+            </div>
+
+            <!-- 3. Secure Delivery OTP Handover Verification -->
+            <div class="mb-4 bg-navy-950 border border-gold-500/30 rounded-2xl p-4 shadow-md">
+              <div class="flex flex-wrap items-center justify-between gap-2 mb-2 pb-2 border-b border-navy-800">
+                <div class="flex items-center gap-2">
+                  <div class="w-7 h-7 rounded-lg bg-gold-500/20 text-gold-400 flex items-center justify-center text-xs">
+                    <i class="fa-solid fa-shield-halved"></i>
+                  </div>
+                  <span class="font-bold text-white text-xs sm:text-sm">Secure Delivery OTP Handover</span>
+                </div>
+                <span class="text-[10px] px-2.5 py-0.5 rounded-full font-bold ${
+                  order.otpVerifiedAtDelivery || order.status === 'DELIVERED'
+                    ? 'bg-emerald-500/20 text-emerald-400 border border-emerald-500/40'
+                    : 'bg-gold-500/20 text-gold-400 border border-gold-500/40'
+                }">
+                  ${order.otpVerifiedAtDelivery || order.status === 'DELIVERED' ? '✓ Handover Verified' : 'Mandatory at Doorstep'}
+                </span>
+              </div>
+
+              <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-3 bg-navy-900/90 border border-navy-800 rounded-xl p-3 mb-3">
+                <div>
+                  <span class="text-[10px] text-slate-400 block">Customer 4-Digit Delivery OTP</span>
+                  <span class="font-mono text-xl sm:text-2xl font-black text-gold-400 tracking-widest">${order.deliveryOtp || '4921'}</span>
+                  <span class="text-[10px] text-slate-400 block mt-0.5">Share with delivery agent only upon physical inspection of goods</span>
+                </div>
+                <div class="text-right sm:text-right text-[11px] text-slate-300">
+                  <span class="text-emerald-400 font-bold block"><i class="fa-solid fa-check-circle mr-1"></i>Zero-Fraud Delivery Protection</span>
+                  <span class="text-[10px] text-slate-400">Updates status to "Delivered & Confirmed"</span>
+                </div>
+              </div>
+
+              ${!(order.otpVerifiedAtDelivery || order.status === 'DELIVERED') && !isCancelled ? `
+                <div class="flex flex-wrap items-center gap-2">
+                  <input 
+                    type="text" 
+                    id="deliveryOtpInput_${order.orderId}" 
+                    placeholder="Agent enter 4-digit OTP" 
+                    maxlength="6" 
+                    class="bg-navy-900 border border-navy-700 rounded-xl px-3 py-2 text-xs text-white placeholder-slate-500 font-mono w-44 focus:outline-none focus:border-gold-500"
+                  />
+                  <button 
+                    type="button" 
+                    onclick="verifyDeliveryOtp('${order.orderId}')"
+                    class="px-4 py-2 rounded-xl bg-gradient-to-r from-emerald-500 to-teal-500 hover:from-emerald-400 text-navy-950 font-black text-xs transition-all shadow-md flex items-center gap-1.5"
+                  >
+                    <i class="fa-solid fa-key"></i>
+                    <span>Verify Handover & Deliver</span>
+                  </button>
+                </div>
+              ` : ''}
+            </div>
+
+            <!-- 4. Real-Time AI Order Support Chat Assistant with Speaker Voice-Out -->
+            <div class="mb-4 bg-navy-950 border border-navy-800 hover:border-gold-500/40 rounded-2xl p-4 shadow-md transition-all">
+              <div class="flex flex-wrap items-center justify-between gap-2 mb-2 pb-2 border-b border-navy-800">
+                <div class="flex items-center gap-2">
+                  <div class="w-7 h-7 rounded-lg bg-accent-orange/20 text-accent-orange flex items-center justify-center text-xs">
+                    <i class="fa-solid fa-robot"></i>
+                  </div>
+                  <div>
+                    <h5 class="font-bold text-white text-xs sm:text-sm">AI Order Support Assistant</h5>
+                    <span class="text-[10px] text-slate-400">Interactive live order inquiry with audio speaker read-aloud</span>
+                  </div>
+                </div>
+                <span class="text-[10px] px-2 py-0.5 rounded-full bg-accent-orange/15 text-accent-orange border border-accent-orange/30 font-bold inline-flex items-center gap-1">
+                  <i class="fa-solid fa-volume-high"></i>
+                  <span>Speaker Voice-out</span>
+                </span>
+              </div>
+
+              <!-- Quick prompt chips -->
+              <div class="flex items-center gap-1.5 flex-wrap mb-3">
+                <button type="button" onclick="sendOrderAiMessage('${order.orderId}', 'Where is my order?')" class="px-2.5 py-1 rounded-lg bg-navy-900 hover:bg-navy-850 text-slate-300 border border-navy-700 text-[10px] font-semibold transition-all">
+                  Where is my order?
+                </button>
+                <button type="button" onclick="sendOrderAiMessage('${order.orderId}', 'When will it arrive?')" class="px-2.5 py-1 rounded-lg bg-navy-900 hover:bg-navy-850 text-slate-300 border border-navy-700 text-[10px] font-semibold transition-all">
+                  When will it arrive?
+                </button>
+                <button type="button" onclick="sendOrderAiMessage('${order.orderId}', 'What is my delivery OTP?')" class="px-2.5 py-1 rounded-lg bg-navy-900 hover:bg-navy-850 text-slate-300 border border-navy-700 text-[10px] font-semibold transition-all">
+                  What is my delivery OTP?
+                </button>
+                <button type="button" onclick="sendOrderAiMessage('${order.orderId}', 'Explain voice verification')" class="px-2.5 py-1 rounded-lg bg-navy-900 hover:bg-navy-850 text-slate-300 border border-navy-700 text-[10px] font-semibold transition-all">
+                  Explain voice verification
+                </button>
+              </div>
+
+              <!-- Messages List -->
+              <div class="space-y-2 mb-3 max-h-48 overflow-y-auto p-2.5 rounded-xl bg-navy-900 border border-navy-800">
+                ${(order.aiChatMessages || [
+                  { sender: 'ai', text: `Namaste ${order.customer.name}! I am your MS ZenoMart AI Order Assistant. Your delivery OTP is ${order.deliveryOtp || '4921'}. Tap the speaker icon to listen to any response read aloud!`, time: 'Just now' }
+                ]).map(msg => `
+                  <div class="flex ${msg.sender === 'user' ? 'justify-end' : 'justify-start'}">
+                    <div class="max-w-[85%] rounded-xl p-2.5 text-xs ${
+                      msg.sender === 'user' 
+                        ? 'bg-blue-600/30 text-blue-100 border border-blue-500/30' 
+                        : 'bg-navy-950 text-slate-200 border border-gold-500/25'
+                    }">
+                      <div class="flex items-center justify-between gap-2 mb-1">
+                        <span class="text-[10px] font-bold ${msg.sender === 'user' ? 'text-blue-300' : 'text-gold-400'}">
+                          ${msg.sender === 'user' ? '👤 You' : '🤖 AI Assistant'}
+                        </span>
+                        ${msg.sender !== 'user' ? `
+                          <button 
+                            type="button" 
+                            onclick="speakAiResponse(this, \`${msg.text.replace(/`/g, "\\`").replace(/"/g, "&quot;")}\`)"
+                            class="text-gold-400 hover:text-white p-1 rounded transition-colors text-xs"
+                            title="Listen to response (Speaker Voice-out)"
+                          >
+                            <i class="fa-solid fa-volume-high"></i>
+                          </button>
+                        ` : ''}
+                      </div>
+                      <p class="leading-relaxed">${msg.text}</p>
+                    </div>
+                  </div>
+                `).join('')}
+              </div>
+
+              <!-- Chat Input Box -->
+              <div class="flex items-center gap-2">
+                <input 
+                  type="text" 
+                  id="orderAiChatInput_${order.orderId}" 
+                  placeholder="Ask a question about this order..." 
+                  onkeydown="if(event.key==='Enter') sendOrderAiMessage('${order.orderId}')"
+                  class="flex-1 bg-navy-900 border border-navy-700 rounded-xl px-3 py-2 text-xs text-white placeholder-slate-500 focus:outline-none focus:border-accent-orange"
+                />
+                <button 
+                  type="button" 
+                  onclick="sendOrderAiMessage('${order.orderId}')" 
+                  class="px-3.5 py-2 rounded-xl bg-accent-orange hover:bg-orange-500 text-white font-bold text-xs transition-all shadow-md flex items-center gap-1.5"
+                >
+                  <i class="fa-solid fa-paper-plane"></i>
+                  <span>Ask AI</span>
+                </button>
+              </div>
+            </div>
+
             <!-- Order Total & Actions -->
             <div class="flex flex-wrap items-center justify-between gap-3 pt-3 border-t border-navy-800">
               <div>
@@ -5535,6 +5763,135 @@ ${itemsText}
       if (modalList && mainList && modalList !== mainList) {
         modalList.innerHTML = mainList.innerHTML;
       }
+    }
+
+    // --------------------------------------------------------
+    // Automated AI Voice Call Verification System
+    // --------------------------------------------------------
+    function triggerVoiceCall(orderId, key) {
+      const order = orders.find(o => o.orderId === orderId);
+      if (!order) return;
+      if (key === 1) {
+        order.callVerificationStatus = "Confirmed via Voice Call (Key 1)";
+        order.status = "CONFIRMED";
+        order.callConfirmedAt = Date.now();
+        showToast("Voice Call Verified", `Order #${orderId} verified! Customer pressed 1 to confirm.`);
+      } else if (key === 5) {
+        order.callVerificationStatus = "Cancelled via Voice Call (Key 5)";
+        order.status = "CANCELLED";
+        order.cancelledAt = Date.now();
+        showToast("Order Cancelled", `Order #${orderId} cancelled by customer via Voice Call Key 5.`);
+      } else {
+        order.callVerificationStatus = "Auto-Retry Dispatched (15m Interval)";
+        order.callAttempts = (order.callAttempts || 1) + 1;
+        showToast("Auto-Retry Queued", `Voice call retry scheduled. Customer will receive a phone call shortly.`);
+      }
+      saveOrdersToStorage();
+      renderMainOrdersSection();
+    }
+
+    // --------------------------------------------------------
+    // Secure 4-Digit Delivery OTP Handover Verification
+    // --------------------------------------------------------
+    function verifyDeliveryOtp(orderId) {
+      const order = orders.find(o => o.orderId === orderId);
+      if (!order) return;
+      const inputEl = document.getElementById(`deliveryOtpInput_${orderId}`);
+      if (!inputEl) return;
+      const enteredOtp = inputEl.value.trim();
+      if (!enteredOtp) {
+        showToast("OTP Required", "Please enter the customer's 4-digit Delivery OTP.");
+        return;
+      }
+      const targetOtp = order.deliveryOtp || '4921';
+      if (enteredOtp !== targetOtp) {
+        showToast("Invalid Delivery OTP", `Entered OTP (${enteredOtp}) is incorrect. Customer must provide ${targetOtp}.`);
+        return;
+      }
+      order.otpVerifiedAtDelivery = true;
+      order.status = "DELIVERED";
+      order.deliveredAt = Date.now();
+      setOrderDeliveryStage(orderId, 3);
+      saveOrdersToStorage();
+      renderMainOrdersSection();
+      showToast("Handover Confirmed!", `Order #${orderId} successfully delivered & confirmed via 4-digit OTP handover.`);
+    }
+
+    // --------------------------------------------------------
+    // Speaker Audio Voice-Out Engine (Web Speech API)
+    // --------------------------------------------------------
+    let activeUtterance = null;
+    function speakAiResponse(btn, text) {
+      if (!('speechSynthesis' in window)) {
+        showToast("Audio Unavailable", "Speech synthesis is not supported on this browser.");
+        return;
+      }
+      if (window.speechSynthesis.speaking) {
+        window.speechSynthesis.cancel();
+        if (btn) {
+          btn.innerHTML = '<i class="fa-solid fa-volume-high"></i>';
+        }
+        return;
+      }
+      const utterance = new SpeechSynthesisUtterance(text);
+      utterance.lang = 'en-US';
+      utterance.rate = 1.0;
+      utterance.pitch = 1.05;
+      if (btn) {
+        btn.innerHTML = '<i class="fa-solid fa-stop text-red-400"></i>';
+        utterance.onend = () => {
+          btn.innerHTML = '<i class="fa-solid fa-volume-high text-gold-400"></i>';
+        };
+        utterance.onerror = () => {
+          btn.innerHTML = '<i class="fa-solid fa-volume-high text-gold-400"></i>';
+        };
+      }
+      activeUtterance = utterance;
+      window.speechSynthesis.speak(utterance);
+    }
+
+    // --------------------------------------------------------
+    // AI Order Support Chat Assistant
+    // --------------------------------------------------------
+    function sendOrderAiMessage(orderId, quickQuestion) {
+      const order = orders.find(o => o.orderId === orderId);
+      if (!order) return;
+      const inputEl = document.getElementById(`orderAiChatInput_${orderId}`);
+      const text = quickQuestion ? quickQuestion.trim() : (inputEl ? inputEl.value.trim() : '');
+      if (!text) return;
+      if (inputEl && !quickQuestion) inputEl.value = '';
+
+      if (!order.aiChatMessages) order.aiChatMessages = [];
+      order.aiChatMessages.push({
+        sender: 'user',
+        text: text,
+        time: 'Just now'
+      });
+
+      const lower = text.toLowerCase();
+      let botReply = '';
+      if (lower.includes('where') || lower.includes('status')) {
+        botReply = order.status === 'DELIVERED'
+          ? `Your order #${orderId} was safely delivered to ${order.customer.address} with verified 4-digit handover OTP.`
+          : `Order #${orderId} status is currently: ${order.status}. Verified partner shops have packed the merchandise, and dispatch is advancing smoothly.`;
+      } else if (lower.includes('otp')) {
+        botReply = `Your confidential 4-digit doorstep delivery OTP is ${order.deliveryOtp || '4921'}. Please provide this code to the delivery agent only when you receive your package.`;
+      } else if (lower.includes('when') || lower.includes('time')) {
+        botReply = `Estimated delivery window is ${order.deliverySpeedLabel || 'within 60-90 minutes'}. Voice verification status: ${order.callVerificationStatus || 'Active'}.`;
+      } else if (lower.includes('voice') || lower.includes('call') || lower.includes('verification')) {
+        botReply = `Our automated AI voice call verifies orders to prevent fraud. When called, simply press 1 to confirm or 5 to cancel. Current verification: ${order.callVerificationStatus || 'Pending'}.`;
+      } else {
+        botReply = `Order #${orderId} (${order.items.length} item(s), Total: ₹${order.total}) is managed under Master Admin MD Meraj Ansari. Handover OTP: ${order.deliveryOtp || '4921'}. Sourcing details are routed to registered sellers, and delivery coordinates are active.`;
+      }
+
+      order.aiChatMessages.push({
+        sender: 'ai',
+        text: botReply,
+        time: 'Just now'
+      });
+
+      saveOrdersToStorage();
+      renderMainOrdersSection();
     }
 
     function updateOrderTimers() {

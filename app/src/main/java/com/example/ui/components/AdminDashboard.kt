@@ -95,9 +95,11 @@ import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.platform.testTag
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.input.KeyboardType
+import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import java.util.Locale
 import com.example.model.Order
 import com.example.model.OrderStatus
 import com.example.model.Product
@@ -131,6 +133,7 @@ fun AdminDashboard(
     onAddNewUser: (name: String, email: String, phone: String, address: String, tier: String) -> Unit,
     onClearSellerPayout: (sellerId: String) -> Unit = {},
     onAddNewSeller: (name: String, shopName: String, phone: String, email: String, category: String, address: String, upiId: String) -> Unit = { _, _, _, _, _, _, _ -> },
+    onUpdateProductPrice: (productId: Int, newPrice: Double, newMrp: Double) -> Boolean = { _, _, _ -> false },
     onAddBanner: (tag: String, title: String, subtitle: String, buttonText: String, searchTarget: String, badgeColor: String, imageUrl: String) -> Boolean = { _, _, _, _, _, _, _ -> false },
     onUpdateBanner: (id: String, tag: String, title: String, subtitle: String, buttonText: String, searchTarget: String, badgeColor: String, imageUrl: String, isActive: Boolean) -> Boolean = { _, _, _, _, _, _, _, _, _ -> false },
     onDeleteBanner: (id: String) -> Unit = {},
@@ -376,7 +379,8 @@ fun AdminDashboard(
                     products = products,
                     onAddNewProduct = onAddNewProduct,
                     onDeleteProduct = onDeleteProduct,
-                    onToggleStock = onToggleProductStock
+                    onToggleStock = onToggleProductStock,
+                    onUpdateProductPrice = onUpdateProductPrice
                 )
                 2 -> UserManagementSection(
                     users = users,
@@ -1151,8 +1155,10 @@ fun AddProductSection(
     products: List<Product>,
     onAddNewProduct: (title: String, category: String, price: Double, mrp: Double, description: String, badge: String, iconType: String, imageUrl: String) -> Boolean,
     onDeleteProduct: (Int) -> Unit,
-    onToggleStock: (Int) -> Unit
+    onToggleStock: (Int) -> Unit,
+    onUpdateProductPrice: (productId: Int, newPrice: Double, newMrp: Double) -> Boolean = { _, _, _ -> false }
 ) {
+    var editingProduct by remember { mutableStateOf<Product?>(null) }
     var title by remember { mutableStateOf("") }
     var selectedCategory by remember { mutableStateOf("Gadgets") }
     var priceText by remember { mutableStateOf("") }
@@ -1514,7 +1520,22 @@ fun AddProductSection(
                             ),
                             modifier = Modifier.size(36.dp)
                         )
-                        Spacer(modifier = Modifier.width(10.dp))
+                        Spacer(modifier = Modifier.width(6.dp))
+                        // Owner Price & Product Edit Button
+                        IconButton(
+                            onClick = { editingProduct = product },
+                            modifier = Modifier
+                                .size(32.dp)
+                                .testTag("edit_product_price_${product.id}")
+                        ) {
+                            Icon(
+                                imageVector = Icons.Default.Edit,
+                                contentDescription = "Edit Price",
+                                tint = GoldAccent,
+                                modifier = Modifier.size(18.dp)
+                            )
+                        }
+                        Spacer(modifier = Modifier.width(6.dp))
                         IconButton(
                             onClick = { onDeleteProduct(product.id) },
                             modifier = Modifier.size(32.dp)
@@ -1535,6 +1556,178 @@ fun AddProductSection(
             Spacer(modifier = Modifier.height(32.dp))
         }
     }
+
+    editingProduct?.let { prod ->
+        EditProductPriceDialog(
+            product = prod,
+            onDismiss = { editingProduct = null },
+            onSave = { newPrice, newMrp ->
+                val success = onUpdateProductPrice(prod.id, newPrice, newMrp)
+                if (success) {
+                    editingProduct = null
+                }
+            }
+        )
+    }
+}
+
+/**
+ * Dialog enabling Store Owner (MD Meraj Ansari) to instantly modify prices,
+ * MRP list prices, and discount slabs with live verification.
+ */
+@Composable
+fun EditProductPriceDialog(
+    product: Product,
+    onDismiss: () -> Unit,
+    onSave: (newPrice: Double, newMrp: Double) -> Unit
+) {
+    var priceInput by remember { mutableStateOf(product.price.toString()) }
+    var mrpInput by remember { mutableStateOf(product.mrp.toString()) }
+    var errorMsg by remember { mutableStateOf<String?>(null) }
+
+    AlertDialog(
+        onDismissRequest = onDismiss,
+        containerColor = NavyDark,
+        title = {
+            Row(verticalAlignment = Alignment.CenterVertically) {
+                Icon(Icons.Default.Edit, contentDescription = null, tint = GoldAccent, modifier = Modifier.size(20.dp))
+                Spacer(modifier = Modifier.width(8.dp))
+                Column {
+                    Text("Change Product Price", color = Color.White, fontSize = 16.sp, fontWeight = FontWeight.Black)
+                    Text("Master Owner: MD Meraj Ansari", color = GoldAccent, fontSize = 10.sp, fontWeight = FontWeight.Bold)
+                }
+            }
+        },
+        text = {
+            Column(modifier = Modifier.fillMaxWidth()) {
+                Text(
+                    text = product.title,
+                    color = Color.White,
+                    fontSize = 12.sp,
+                    fontWeight = FontWeight.Bold,
+                    maxLines = 2
+                )
+                Text(
+                    text = "Current: $${String.format(Locale.US, "%.2f", product.price)} (MRP: $${String.format(Locale.US, "%.2f", product.mrp)})",
+                    color = Color(0xFF94A3B8),
+                    fontSize = 11.sp
+                )
+                Spacer(modifier = Modifier.height(12.dp))
+
+                OutlinedTextField(
+                    value = priceInput,
+                    onValueChange = {
+                        priceInput = it
+                        errorMsg = null
+                    },
+                    label = { Text("Selling Price ($) *", color = GoldAccent) },
+                    keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Decimal),
+                    singleLine = true,
+                    colors = OutlinedTextFieldDefaults.colors(
+                        focusedTextColor = Color.White,
+                        unfocusedTextColor = Color.White,
+                        focusedBorderColor = GoldAccent,
+                        unfocusedBorderColor = Color(0xFF334155)
+                    ),
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .testTag("edit_price_input")
+                )
+
+                Spacer(modifier = Modifier.height(8.dp))
+
+                OutlinedTextField(
+                    value = mrpInput,
+                    onValueChange = {
+                        mrpInput = it
+                        errorMsg = null
+                    },
+                    label = { Text("List / MRP Price ($)", color = Color(0xFF94A3B8)) },
+                    keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Decimal),
+                    singleLine = true,
+                    colors = OutlinedTextFieldDefaults.colors(
+                        focusedTextColor = Color.White,
+                        unfocusedTextColor = Color.White,
+                        focusedBorderColor = GoldAccent,
+                        unfocusedBorderColor = Color(0xFF334155)
+                    ),
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .testTag("edit_mrp_input")
+                )
+
+                Spacer(modifier = Modifier.height(10.dp))
+                Text("Quick Price Adjustment:", color = Color(0xFF94A3B8), fontSize = 10.sp)
+                Spacer(modifier = Modifier.height(4.dp))
+                Row(
+                    modifier = Modifier.fillMaxWidth(),
+                    horizontalArrangement = Arrangement.spacedBy(6.dp)
+                ) {
+                    listOf(
+                        "10% Off" to 0.90,
+                        "20% Off" to 0.80,
+                        "30% Off" to 0.70,
+                        "50% Off" to 0.50
+                    ).forEach { (label, multiplier) ->
+                        Surface(
+                            color = NavyPrimary,
+                            shape = RoundedCornerShape(8.dp),
+                            border = androidx.compose.foundation.BorderStroke(1.dp, Color(0xFF334155)),
+                            modifier = Modifier
+                                .weight(1f)
+                                .clickable {
+                                    val calc = product.mrp * multiplier
+                                    priceInput = String.format(Locale.US, "%.2f", calc)
+                                }
+                        ) {
+                            Text(
+                                text = label,
+                                color = OrangeAccent,
+                                fontSize = 9.sp,
+                                fontWeight = FontWeight.Bold,
+                                modifier = Modifier.padding(vertical = 4.dp, horizontal = 2.dp),
+                                textAlign = TextAlign.Center
+                            )
+                        }
+                    }
+                }
+
+                errorMsg?.let { err ->
+                    Spacer(modifier = Modifier.height(6.dp))
+                    Text(err, color = Color(0xFFEF4444), fontSize = 11.sp)
+                }
+            }
+        },
+        confirmButton = {
+            Button(
+                onClick = {
+                    val newPrice = priceInput.toDoubleOrNull()
+                    val newMrp = mrpInput.toDoubleOrNull() ?: (newPrice?.times(1.25) ?: 0.0)
+                    if (newPrice == null || newPrice <= 0.0) {
+                        errorMsg = "Please enter a valid positive price"
+                    } else {
+                        onSave(newPrice, newMrp)
+                    }
+                },
+                colors = ButtonDefaults.buttonColors(
+                    containerColor = GoldAccent,
+                    contentColor = NavyDark
+                ),
+                shape = RoundedCornerShape(8.dp),
+                modifier = Modifier.testTag("confirm_save_price_button")
+            ) {
+                Text("Save Price", fontWeight = FontWeight.Black)
+            }
+        },
+        dismissButton = {
+            OutlinedButton(
+                onClick = onDismiss,
+                shape = RoundedCornerShape(8.dp)
+            ) {
+                Text("Cancel", color = Color(0xFF94A3B8))
+            }
+        }
+    )
 }
 
 // -------------------------------------------------------------

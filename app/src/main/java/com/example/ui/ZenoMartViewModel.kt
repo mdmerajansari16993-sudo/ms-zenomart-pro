@@ -907,6 +907,54 @@ class ZenoMartViewModel : ViewModel() {
         _lastMessage.value = "Product inventory status updated."
     }
 
+    fun updateProductPrice(productId: Int, newPrice: Double, newMrp: Double = 0.0): Boolean {
+        if (newPrice <= 0.0) {
+            _lastMessage.value = "Please enter a valid price."
+            return false
+        }
+        val current = _products.value.map {
+            if (it.id == productId) {
+                val effectiveMrp = if (newMrp >= newPrice) newMrp else (if (it.mrp >= newPrice) it.mrp else newPrice * 1.3)
+                it.copy(price = newPrice, mrp = effectiveMrp)
+            } else it
+        }
+        _products.value = current
+        _lastMessage.value = "Product price updated successfully!"
+        return true
+    }
+
+    fun updateProduct(
+        productId: Int,
+        title: String,
+        category: String,
+        price: Double,
+        mrp: Double,
+        description: String,
+        badge: String,
+        inStock: Boolean
+    ): Boolean {
+        if (title.isBlank() || price <= 0.0) {
+            _lastMessage.value = "Please provide valid product title and price."
+            return false
+        }
+        val current = _products.value.map {
+            if (it.id == productId) {
+                it.copy(
+                    title = title.trim(),
+                    category = category.trim(),
+                    price = price,
+                    mrp = if (mrp >= price) mrp else price * 1.3,
+                    description = description.trim(),
+                    badge = badge.trim(),
+                    inStock = inStock
+                )
+            } else it
+        }
+        _products.value = current
+        _lastMessage.value = "Product \"${title.trim()}\" updated successfully!"
+        return true
+    }
+
     fun updateOrderStatus(orderId: String, newStatus: OrderStatus) {
         val updated = _orders.value.map { order ->
             if (order.id == orderId) order.copy(status = newStatus) else order

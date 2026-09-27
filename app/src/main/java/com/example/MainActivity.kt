@@ -335,6 +335,7 @@ fun MSZenoMartApp(viewModel: ZenoMartViewModel = viewModel()) {
                         onAddNewSeller = { name, shop, phone, email, cat, addr, upi ->
                             viewModel.registerSeller(name, shop, phone, email, cat, addr, upi)
                         },
+                        onUpdateProductPrice = viewModel::updateProductPrice,
                         onAddBanner = viewModel::addNewBanner,
                         onUpdateBanner = viewModel::updateBanner,
                         onDeleteBanner = viewModel::deleteBanner,
