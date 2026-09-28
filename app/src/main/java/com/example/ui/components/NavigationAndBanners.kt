@@ -119,6 +119,7 @@ fun TopStickyNavBar(
     onCartClicked: () -> Unit,
     onWishlistClicked: () -> Unit,
     onProfileClicked: () -> Unit,
+    onSellerClicked: () -> Unit = {},
     modifier: Modifier = Modifier
 ) {
     var isCategoryDropdownOpen by remember { mutableStateOf(false) }
@@ -358,6 +359,28 @@ fun TopStickyNavBar(
                             color = Color.White,
                             fontSize = 11.sp,
                             fontWeight = FontWeight.Bold
+                        )
+                    }
+
+                    // Glowing "🏪 Join as Seller" Button on Top-Right Corner
+                    Button(
+                        onClick = onSellerClicked,
+                        colors = ButtonDefaults.buttonColors(
+                            containerColor = Color(0xFF059669),
+                            contentColor = Color.White
+                        ),
+                        shape = RoundedCornerShape(10.dp),
+                        border = androidx.compose.foundation.BorderStroke(1.dp, Color(0xFF34D399)),
+                        contentPadding = androidx.compose.foundation.layout.PaddingValues(horizontal = 8.dp, vertical = 4.dp),
+                        modifier = Modifier
+                            .height(36.dp)
+                            .testTag("header_join_as_seller_button")
+                    ) {
+                        Text(
+                            text = "🏪 Join as Seller",
+                            color = Color.White,
+                            fontSize = 10.sp,
+                            fontWeight = FontWeight.ExtraBold
                         )
                     }
                 }

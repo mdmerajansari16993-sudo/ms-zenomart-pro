@@ -202,36 +202,24 @@
           </div>
         </div>
 
-        <!-- Action Buttons -->
-        <div class="flex items-center gap-2 sm:gap-3">
+        <!-- Action Buttons (With Glowing Top-Right Join as Seller Button) -->
+        <div class="flex items-center gap-2 sm:gap-2.5 shrink-0">
           
           <!-- My Orders / 90-Min Tracker -->
           <button 
             onclick="switchMainView('orders')" 
-            class="relative px-3 py-2 rounded-xl bg-navy-900 hover:bg-navy-850 text-slate-300 hover:text-white border border-navy-700/80 text-xs font-semibold flex items-center gap-2 transition-all"
+            class="relative px-2.5 sm:px-3 py-2 rounded-xl bg-navy-900 hover:bg-navy-850 text-slate-300 hover:text-white border border-navy-700/80 text-xs font-semibold flex items-center gap-1.5 sm:gap-2 transition-all"
             title="Track recent orders and 90-minute cancellation"
           >
             <i class="fa-solid fa-box-archive text-gold-400"></i>
-            <span class="hidden lg:inline">My Orders</span>
+            <span class="hidden lg:inline">Orders</span>
             <span id="ordersCountBadge" class="bg-accent-orange text-white text-[10px] font-black w-4 h-4 rounded-full flex items-center justify-center">0</span>
-          </button>
-
-          <!-- Become a Seller Button -->
-          <button 
-            id="headerSellerBtn"
-            onclick="handleSellerBtnClick()" 
-            class="px-2.5 sm:px-3 py-2 rounded-xl bg-gradient-to-r from-emerald-600/30 to-teal-600/30 hover:from-emerald-600/50 hover:to-teal-600/50 text-emerald-300 border border-emerald-500/40 text-xs font-bold flex items-center gap-1.5 transition-all shadow-sm active:scale-95"
-            title="Register as a Partner Seller on MS ZenoMart"
-          >
-            <i class="fa-solid fa-shop text-emerald-400"></i>
-            <span class="hidden md:inline" id="headerSellerBtnLabel">Become a Seller</span>
-            <span class="bg-emerald-500 text-navy-950 text-[9px] font-black px-1.5 py-0.2 rounded-full">FREE</span>
           </button>
 
           <!-- Cart Button -->
           <button 
             onclick="openCartDrawer()" 
-            class="relative p-2.5 sm:px-3.5 sm:py-2 rounded-xl bg-navy-900 hover:bg-navy-850 text-slate-300 hover:text-white border border-navy-700/80 text-xs font-semibold flex items-center gap-2 transition-all shadow-sm"
+            class="relative p-2 sm:px-3 sm:py-2 rounded-xl bg-navy-900 hover:bg-navy-850 text-slate-300 hover:text-white border border-navy-700/80 text-xs font-semibold flex items-center gap-1.5 sm:gap-2 transition-all shadow-sm"
           >
             <i class="fa-solid fa-cart-shopping text-base text-gold-400"></i>
             <span class="hidden sm:inline">Cart</span>
@@ -244,10 +232,22 @@
           <button 
             id="adminNavBtn"
             onclick="handleAdminNavClick()" 
-            class="px-3 sm:px-3.5 py-2 rounded-xl bg-navy-900 hover:bg-navy-850 text-slate-300 hover:text-white border border-navy-700/80 text-xs font-semibold flex items-center gap-1.5 transition-all shadow-sm"
+            class="px-2.5 sm:px-3 py-2 rounded-xl bg-navy-900 hover:bg-navy-850 text-slate-300 hover:text-white border border-navy-700/80 text-xs font-semibold flex items-center gap-1.5 transition-all shadow-sm"
           >
             <i class="fa-regular fa-user text-gold-400" id="adminNavIcon"></i>
             <span id="adminNavLabel" class="hidden sm:inline">Sign In</span>
+          </button>
+
+          <!-- TOP-RIGHT CORNER SELLER BUTTON: Prominent Glowing "🏪 Join as Seller" -->
+          <button 
+            id="headerSellerBtn"
+            onclick="handleSellerBtnClick()" 
+            class="relative px-3 sm:px-4 py-2 rounded-xl bg-gradient-to-r from-emerald-500 via-teal-500 to-emerald-600 hover:from-emerald-400 hover:to-teal-400 text-white font-black text-xs sm:text-sm border-2 border-emerald-300/80 shadow-[0_0_20px_rgba(16,185,129,0.6)] hover:shadow-[0_0_25px_rgba(16,185,129,0.9)] active:scale-95 transition-all duration-300 flex items-center gap-1.5 shrink-0 group animate-pulse hover:animate-none"
+            title="Register as a Partner Seller or Open Seller Hub"
+          >
+            <span class="text-sm">🏪</span>
+            <span id="headerSellerBtnLabel" class="font-extrabold tracking-tight">Join as Seller</span>
+            <span class="bg-navy-950 text-emerald-300 border border-emerald-400/50 text-[9px] font-black px-1.5 py-0.5 rounded-full uppercase hidden sm:inline-block">Free</span>
           </button>
 
         </div>
@@ -3320,20 +3320,24 @@
       const navIcon = document.getElementById("adminNavIcon");
       const navLabel = document.getElementById("adminNavLabel");
       const navBtn = document.getElementById("adminNavBtn");
+      const ownerBar = document.getElementById("ownerHomepageAdminBar");
 
       if (isOwner) {
-        banner.classList.remove("hidden");
+        if (banner) banner.classList.remove("hidden");
+        if (ownerBar) ownerBar.classList.remove("hidden");
         navIcon.className = "fa-solid fa-user-shield text-accent-orange";
         navLabel.innerText = "Admin Console";
         navBtn.classList.add("bg-gold-500/20", "border-gold-400");
       } else if (userEmail) {
-        banner.classList.add("hidden");
+        if (banner) banner.classList.add("hidden");
+        if (ownerBar) ownerBar.classList.add("hidden");
         navIcon.className = "fa-solid fa-circle-user text-emerald-400";
         const shortName = userEmail.split("@")[0];
         navLabel.innerText = shortName.length > 10 ? shortName.substring(0, 9) + "..." : shortName;
         navBtn.classList.remove("bg-gold-500/20", "border-gold-400");
       } else {
-        banner.classList.add("hidden");
+        if (banner) banner.classList.add("hidden");
+        if (ownerBar) ownerBar.classList.add("hidden");
         navIcon.className = "fa-regular fa-user text-gold-400";
         navLabel.innerText = "Sign In";
         navBtn.classList.remove("bg-gold-500/20", "border-gold-400");
@@ -4896,10 +4900,11 @@
         }, 1200);
       }
 
-      // Open orders tracker
+      // Open orders tracker & trigger automated voice call verification
       setTimeout(() => {
         openOrdersModal();
-      }, 600);
+        simulateVoiceCallAudio(orderId);
+      }, 700);
     }
 
     // --------------------------------------------------------
@@ -6025,7 +6030,9 @@ ${itemsText}
         order.callVerificationStatus = "Confirmed via Voice Call (Key 1)";
         order.status = "CONFIRMED";
         order.callConfirmedAt = Date.now();
-        showToast("Voice Call Verified", `Order #${orderId} verified! Customer pressed 1 to confirm.`);
+        order.sellerDispatchedData = `Routed ${order.items.length} SKU(s) (name, variant, packaging notes) to respective sellers' registered mobile.`;
+        order.adminDispatchedData = `Routed full customer details (${order.customer.name}, +91 ${order.customer.phone}, ${order.customer.address}, GPS coordinates) to Master Admin (MD Meraj Ansari) & delivery dispatch.`;
+        showToast("Voice Call Verified & Data Routed", `Order #${orderId} verified! Exact SKU details routed to seller mobile, and full customer GPS coordinates routed to Master Admin.`);
       } else if (key === 5) {
         order.callVerificationStatus = "Cancelled via Voice Call (Key 5)";
         order.status = "CANCELLED";
@@ -6306,7 +6313,7 @@ Please share the live delivery executive tracking and hyperlocal shop dispatch s
         }
       }
       activeSellerId = null;
-      if (label) label.innerText = "Become a Seller";
+      if (label) label.innerText = "Join as Seller";
     }
 
     function handleSellerBtnClick() {

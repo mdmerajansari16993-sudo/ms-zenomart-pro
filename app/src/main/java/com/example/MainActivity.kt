@@ -242,7 +242,8 @@ fun MSZenoMartApp(viewModel: ZenoMartViewModel = viewModel()) {
                     cartSubtotal = cartSubtotal,
                     onCartClicked = { showCartSheet = true },
                     onWishlistClicked = { showWishlistSheet = true },
-                    onProfileClicked = { showProfileDialog = true }
+                    onProfileClicked = { showProfileDialog = true },
+                    onSellerClicked = { showSellerRegisterDialog = true }
                 )
 
                 // Navigation Mode Switcher (Storefront vs Owner Admin Panel vs Web Template)
