@@ -3,6 +3,13 @@ const fs = require('fs');
 const path = require('path');
 const url = require('url');
 
+process.on('uncaughtException', (err) => {
+  console.error('[UNCAUGHT EXCEPTION]', err);
+});
+process.on('unhandledRejection', (reason, p) => {
+  console.error('[UNHANDLED REJECTION]', reason);
+});
+
 const PORT = 3000;
 const ROOT_DIR = path.resolve(__dirname);
 const ASSETS_DIR = path.resolve(__dirname, 'app/src/main/assets');
@@ -23,6 +30,37 @@ const MIME_TYPES = {
   '.webp': 'image/webp',
   '.txt': 'text/plain; charset=utf-8'
 };
+
+function serveFile(filePath, req, res, contentType) {
+  try {
+    const stat = fs.statSync(filePath);
+    res.writeHead(200, {
+      'Content-Type': contentType,
+      'Content-Length': stat.size
+    });
+
+    if (req.method === 'HEAD') {
+      res.end();
+      return;
+    }
+
+    const stream = fs.createReadStream(filePath);
+    stream.on('error', (err) => {
+      console.error('[STREAM ERROR]', err);
+      if (!res.headersSent) res.writeHead(500);
+      res.end();
+    });
+    res.on('error', (err) => {
+      console.error('[RES ERROR]', err);
+      stream.destroy();
+    });
+    stream.pipe(res);
+  } catch (err) {
+    console.error('[SERVE ERROR]', err);
+    if (!res.headersSent) res.writeHead(500);
+    res.end();
+  }
+}
 
 const server = http.createServer((req, res) => {
   const timestamp = new Date().toISOString();
@@ -50,8 +88,7 @@ const server = http.createServer((req, res) => {
   if (pathname === '/' || pathname === '/index.html') {
     const indexPath = path.join(ASSETS_DIR, 'index.html');
     if (fs.existsSync(indexPath)) {
-      res.writeHead(200, { 'Content-Type': 'text/html; charset=utf-8' });
-      fs.createReadStream(indexPath).pipe(res);
+      serveFile(indexPath, req, res, 'text/html; charset=utf-8');
       return;
     }
   }
@@ -69,14 +106,12 @@ const server = http.createServer((req, res) => {
       if (stat.isFile()) {
         const ext = path.extname(candidate).toLowerCase();
         const contentType = MIME_TYPES[ext] || 'application/octet-stream';
-        res.writeHead(200, { 'Content-Type': contentType });
-        fs.createReadStream(candidate).pipe(res);
+        serveFile(candidate, req, res, contentType);
         return;
       } else if (stat.isDirectory()) {
         const dirIndex = path.join(candidate, 'index.html');
         if (fs.existsSync(dirIndex)) {
-          res.writeHead(200, { 'Content-Type': 'text/html; charset=utf-8' });
-          fs.createReadStream(dirIndex).pipe(res);
+          serveFile(dirIndex, req, res, 'text/html; charset=utf-8');
           return;
         }
       }
@@ -86,8 +121,7 @@ const server = http.createServer((req, res) => {
   // 3. Fallback to index.html for SPA/subroutes
   const fallbackIndex = path.join(ASSETS_DIR, 'index.html');
   if (fs.existsSync(fallbackIndex)) {
-    res.writeHead(200, { 'Content-Type': 'text/html; charset=utf-8' });
-    fs.createReadStream(fallbackIndex).pipe(res);
+    serveFile(fallbackIndex, req, res, 'text/html; charset=utf-8');
     return;
   }
 
