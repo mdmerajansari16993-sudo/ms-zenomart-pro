@@ -24,10 +24,12 @@ import kotlinx.coroutines.flow.stateIn
 class ZenoMartViewModel : ViewModel() {
 
     val sampleCategories = listOf(
-        CategoryItem("all", "All Items", "8 Products", "all"),
+        CategoryItem("all", "All Items", "10 Products", "all"),
         CategoryItem("Fashion", "Fashion", "Apparel & Wear", "fashion"),
         CategoryItem("Electronics", "Electronics", "Laptops & TV", "electronics"),
         CategoryItem("Groceries", "Groceries", "Organic Foods", "groceries"),
+        CategoryItem("Local Shops", "Local Shops", "Hyperlocal Store", "shops"),
+        CategoryItem("Deals", "Deals", "Min 50% Off", "deals"),
         CategoryItem("Gadgets", "Gadgets", "Audio & Wearables", "gadgets"),
         CategoryItem("Home", "Home", "Decor & Living", "home")
     )

@@ -851,6 +851,8 @@ fun CategoryPillCard(
         "groceries" -> Icons.Default.LocalMall
         "gadgets" -> Icons.Default.Headphones
         "home" -> Icons.Default.Weekend
+        "shops", "local_shops" -> Icons.Default.Storefront
+        "deals" -> Icons.Default.Bolt
         else -> Icons.Default.ShoppingBag
     }
 
