@@ -5,6 +5,11 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>MS ZenoMart - Hyperlocal Dropshipping</title>
 
+  <!-- Cache-Busting Headers for Instant Vercel & Mobile Deployment Sync -->
+  <meta http-equiv="Cache-Control" content="no-cache, no-store, must-revalidate" />
+  <meta http-equiv="Pragma" content="no-cache" />
+  <meta http-equiv="Expires" content="0" />
+
   <!-- PWA Manifest & Mobile Configuration -->
   <link rel="manifest" href="/manifest.json" />
   <meta name="theme-color" content="#0A192F" />
@@ -15,13 +20,34 @@
   <link rel="icon" type="image/png" sizes="512x512" href="/icon-512.png" />
   <link rel="apple-touch-icon" href="/icon-192.png" />
 
-  <!-- Service Worker Registration for PWABuilder -->
+  <!-- Automatic Cache-Busting & PWA Service Worker Update -->
   <script>
+    const APP_BUILD_VERSION = "2026.09.29-v2";
+    try {
+      const storedVersion = localStorage.getItem("zenomart_build_version");
+      if (storedVersion !== APP_BUILD_VERSION) {
+        localStorage.setItem("zenomart_build_version", APP_BUILD_VERSION);
+        if ('caches' in window) {
+          caches.keys().then(function(names) {
+            names.forEach(function(name) {
+              caches.delete(name);
+            });
+          });
+        }
+      }
+    } catch(e) {}
+
     if ('serviceWorker' in navigator) {
       window.addEventListener('load', function() {
-        navigator.serviceWorker.register('/sw.js')
+        navigator.serviceWorker.getRegistrations().then(function(registrations) {
+          for (var i = 0; i < registrations.length; i++) {
+            registrations[i].update();
+          }
+        });
+        navigator.serviceWorker.register('/sw.js?v=' + APP_BUILD_VERSION)
           .then(function(reg) {
-            console.log('PWA ServiceWorker registered with scope:', reg.scope);
+            reg.update();
+            console.log('PWA ServiceWorker registered & updated:', reg.scope);
           })
           .catch(function(err) {
             console.warn('PWA ServiceWorker registration error:', err);
@@ -157,25 +183,60 @@
           </div>
         </a>
 
-        <!-- Search Bar -->
-        <div class="flex-1 max-w-lg mx-2 hidden md:block">
-          <div class="relative">
-            <input 
-              type="text" 
-              id="searchInput" 
-              oninput="handleSearch(this.value)"
-              placeholder="Search products, local partner shops, or categories..." 
-              class="w-full bg-navy-900 border border-navy-700/80 rounded-full py-2.5 pl-11 pr-10 text-xs sm:text-sm text-slate-100 placeholder-slate-400 focus:outline-none focus:border-gold-500 focus:ring-1 focus:ring-gold-500 transition-all shadow-inner"
-            />
-            <i class="fa-solid fa-magnifying-glass absolute left-4 top-1/2 -translate-y-1/2 text-slate-400 text-sm"></i>
+        <!-- Search Bar with Integrated Category Dropdown & Clear Action Pill -->
+        <div class="flex-1 max-w-xl mx-2 hidden md:block">
+          <div class="relative flex items-center bg-navy-900 border border-navy-700/80 rounded-full focus-within:border-gold-500 focus-within:ring-2 focus-within:ring-gold-500/30 transition-all shadow-inner overflow-hidden">
+            <!-- Category Dropdown Select -->
+            <div class="relative border-r border-navy-700/80 shrink-0">
+              <select 
+                id="headerCategorySelect" 
+                onchange="handleHeaderCategorySelect(this.value)" 
+                class="bg-navy-950/90 hover:bg-navy-850 text-gold-400 font-bold text-xs py-2.5 pl-3 pr-7 cursor-pointer focus:outline-none appearance-none transition-colors"
+                title="Filter by Department"
+              >
+                <option value="All">All Categories</option>
+                <option value="Fashion & Jeans">Fashion & Jeans</option>
+                <option value="Electronics & Gadgets">Electronics</option>
+                <option value="Groceries & Essentials">Groceries</option>
+                <option value="Footwear & Shoes">Footwear</option>
+                <option value="Sweets & Bakery">Bakery</option>
+                <option value="Daily Home Goods">Home Living</option>
+              </select>
+              <i class="fa-solid fa-chevron-down absolute right-2.5 top-1/2 -translate-y-1/2 text-[9px] text-gold-400 pointer-events-none"></i>
+            </div>
+
+            <!-- Search Input -->
+            <div class="relative flex-1 flex items-center">
+              <input 
+                type="text" 
+                id="searchInput" 
+                oninput="handleSearch(this.value)"
+                placeholder="Search jeans, gadgets, desi ghee, local shops, deals..." 
+                class="w-full bg-transparent py-2.5 pl-3 pr-16 text-xs sm:text-sm text-slate-100 placeholder-slate-400 focus:outline-none"
+              />
+              <!-- Clear Action Pill -->
+              <button 
+                id="clearSearchBtn" 
+                onclick="clearSearch()" 
+                class="hidden absolute right-3 top-1/2 -translate-y-1/2 px-2 py-0.5 rounded-full bg-navy-800 hover:bg-navy-700 text-slate-300 hover:text-white text-[10px] font-bold flex items-center gap-1 transition-colors border border-navy-700"
+                title="Clear Search"
+              >
+                <i class="fa-solid fa-xmark text-[9px]"></i>
+                <span>Clear</span>
+              </button>
+            </div>
+
+            <!-- Search Action Submit Button -->
             <button 
-              id="clearSearchBtn" 
-              onclick="clearSearch()" 
-              class="hidden absolute right-3.5 top-1/2 -translate-y-1/2 text-slate-400 hover:text-white"
+              type="button" 
+              onclick="handleSearch(document.getElementById('searchInput').value)" 
+              class="px-4 py-2.5 bg-gradient-to-r from-gold-500 to-accent-orange hover:from-gold-400 hover:to-accent-glow text-navy-950 font-black shrink-0 flex items-center justify-center transition-all shadow"
+              title="Search"
             >
-              <i class="fa-solid fa-xmark text-xs"></i>
+              <i class="fa-solid fa-magnifying-glass text-xs"></i>
             </button>
           </div>
+
           <!-- Desktop Trending Pills -->
           <div class="hidden sm:flex items-center gap-1.5 overflow-x-auto scrollbar-none pt-1.5 text-[11px] text-slate-400">
             <span class="text-gold-400 font-bold shrink-0 flex items-center gap-1">
@@ -185,13 +246,13 @@
               👖 Jeans
             </button>
             <button onclick="quickSearch('Headphones')" class="px-2 py-0.5 rounded-full bg-navy-900 hover:bg-navy-800 text-slate-200 border border-navy-700/80 whitespace-nowrap transition-colors">
-              🎧 Headphones
+              🎧 Audio
             </button>
             <button onclick="quickSearch('Ghee')" class="px-2 py-0.5 rounded-full bg-navy-900 hover:bg-navy-800 text-slate-200 border border-navy-700/80 whitespace-nowrap transition-colors">
               🧈 Desi Ghee
             </button>
             <button onclick="quickSearch('T-Shirt')" class="px-2 py-0.5 rounded-full bg-navy-900 hover:bg-navy-800 text-slate-200 border border-navy-700/80 whitespace-nowrap transition-colors">
-              👕 T-Shirt
+              👕 T-Shirts
             </button>
             <button onclick="quickSearch('Sneakers')" class="px-2 py-0.5 rounded-full bg-navy-900 hover:bg-navy-800 text-slate-200 border border-navy-700/80 whitespace-nowrap transition-colors">
               👟 Sneakers
@@ -202,27 +263,27 @@
           </div>
         </div>
 
-        <!-- Action Buttons (With Glowing Top-Right Join as Seller Button) -->
-        <div class="flex items-center gap-2 sm:gap-2.5 shrink-0">
+        <!-- Action Buttons (With Glowing Top-Right Join as Seller Button Firmly Fixed) -->
+        <div class="flex items-center gap-1.5 sm:gap-2.5 shrink-0 ml-auto">
           
           <!-- My Orders / 90-Min Tracker -->
           <button 
             onclick="switchMainView('orders')" 
-            class="relative px-2.5 sm:px-3 py-2 rounded-xl bg-navy-900 hover:bg-navy-850 text-slate-300 hover:text-white border border-navy-700/80 text-xs font-semibold flex items-center gap-1.5 sm:gap-2 transition-all"
+            class="relative px-2.5 sm:px-3 py-2 rounded-xl bg-navy-900 hover:bg-navy-850 text-slate-300 hover:text-white border border-navy-700/80 text-xs font-semibold flex items-center gap-1.5 sm:gap-2 transition-all shrink-0"
             title="Track recent orders and 90-minute cancellation"
           >
             <i class="fa-solid fa-box-archive text-gold-400"></i>
-            <span class="hidden lg:inline">Orders</span>
+            <span class="hidden lg:inline whitespace-nowrap">Orders</span>
             <span id="ordersCountBadge" class="bg-accent-orange text-white text-[10px] font-black w-4 h-4 rounded-full flex items-center justify-center">0</span>
           </button>
 
           <!-- Cart Button -->
           <button 
             onclick="openCartDrawer()" 
-            class="relative p-2 sm:px-3 sm:py-2 rounded-xl bg-navy-900 hover:bg-navy-850 text-slate-300 hover:text-white border border-navy-700/80 text-xs font-semibold flex items-center gap-1.5 sm:gap-2 transition-all shadow-sm"
+            class="relative p-2 sm:px-3 sm:py-2 rounded-xl bg-navy-900 hover:bg-navy-850 text-slate-300 hover:text-white border border-navy-700/80 text-xs font-semibold flex items-center gap-1.5 sm:gap-2 transition-all shadow-sm shrink-0"
           >
             <i class="fa-solid fa-cart-shopping text-base text-gold-400"></i>
-            <span class="hidden sm:inline">Cart</span>
+            <span class="hidden sm:inline whitespace-nowrap">Cart</span>
             <span id="cartCountBadge" class="bg-accent-orange text-white text-[10px] font-black w-5 h-5 rounded-full flex items-center justify-center border-2 border-navy-950">
               0
             </span>
@@ -232,22 +293,22 @@
           <button 
             id="adminNavBtn"
             onclick="handleAdminNavClick()" 
-            class="px-2.5 sm:px-3 py-2 rounded-xl bg-navy-900 hover:bg-navy-850 text-slate-300 hover:text-white border border-navy-700/80 text-xs font-semibold flex items-center gap-1.5 transition-all shadow-sm"
+            class="px-2.5 sm:px-3 py-2 rounded-xl bg-navy-900 hover:bg-navy-850 text-slate-300 hover:text-white border border-navy-700/80 text-xs font-semibold flex items-center gap-1.5 transition-all shadow-sm shrink-0"
           >
             <i class="fa-regular fa-user text-gold-400" id="adminNavIcon"></i>
-            <span id="adminNavLabel" class="hidden sm:inline">Sign In</span>
+            <span id="adminNavLabel" class="hidden sm:inline whitespace-nowrap">Sign In</span>
           </button>
 
-          <!-- TOP-RIGHT CORNER SELLER BUTTON: Prominent Glowing "🏪 Join as Seller" -->
+          <!-- TOP-RIGHT CORNER SELLER BUTTON: Prominent Glowing "🏪 Join as Seller" (Firmly Fixed) -->
           <button 
             id="headerSellerBtn"
             onclick="handleSellerBtnClick()" 
-            class="relative px-3 sm:px-4 py-2 rounded-xl bg-gradient-to-r from-emerald-500 via-teal-500 to-emerald-600 hover:from-emerald-400 hover:to-teal-400 text-white font-black text-xs sm:text-sm border-2 border-emerald-300/80 shadow-[0_0_20px_rgba(16,185,129,0.6)] hover:shadow-[0_0_25px_rgba(16,185,129,0.9)] active:scale-95 transition-all duration-300 flex items-center gap-1.5 shrink-0 group animate-pulse hover:animate-none"
+            class="relative px-3 sm:px-4 py-2 rounded-xl bg-gradient-to-r from-emerald-500 via-teal-500 to-emerald-600 hover:from-emerald-400 hover:to-teal-400 text-white font-black text-xs sm:text-sm border-2 border-emerald-300/80 shadow-[0_0_20px_rgba(16,185,129,0.65)] hover:shadow-[0_0_25px_rgba(16,185,129,0.95)] active:scale-95 transition-all duration-300 flex items-center gap-1.5 shrink-0 group animate-pulse hover:animate-none whitespace-nowrap"
             title="Register as a Partner Seller or Open Seller Hub"
           >
-            <span class="text-sm">🏪</span>
-            <span id="headerSellerBtnLabel" class="font-extrabold tracking-tight">Join as Seller</span>
-            <span class="bg-navy-950 text-emerald-300 border border-emerald-400/50 text-[9px] font-black px-1.5 py-0.5 rounded-full uppercase hidden sm:inline-block">Free</span>
+            <span class="text-sm shrink-0">🏪</span>
+            <span id="headerSellerBtnLabel" class="font-extrabold tracking-tight whitespace-nowrap">Join as Seller</span>
+            <span class="bg-navy-950 text-emerald-300 border border-emerald-400/50 text-[9px] font-black px-1.5 py-0.5 rounded-full uppercase hidden sm:inline-block shrink-0 whitespace-nowrap">Free</span>
           </button>
 
         </div>
@@ -255,16 +316,26 @@
 
       <!-- Mobile Search Bar & Trending Pills -->
       <div class="pb-2 md:hidden">
-        <div class="relative mb-2">
+        <div class="relative mb-2 flex items-center bg-navy-900 border border-navy-700 rounded-full overflow-hidden">
+          <select 
+            onchange="handleHeaderCategorySelect(this.value)" 
+            class="bg-navy-950 text-gold-400 font-bold text-[11px] py-2 pl-2.5 pr-2 focus:outline-none border-r border-navy-800 shrink-0"
+            title="Category"
+          >
+            <option value="All">All</option>
+            <option value="Fashion & Jeans">Fashion</option>
+            <option value="Electronics & Gadgets">Audio</option>
+            <option value="Groceries & Essentials">Grocery</option>
+            <option value="Footwear & Shoes">Shoes</option>
+          </select>
           <input 
             type="text" 
             id="mobileSearchInput" 
             oninput="handleSearch(this.value)"
             placeholder="Search jeans, electronics, groceries..." 
-            class="w-full bg-navy-900 border border-navy-700 rounded-full py-2 pl-10 pr-9 text-xs text-slate-100 placeholder-slate-400 focus:outline-none focus:border-gold-500"
+            class="w-full bg-transparent py-2 pl-2.5 pr-8 text-xs text-slate-100 placeholder-slate-400 focus:outline-none"
           />
-          <i class="fa-solid fa-magnifying-glass absolute left-3.5 top-1/2 -translate-y-1/2 text-slate-400 text-xs"></i>
-          <button onclick="clearSearch()" class="absolute right-3 top-1/2 -translate-y-1/2 text-slate-400">
+          <button onclick="clearSearch()" class="absolute right-3 top-1/2 -translate-y-1/2 text-slate-400 hover:text-white">
             <i class="fa-solid fa-xmark text-xs"></i>
           </button>
         </div>
@@ -3645,8 +3716,18 @@
 
     function setCategory(cat) {
       activeCategory = cat;
+      const selectEl = document.getElementById("headerCategorySelect");
+      if (selectEl) {
+        // If the category matches an option, select it; otherwise default to All
+        const match = Array.from(selectEl.options).some(o => o.value === cat);
+        selectEl.value = match ? cat : "All";
+      }
       renderCategoryFilters();
       renderProducts();
+    }
+
+    function handleHeaderCategorySelect(cat) {
+      setCategory(cat);
     }
 
     function handleSearch(query) {

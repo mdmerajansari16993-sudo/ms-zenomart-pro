@@ -1,8 +1,7 @@
-// MS ZenoMart Service Worker for PWABuilder & PWA Support
-const CACHE_NAME = 'zenomart-cache-v1';
+// MS ZenoMart Service Worker for PWABuilder & PWA Support (v2.0 Cache Busting)
+const CACHE_NAME = 'zenomart-cache-v2-live';
 const STATIC_ASSETS = [
   '/',
-  '/index.html',
   '/manifest.json',
   '/icon-192.png',
   '/icon-512.png'
@@ -20,13 +19,14 @@ self.addEventListener('install', (event) => {
   );
 });
 
-// Activate Event
+// Activate Event: Purge old v1 caches instantly
 self.addEventListener('activate', (event) => {
   event.waitUntil(
     caches.keys().then((keys) => {
       return Promise.all(
         keys.map((key) => {
           if (key !== CACHE_NAME) {
+            console.log('[SW] Purging outdated cache:', key);
             return caches.delete(key);
           }
         })
@@ -35,8 +35,7 @@ self.addEventListener('activate', (event) => {
   );
 });
 
-// Fetch Event - Network first, fallback to cache for static assets.
-// External APIs, Firebase, Cloudinary, and payments bypass cache entirely.
+// Fetch Event - Network first for all navigation & HTML so live updates render instantly.
 self.addEventListener('fetch', (event) => {
   const request = event.request;
   const url = new URL(request.url);
@@ -46,7 +45,7 @@ self.addEventListener('fetch', (event) => {
     return;
   }
 
-  // Bypass cache for Firebase, Google APIs, UPI, external CDNs
+  // Bypass cache for Firebase, Google APIs, UPI, external CDNs, and WhatsApp
   if (
     url.hostname.includes('firebase') ||
     url.hostname.includes('googleapis') ||
@@ -59,10 +58,18 @@ self.addEventListener('fetch', (event) => {
     return;
   }
 
+  // Navigation requests (HTML pages): ALWAYS network first, never serve stale HTML cache
+  if (request.mode === 'navigate') {
+    event.respondWith(
+      fetch(request, { cache: 'no-cache' })
+        .catch(() => caches.match('/index.html'))
+    );
+    return;
+  }
+
   event.respondWith(
     fetch(request)
       .then((response) => {
-        // Cache valid static responses
         if (response && response.status === 200 && response.type === 'basic') {
           const responseToCache = response.clone();
           caches.open(CACHE_NAME).then((cache) => {
@@ -72,14 +79,7 @@ self.addEventListener('fetch', (event) => {
         return response;
       })
       .catch(() => {
-        return caches.match(request).then((cachedResponse) => {
-          if (cachedResponse) {
-            return cachedResponse;
-          }
-          if (request.mode === 'navigate') {
-            return caches.match('/index.html');
-          }
-        });
+        return caches.match(request);
       })
   );
 });
